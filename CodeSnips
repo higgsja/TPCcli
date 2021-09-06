@@ -1,0 +1,145 @@
+s = String.format(LanguageController.getInstance().
+                                            getErrorProp("GeneralError"),
+                                    "No text returned.");
+
+                            Utils.getInstance().showMsgTitleClassMethodMsgIcon(
+                        LanguageController.getInstance().getErrorProp("Title"),
+                                    Thread.currentThread().getStackTrace()[1].
+                                            getClassName(),
+                                    Thread.currentThread().getStackTrace()[1].
+                                            getMethodName(),
+                                    s,
+                                    JOptionPane.ERROR_MESSAGE);
+
+                            throw new UnsupportedOperationException(s);
+
+String s;
+
+s = String.format(errProps.getProperty("Formatted1"), Arrays.toString(args));
+
+// there are arguments but they do not match what we can handle
+Utils.getInstance().showMsgTitleClassMethodMsgIcon(
+aTitle,
+Thread.currentThread().getStackTrace()[1].getClassName(), 
+Thread.currentThread().getStackTrace()[1].getMethodName(), 
+s,
+JOptionPane.ERROR_MESSAGE);
+
+
+
+Thread.currentThread().getStackTrace()[1].getClassName(),
+Thread.currentThread().getStackTrace()[1].getMethodName(),
+
+
+class could be refactored into a named static inner class
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+            value = "SIC_INNER_SHOULD_BE_STATIC_ANON",
+            justification = "Yes, but don't wanna")
+
+nonconstant string passed to execute or addBatch method
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+            value = "SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE",
+            justification = "Yes, but controlled")
+
+
+
+prepared statement
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+            value = "SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING",
+            justification = "Yes, but controlled")
+
+serializable transient
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+            value = "SE_BAD_FIELD",
+            justification = "Do not know what to do with this")
+
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+value="ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD",
+justification="Singleton, only one instance allowed")
+
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+value="NM_CONFUSING", 
+justification="Not confusing.")
+
+"OBL_UNSATISFIED_OBLIGATION"
+
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+    value="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING", 
+    justification="Not ready to fix this")
+
+ @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+    value="DM_CONVERT_CASE", 
+    justification="Not ready to fix this")
+
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+    value="SQL_PREPARED_STATEMENT_GENERATED_FROM_NONCONSTANT_STRING", 
+    justification="Not ready to fix this")
+
+@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(
+    value="URF_UNREAD_FIELD", 
+    justification="True, but need it")
+
+        fErrorPrefix = Thread.currentThread().getStackTrace()[1].getMethodName();
+
+
+***************
+throw new DAOException(
+                    LanguageModel.getInstance().getAppProp("Title"),
+                    errorPrefix, fErrorPrefix,
+                    ex.getMessage(), JOptionPane.ERROR_MESSAGE);
+
+***************
+public void showMsgTitleClassMethodMsgIcon(
+String aTitle, 
+String aClass, 
+String aMethod,
+String aMsg, 
+Integer iIcon)
+
+String s;
+
+s = String.format(errProps.getProperty("Formatted1"), Arrays.toString(args));
+
+// there are arguments but they do not match what we can handle
+Utils.getInstance().showMsgTitleClassMethodMsgIcon(
+aTitle,
+errorPrefix, 
+fErrorPrefix, 
+s,
+JOptionPane.ERROR_MESSAGE);
+
+return false;
+
+*****************
+public void showMsgTitleClassMethodMsgIcon(
+String aTitle, 
+String aClass, 
+String aMethod,
+String aMsg, 
+Integer iIcon)
+
+Utils.getInstance().showMsgTitleClassMethodMsgIcon(
+LanguageModel.getInstance().getAppProps().getProperty("Title"),
+errorPrefix,
+fErrorPrefix,
+LanguageModel.getInstance().getAppProps().
+getProperty("MenuFileOpenTitle") + " not implemented.",
+JOptionPane.ERROR_MESSAGE);
+**********************
+
+s = String.format(LanguageModel.getInstance().
+                        getErrorProps().getProperty("Formatted3"),
+                                      tm.getsTransType());
+
+                    Utils.getInstance().
+                        showErrorMsg(errorPrefix,
+                                     fErrorPrefix,
+                                     s,
+                                     JOptionPane.ERROR_MESSAGE);
+                    return false;
+********************
+    private Logger logger;
+        this.logger = LoggerFactory.getLogger(this.getClass().getName());
+********************
+
+fErrorPrefix = Thread.currentThread().getStackTrace()[1].getMethodName();
