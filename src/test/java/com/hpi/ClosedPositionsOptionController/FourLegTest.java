@@ -2,7 +2,7 @@ package com.hpi.ClosedPositionsOptionController;
 
 import com.hpi.TPCCMcontrollers.CMDBController;
 import com.hpi.TPCCMprefs.CMDBModel;
-import com.hpi.appcontrollers.positions.ClosedPositionsOptionController2;
+import com.hpi.appcontrollers.positions.ClosedPositionsOptionController;
 import com.hpi.entities.FIFOClosedTransactionModel;
 import com.hpi.entities.PositionOpenModel;
 import com.hpi.hpiUtils.CMHPIUtils;
@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 
 public class FourLegTest {
 
-    public static ClosedPositionsOptionController2 cpoc;
+    public static ClosedPositionsOptionController cpoc;
 
     public FourLegTest() {
     }
@@ -21,8 +21,8 @@ public class FourLegTest {
     public static void setUpClass() {
         CMDBModel.getInstance();
         CMDBModel.setUserId(816);
-        ClosedPositionsOptionController2.getInstance();
-        cpoc = ClosedPositionsOptionController2.getInstance();
+        ClosedPositionsOptionController.getInstance();
+        cpoc = ClosedPositionsOptionController.getInstance();
         CMDBController.initDBConnection();
     }
 

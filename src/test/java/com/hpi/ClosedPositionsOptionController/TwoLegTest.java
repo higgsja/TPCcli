@@ -2,7 +2,7 @@ package com.hpi.ClosedPositionsOptionController;
 
 import com.hpi.TPCCMcontrollers.CMDBController;
 import com.hpi.TPCCMprefs.CMDBModel;
-import com.hpi.appcontrollers.positions.ClosedPositionsOptionController2;
+import com.hpi.appcontrollers.positions.ClosedPositionsOptionController;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -10,7 +10,7 @@ import org.junit.BeforeClass;
 
 public class TwoLegTest {
 
-    public static ClosedPositionsOptionController2 cpoc;
+    public static ClosedPositionsOptionController cpoc;
 
     public TwoLegTest() {
     }
@@ -19,8 +19,8 @@ public class TwoLegTest {
     public static void setUpClass() {
         CMDBModel.getInstance();
         CMDBModel.setUserId(816);
-        ClosedPositionsOptionController2.getInstance();
-        cpoc = ClosedPositionsOptionController2.getInstance();
+        ClosedPositionsOptionController.getInstance();
+        cpoc = ClosedPositionsOptionController.getInstance();
         CMDBController.initDBConnection();
 
     }

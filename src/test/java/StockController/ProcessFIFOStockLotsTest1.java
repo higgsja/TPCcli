@@ -1,8 +1,8 @@
 package StockController;
 
 import com.hpi.TPCCMprefs.CMDBModel;
-import com.hpi.appcontrollers.positions.ClosedPositionsStockController2;
-import com.hpi.appcontrollers.positions.OpenPositionsStockController2;
+import com.hpi.appcontrollers.positions.ClosedPositionsStockController;
+import com.hpi.appcontrollers.positions.OpenPositionsStockController;
 import com.hpi.entities.OpeningStockModel;
 import java.sql.Date;
 import org.junit.*;
@@ -41,8 +41,8 @@ public class ProcessFIFOStockLotsTest1
         stockLots2Validation();
 
         //positions
-        OpenPositionsStockController2.getInstance().doPositions();
-        ClosedPositionsStockController2.getInstance().doPositions();
+        OpenPositionsStockController.getInstance().doPositions();
+        ClosedPositionsStockController.getInstance().doPositions();
     }
 
     /**

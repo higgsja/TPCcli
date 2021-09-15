@@ -13,7 +13,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ClosedPositionsStockController2
+public class ClosedPositionsStockController
     extends PositionBaseStock
 {
 
@@ -22,13 +22,14 @@ public class ClosedPositionsStockController2
      * Singleton
      *
      */
-    private static ClosedPositionsStockController2 instance;
+    private static ClosedPositionsStockController instance;
 
-    static {
-        ClosedPositionsStockController2.instance = null;
+    static
+    {
+        ClosedPositionsStockController.instance = null;
     }
 
-    protected ClosedPositionsStockController2()
+    protected ClosedPositionsStockController()
     {
         // protected prevents instantiation outside of package
         this.userId = CMDBModel.getUserId();
@@ -37,12 +38,13 @@ public class ClosedPositionsStockController2
         this.positionModels = new ArrayList<>();
     }
 
-    public synchronized static ClosedPositionsStockController2 getInstance()
+    public synchronized static ClosedPositionsStockController getInstance()
     {
-        if (ClosedPositionsStockController2.instance == null) {
-            ClosedPositionsStockController2.instance = new ClosedPositionsStockController2();
+        if (ClosedPositionsStockController.instance == null)
+        {
+            ClosedPositionsStockController.instance = new ClosedPositionsStockController();
         }
-        return ClosedPositionsStockController2.instance;
+        return ClosedPositionsStockController.instance;
     }
     //***
 
@@ -52,7 +54,6 @@ public class ClosedPositionsStockController2
 
     public void doPositions()
     {
-
         this.getTransactions();
 
         this.doFtm2Ptm();
@@ -75,9 +76,11 @@ public class ClosedPositionsStockController2
 
         this.positionTransactionModels.clear();
 
-        for (int i = 0; i < this.fifoClosedTransactionModels.size(); i++) {
+        for (int i = 0; i < this.fifoClosedTransactionModels.size(); i++)
+        {
             if (this.fifoClosedTransactionModels.get(i)
-                .getBComplete()) {
+                .getBComplete())
+            {
                 //fotm already handled
                 continue;
             }
@@ -99,11 +102,9 @@ public class ClosedPositionsStockController2
             this.positionTransactionModels.add(ptm);
 
             //mark initial transaction complete
-            this.fifoClosedTransactionModels.get(i)
-                .setBComplete(true);
+            this.fifoClosedTransactionModels.get(i).setBComplete(true);
 
-            this.addFtm2Ptm(i,
-                ptm);
+            this.addFtm2Ptm(i, ptm);
 
             //set attributes in the pctm
             this.doAttributesPtm(ptm);
@@ -121,11 +122,13 @@ public class ClosedPositionsStockController2
             PreparedStatement pStmt = con.prepareStatement(String
                 .format(FIFOClosedTransactionModel.SELECT_INCOMPLETE_BY_JOOMLAID_EQUITYTYPE,
                     this.userId,
-                    "stock"));) {
+                    "stock"));)
+        {
             pStmt.clearWarnings();
             rs = pStmt.executeQuery();
 
-            while (rs.next()) {
+            while (rs.next())
+            {
 //                this.fifoClosedTransactionModels.add(new FIFOClosedTransactionModel(
 //                    rs.getInt("DMAcctId"),
 //                    rs.getInt("JoomlaId"),
@@ -153,7 +156,7 @@ public class ClosedPositionsStockController2
                     .dmAcctId(rs.getInt("DMAcctId"))
                     .joomlaId(rs.getInt("JoomlaId"))
                     .fiTId(rs.getString("FiTId"))
-//                    .transactionGrp(rs.getInt("TransactionGrp"))
+                    //                    .transactionGrp(rs.getInt("TransactionGrp"))
                     .ticker(rs.getString("Ticker"))
                     .equityId(rs.getString("EquityId"))
                     .transactionName(rs.getString("TransactionName"))
@@ -175,7 +178,8 @@ public class ClosedPositionsStockController2
                     .days((rs.getInt("Days")))
                     .build());
             }
-        } catch (SQLException ex) {
+        } catch (SQLException ex)
+        {
             CMHPIUtils.showDefaultMsg(
                 CMLanguageController.getDBErrorProp("Title"),
                 Thread.currentThread()
@@ -191,7 +195,8 @@ public class ClosedPositionsStockController2
     {
         String sql;
 
-        for (FIFOClosedTransactionModel fctm : this.fifoClosedTransactionModels) {
+        for (FIFOClosedTransactionModel fctm : this.fifoClosedTransactionModels)
+        {
             sql = String.format(FIFOClosedTransactionModel.UPDATE_COMPLETE,
                 FIFOClosedTransactionModel.COMPLETE,
                 fctm.getDmAcctId(),
@@ -211,9 +216,11 @@ public class ClosedPositionsStockController2
 
         this.positionModels.clear();
 
-        for (int i = 0; i < this.positionTransactionModels.size(); i++) {
+        for (int i = 0; i < this.positionTransactionModels.size(); i++)
+        {
             if (this.positionTransactionModels.get(i)
-                .getBComplete()) {
+                .getBComplete())
+            {
                 //fctm already handled
                 continue;
             }
@@ -235,11 +242,9 @@ public class ClosedPositionsStockController2
             this.positionModels.add(pom);
 
             //mark initial transaction complete
-            this.positionTransactionModels.get(i)
-                .setBComplete(true);
+            this.positionTransactionModels.get(i).setBComplete(true);
 
-            this.addPtm2Pm(i,
-                pom);
+            this.addPtm2Pm(i, pom);
 
             //set attributes in the pcm
             this.doAttributesPtm2Pm(pom);
@@ -257,9 +262,11 @@ public class ClosedPositionsStockController2
 
         //loop the rest of the positionTransactionModels array for transactions
         //  to add to pcm positionCloseTransactionModels array
-        for (int j = i + 1; j < this.positionTransactionModels.size(); j++) {
+        for (int j = i + 1; j < this.positionTransactionModels.size(); j++)
+        {
             if (this.positionTransactionModels.get(j)
-                .getBComplete()) {
+                .getBComplete())
+            {
                 //never hit
                 continue;
             }
@@ -267,7 +274,8 @@ public class ClosedPositionsStockController2
             if (!this.positionTransactionModels.get(pmStart)
                 .getTicker()
                 .equals(this.positionTransactionModels.get(j)
-                    .getTicker())) {
+                    .getTicker()))
+            {
                 //not same ticker
                 break;
             }
@@ -275,7 +283,8 @@ public class ClosedPositionsStockController2
             if (!this.positionTransactionModels.get(pmStart)
                 .getDmAcctId()
                 .equals(this.positionTransactionModels.get(j)
-                    .getDmAcctId())) {
+                    .getDmAcctId()))
+            {
                 //not same DMAcctId
                 break;
             }
@@ -303,7 +312,8 @@ public class ClosedPositionsStockController2
         totalUnits = totalOpen = totalClose = 0.0;
         dateClose = new java.sql.Date(0);
 
-        for (PositionClosedTransactionModel ptm : pm.getPositionClosedTransactionModels()) {
+        for (PositionClosedTransactionModel ptm : pm.getPositionClosedTransactionModels())
+        {
             totalOpen += ptm.getTotalOpen();
             totalClose += ptm.getTotalClose();
             totalUnits += ptm.getUnits();
@@ -321,11 +331,9 @@ public class ClosedPositionsStockController2
 
         pm.setPositionType(totalOpen < 0 ? "LONG" : "SHORT");
 
-        pm.setTicker(pm.getPositionClosedTransactionModels()
-            .get(0)
-            .getTicker());
+        pm.setTicker(pm.getPositionClosedTransactionModels().get(0).getTicker());
         pm.setEquityId(pm.getTicker());
-        pm.setPositionName(pm.getTicker());
+        pm.setPositionName(pm.getTicker() + " " + pm.getPositionType());
 
         pm.setDateOpen(pm.getPositionClosedTransactionModels()
             .get(0)
@@ -338,9 +346,8 @@ public class ClosedPositionsStockController2
 
         pm.setDays(0);
 
-        //somehow positionType is null so skipping for now
-////        pm.setTacticId(pm.getPositionClosedTransactionModels().get(0).getPositionType().equalsIgnoreCase("LONG")
-//                ? PositionOpenModel.TACTICID_LONG : PositionOpenModel.TACTICID_SHORT);
+        pm.setTacticId(pm.getPositionType().equalsIgnoreCase("LONG")
+                ? PositionOpenModel.TACTICID_LONG : PositionOpenModel.TACTICID_SHORT);
     }
 
     /**
@@ -350,7 +357,8 @@ public class ClosedPositionsStockController2
     {
         String sql;
 
-        for (PositionClosedModel pm : this.positionModels) {
+        this.positionModels.forEach(pm ->
+        {
             Integer positionId;
 
             //add the positionClosedModel to positionsClosed table
@@ -359,9 +367,8 @@ public class ClosedPositionsStockController2
             pm.setPositionId(positionId);
 
             //add the array of transactions to positionsClosedTransactions table
-            this.insertPositionTransactionsSQL(positionId,
-                pm);
-        }
+            this.insertPositionTransactionsSQL(positionId, pm);
+        });
     }
 
     private Integer insertPositionSQL(PositionClosedModel pm)
@@ -394,7 +401,8 @@ public class ClosedPositionsStockController2
     {
         String sql;
 
-        for (PositionClosedTransactionModel potm : pm.getPositionClosedTransactionModels()) {
+        for (PositionClosedTransactionModel potm : pm.getPositionClosedTransactionModels())
+        {
             sql = String.format(PositionClosedTransactionModel.POSITION_TRANSACTION_INSERT,
                 potm.getDmAcctId(),
                 potm.getJoomlaId(),
@@ -438,16 +446,19 @@ public class ClosedPositionsStockController2
 
         //loop the rest of the fifoOpenTransactionModels array for transactions
         //  to add to potm fifoOpenTransactionModels array
-        for (int j = i + 1; j < this.fifoClosedTransactionModels.size(); j++) {
+        for (int j = i + 1; j < this.fifoClosedTransactionModels.size(); j++)
+        {
             if (this.fifoClosedTransactionModels.get(j)
-                .getBComplete()) {
+                .getBComplete())
+            {
                 //should never hit
                 continue;
             }
             if (!this.fifoClosedTransactionModels.get(potmStart)
                 .getEquityId()
                 .equals(this.fifoClosedTransactionModels.get(j)
-                    .getEquityId())) {
+                    .getEquityId()))
+            {
                 //not the same equityId
                 break;
             }
@@ -465,8 +476,7 @@ public class ClosedPositionsStockController2
                     this.fifoClosedTransactionModels.get(j)));
 
             // mark it complete
-            this.fifoClosedTransactionModels.get(j)
-                .setBComplete(true);
+            this.fifoClosedTransactionModels.get(j).setBComplete(true);
         }
     }
 
@@ -485,7 +495,8 @@ public class ClosedPositionsStockController2
 
         units = totalOpen = totalClose = 0.0;
 
-        for (FIFOClosedTransactionModel ftm : ptm.getFifoClosedTransactionModels()) {
+        for (FIFOClosedTransactionModel ftm : ptm.getFifoClosedTransactionModels())
+        {
             units += ftm.getUnits();
             totalOpen += ftm.getTotalOpen();
             totalClose += ftm.getTotalClose();
@@ -529,13 +540,9 @@ public class ClosedPositionsStockController2
         ptm.setPriceClose(totalClose / units);
 
 //        ptm.setDays(ptm.getFifoClosedTransactionModels().get(0).getDays());
-        ptm.setPosType(ptm.getFifoClosedTransactionModels()
-            .get(0)
-            .getPositionType());
+        ptm.setPosType(ptm.getFifoClosedTransactionModels().get(0).getPositionType());
 
-        ptm.setEquityType(ptm.getFifoClosedTransactionModels()
-            .get(0)
-            .getEquityType());
+        ptm.setEquityType(ptm.getFifoClosedTransactionModels().get(0).getEquityType());
 
         ptm.setBComplete(false);
     }

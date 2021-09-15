@@ -2,14 +2,14 @@ package Positions.OpenPositionsOptionController;
 
 import com.hpi.TPCCMcontrollers.*;
 import com.hpi.TPCCMprefs.*;
-import com.hpi.appcontrollers.positions.OpenPositionsOptionController2;
+import com.hpi.appcontrollers.positions.OpenPositionsOptionController;
 import lombok.*;
 import org.junit.*;
 
 @AllArgsConstructor
 public class TwoLegTest {
 
-    private static OpenPositionsOptionController2 opoc;
+    private static OpenPositionsOptionController opoc;
 
     @BeforeClass
     public static void setUpClass() {
@@ -17,7 +17,7 @@ public class TwoLegTest {
         CMDBModel.setUserId(816);
 //        ClosedPositionsOptionController2.getInstance();
 //        cpoc = ClosedPositionsOptionController2.getInstance();
-        opoc = OpenPositionsOptionController2.getInstance();
+        opoc = OpenPositionsOptionController.getInstance();
         CMDBController.initDBConnection();
     }
 

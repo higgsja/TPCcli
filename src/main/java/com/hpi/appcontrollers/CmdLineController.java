@@ -318,11 +318,11 @@ public class CmdLineController
 
             System.out.println("      start positions\n");
 
-            OpenPositionsStockController2.getInstance().doPositions();
-            ClosedPositionsStockController2.getInstance().doPositions();
+            OpenPositionsStockController.getInstance().doPositions();
+            ClosedPositionsStockController.getInstance().doPositions();
 
-            OpenPositionsOptionController2.getInstance().doOpenPositions();
-            ClosedPositionsOptionController2.getInstance().doClosedPositions();
+            OpenPositionsOptionController.getInstance().doOpenPositions();
+            ClosedPositionsOptionController.getInstance().doClosedPositions();
 
             System.out.println("      finish positions\n");
 
@@ -350,11 +350,11 @@ public class CmdLineController
                 System.exit(1);
             }
 
-            OpenPositionsStockController2.getInstance().doPositions();
-            ClosedPositionsStockController2.getInstance().doPositions();
+            OpenPositionsStockController.getInstance().doPositions();
+            ClosedPositionsStockController.getInstance().doPositions();
 
-            OpenPositionsOptionController2.getInstance().doOpenPositions();
-            ClosedPositionsOptionController2.getInstance().doClosedPositions();
+            OpenPositionsOptionController.getInstance().doOpenPositions();
+            ClosedPositionsOptionController.getInstance().doClosedPositions();
 
             System.out.println("        --- FINISHED ---\n");
         }

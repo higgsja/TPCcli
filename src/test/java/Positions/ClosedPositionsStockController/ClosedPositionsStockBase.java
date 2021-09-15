@@ -1,43 +1,37 @@
-package StockController;
+package Positions.ClosedPositionsStockController;
 
 import com.hpi.TPCCMcontrollers.*;
-import com.hpi.TPCCMprefs.CMDBModel;
-import com.hpi.appcontrollers.*;
-import com.hpi.appcontrollers.positions.OpenPositionsStockController;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import com.hpi.TPCCMprefs.*;
+import com.hpi.appcontrollers.positions.*;
+import org.junit.*;
 
-public class StockControllerBase
+public class ClosedPositionsStockBase
 {
 
-    public static DataMartController dataMartController;
-    public static DbOfxController dbController;
-    public static StockController stockController;
-    public static OpenPositionsStockController opsc;
+    public static ClosedPositionsStockController cpsController;
 
-    private static final Integer USER_ID = 5;
+    public static final Integer USER_ID = 5;
 
     @BeforeClass
-    public static void setUpClass()
+    public static void setupClass()
     {
         CMDBModel.getInstance();
-        CMDBModel.setUserId(StockControllerBase.USER_ID);
+        CMDBModel.setUserId(USER_ID);
         CMDBController.initDBConnection();
 
-        dataMartController = DataMartController.getInstance();
-        dbController = DbOfxController.getInstance();
-        stockController = StockController.getInstance();
-        opsc = OpenPositionsStockController.getInstance();
+        CMLanguageController.getInstance();
 
-        stockController.getAccountList().clear();
-        stockController.getEquityIdList().clear();
-        stockController.getStockOpeningList().clear();
-        stockController.getStockClosingList().clear();
-        stockController.getStockClosedList().clear();
-        stockController.getStockClosedTransList().clear();
-        stockController.getStockOpenList().clear();
-        stockController.setUserId(USER_ID);
+        cpsController = ClosedPositionsStockController.getInstance();
+    }
 
+    @AfterClass
+    public static void tearDownClass()
+    {
+    }
+
+    @Before
+    public void before()
+    {
         //clear closedStockFIFO for user id
         CMDBController.executeSQL("delete from hlhtxc5_dmOfx.ClosedStockFIFO where JoomlaId = " + USER_ID);
 
@@ -66,11 +60,8 @@ public class StockControllerBase
         //clear positionsClosed
         CMDBController.executeSQL("delete from hlhtxc5_dmOfx.PositionsClosed where JoomlaId = " + USER_ID);
 
-        CMLanguageController.getInstance();
-    }
-
-    @AfterClass
-    public static void tearDownClass()
-    {
+        cpsController.getFifoClosedTransactionModels().clear();
+        cpsController.getPositionTransactionModels().clear();
+        cpsController.getPositionModels().clear();
     }
 }

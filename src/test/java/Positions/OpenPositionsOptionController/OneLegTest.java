@@ -2,7 +2,7 @@ package Positions.OpenPositionsOptionController;
 
 import com.hpi.TPCCMcontrollers.*;
 import com.hpi.TPCCMprefs.*;
-import com.hpi.appcontrollers.positions.OpenPositionsOptionController2;
+import com.hpi.appcontrollers.positions.OpenPositionsOptionController;
 import com.hpi.entities.*;
 import java.sql.Date;
 import lombok.*;
@@ -12,7 +12,7 @@ import org.junit.*;
 public class OneLegTest
 {
 
-    private static OpenPositionsOptionController2 opoc;
+    private static OpenPositionsOptionController opoc;
 
     @BeforeClass
     public static void setUpClass()
@@ -21,7 +21,7 @@ public class OneLegTest
         CMDBModel.setUserId(816);
 //        ClosedPositionsOptionController2.getInstance();
 //        cpoc = ClosedPositionsOptionController2.getInstance();
-        opoc = OpenPositionsOptionController2.getInstance();
+        opoc = OpenPositionsOptionController.getInstance();
         CMDBController.initDBConnection();
     }
 
@@ -50,7 +50,7 @@ public class OneLegTest
             .joomlaId(816)
             .fiTId("210604_3896_0")
             //            .transactionGrp(5254)
-            .transactionGrp(null)
+//            .transactionGrp(null)
             .equityId("BP    220121C00026000")
             .ticker("BP")
             .optionType("CALL")

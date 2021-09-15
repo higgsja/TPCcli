@@ -87,7 +87,7 @@ public class OptionHistoryController {
 
             // process the file
             sql =
-                "load data local infile '%s' replace into table hlhtxc5_dmOfx.optionHistory fields terminated by ',' lines terminated by '\\n' ignore 1 lines (OptionKey, Symbol, ExpirationDate, AskPrice, AskSize, BidPrice, BidSize, LastPrice, PutCall, StrikePrice, Volume, OpenInterest, UnderlyingPrice, DataDate);";
+                "load data local infile '%s' replace into table hlhtxc5_dmOfx.OptionHistory fields terminated by ',' lines terminated by '\\n' ignore 1 lines (OptionKey, Symbol, ExpirationDate, AskPrice, AskSize, BidPrice, BidSize, LastPrice, PutCall, StrikePrice, Volume, OpenInterest, UnderlyingPrice, DataDate);";
             sql = String.format(sql, sPath);
             CMDBController.updateSQLNoCommit(sql);
 
@@ -116,7 +116,6 @@ public class OptionHistoryController {
         //set Price to average of bid and ask
         sql =
             "insert ignore into hlhtxc5_dmOfx.Util_LastDailyOption select oof.EquityId, max(oh.DataDate) as DataDate, oh.BidPrice, oh.AskPrice, oh.LastPrice, round((oh.AskPrice + oh.BidPrice) / 2, 2) as Price, oh.PutCall, oh.StrikePrice from hlhtxc5_dmOfx.OpenOptionFIFO as oof left join hlhtxc5_dmOfx.OptionHistory as oh on oh.EquityId = oof.EquityId where oh.DataDate >= subdate(now(), interval 4 day) group by oof.EquityId";
-//            "insert ignore into hlhtxc5_dmOfx.Util_LastDailyOption select oof.EquityId, max(oh.DataDate) as DataDate, oh.BidPrice, oh.AskPrice, oh.LastPrice, round((oh.AskPrice + oh.BidPrice) / 2, 2) as Price, oh.PutCall, oh.StrikePrice from hlhtxc5_dmOfx.OpenOptionFIFO as oof left join hlhtxc5_dmOfx.optionHistory as oh on oh.EquityId = oof.EquityId where oh.DataDate >= subdate(now(), interval 4 day) group by oof.EquityId;";
 
         CMDBController.executeSQL(sql);
     }

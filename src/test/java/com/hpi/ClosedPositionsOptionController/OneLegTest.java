@@ -3,7 +3,7 @@ package com.hpi.ClosedPositionsOptionController;
 import com.hpi.TPCCMcontrollers.*;
 import com.hpi.TPCCMprefs.*;
 import com.hpi.appcontrollers.*;
-import com.hpi.appcontrollers.positions.ClosedPositionsOptionController2;
+import com.hpi.appcontrollers.positions.ClosedPositionsOptionController;
 import com.hpi.entities.*;
 import com.hpi.hpiUtils.CMHPIUtils;
 import java.sql.Date;
@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
 @AllArgsConstructor
 public class OneLegTest {
 
-    private static ClosedPositionsOptionController2 cpoc;
+    private static ClosedPositionsOptionController cpoc;
 
 //    public OneLegTest() {
 //    }
@@ -23,8 +23,8 @@ public class OneLegTest {
     public static void setUpClass() {
         CMDBModel.getInstance();
         CMDBModel.setUserId(816);
-        ClosedPositionsOptionController2.getInstance();
-        cpoc = ClosedPositionsOptionController2.getInstance();
+        ClosedPositionsOptionController.getInstance();
+        cpoc = ClosedPositionsOptionController.getInstance();
         CMDBController.initDBConnection();
     }
 

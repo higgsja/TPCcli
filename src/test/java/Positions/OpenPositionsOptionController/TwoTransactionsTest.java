@@ -2,7 +2,7 @@ package Positions.OpenPositionsOptionController;
 
 import com.hpi.TPCCMcontrollers.*;
 import com.hpi.TPCCMprefs.*;
-import com.hpi.appcontrollers.positions.OpenPositionsOptionController2;
+import com.hpi.appcontrollers.positions.OpenPositionsOptionController;
 import com.hpi.entities.*;
 import com.hpi.hpiUtils.CMHPIUtils;
 import java.sql.Date;
@@ -13,13 +13,13 @@ import static org.junit.Assert.assertTrue;
 @AllArgsConstructor
 public class TwoTransactionsTest {
 
-    private static OpenPositionsOptionController2 opoc;
+    private static OpenPositionsOptionController opoc;
 
     @BeforeClass
     public static void setUpClass() {
         CMDBModel.getInstance();
         CMDBModel.setUserId(816);
-        opoc = OpenPositionsOptionController2.getInstance();
+        opoc = OpenPositionsOptionController.getInstance();
         CMDBController.initDBConnection();
     }
 
