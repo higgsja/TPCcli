@@ -1000,25 +1000,6 @@ public class ClosedPositionsOptionController
                 break;
             }
 
-            //todo: may want to enable single account view
-            //  for now focussed on aggregated view
-//            if (!this.fifoClosedTransactionModels.get(pctmStart).getDmAcctId()
-//                .equals(this.fifoClosedTransactionModels.get(j).getDmAcctId())) {
-//                //not same DMAcctId
-//                break;
-//            }
-//              equityId checks this
-//            if (!this.fifoClosedTransactionModels.get(pctmStart).getTicker()
-//                    .equals(this.fifoClosedTransactionModels.get(j).getTicker())) {
-//                //not same ticker
-//                break;
-//            }
-//              equityId checks this
-//            if (!this.fifoClosedTransactionModels.get(pctmStart).getTransType().equalsIgnoreCase(
-//                    this.fifoClosedTransactionModels.get(j).getTransType())) {
-//                //not the same transaction type
-//                break;
-//            }
             //j transaction should be part of the pctm
             pctm.getFifoClosedTransactionModels()
                 .add(new FIFOClosedTransactionModel(

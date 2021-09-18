@@ -101,7 +101,7 @@ public class ClosedTransTest
 //            cpsController.getPositionModels().get(0).getDateOpen()
 //                .equals(CMHPIUtils.convertStringToLocalDateTime("2021-03-05 00:00:00")));
     }
-    
+
     /**
      * 2 transactions from 2 accounts
      */
@@ -138,10 +138,10 @@ public class ClosedTransTest
         Integer[][] integerTests =
         {
             {
-                1, cpsController.getPositionTransactionModels().size(), 1
+                1, cpsController.getPositionTransactionModels().size(), 2
             },
             {
-                2, cpsController.getPositionModels().size(), 1
+                2, cpsController.getPositionModels().size(), 2
             },
             {
                 11, cpsController.getPositionModels().get(0).getTacticId(), PositionOpenModel.TACTICID_LONG
@@ -152,7 +152,7 @@ public class ClosedTransTest
         Double[][] doubleTests =
         {
             {
-                1.0, cpsController.getPositionModels().get(0).getUnits(), 200.0
+                1.0, cpsController.getPositionModels().get(0).getUnits(), 100.0
             },
             {
                 2.0, cpsController.getPositionModels().get(0).getPriceOpen(), -100.0
@@ -210,7 +210,7 @@ public class ClosedTransTest
         .build();
 
     private static final FIFOClosedTransactionModel ftm2 = FIFOClosedTransactionModel.builder()
-        .dmAcctId(2)
+        .dmAcctId(1)
         .joomlaId(816)
         .fiTId("210429_6034_1")
         .transactionGrp(3338)
@@ -231,5 +231,4 @@ public class ClosedTransTest
         .complete(0)
         .bComplete(false)
         .build();
-
 }

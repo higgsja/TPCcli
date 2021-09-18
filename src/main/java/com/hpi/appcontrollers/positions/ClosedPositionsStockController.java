@@ -288,6 +288,24 @@ public class ClosedPositionsStockController
                 //not same DMAcctId
                 break;
             }
+            
+            if (this.positionTransactionModels.get(pmStart)
+                .getDateOpen()
+                .equals(this.positionTransactionModels.get(pmStart)
+                    .getDateClose())) {
+                //special case
+                //open and close dates are the same; we aggregated these lots; now needs to be unique pcm
+                break;
+            }
+
+            if (!this.positionTransactionModels.get(pmStart)
+                .getDateOpen()
+                .equals(this.positionTransactionModels.get(j)
+                    .getDateOpen())) {
+                //not same open date
+                break;
+            }
+
 
             //j transaction should be part of the pctm
             pm.getPositionClosedTransactionModels()
@@ -462,14 +480,31 @@ public class ClosedPositionsStockController
                 //not the same equityId
                 break;
             }
+            
+            if (this.fifoClosedTransactionModels.get(potmStart)
+                .getDateOpen()
+                .equals(
+                    this.fifoClosedTransactionModels.get(potmStart)
+                        .getDateClose())
+                && !this.fifoClosedTransactionModels.get(j)
+                    .getDateOpen()
+                    .equals(
+                        this.fifoClosedTransactionModels.get(j)
+                            .getDateClose())) {
+                //special case where open and close date the same. need those to be distinct ptm
+                //  but also aggregated when more than one lot
+                //  otherwise, ignore closing date
+                break;
+            }
 
-            //todo: may want to enable single account view
-            //  for now focussed on aggregated view
-//            if (!this.fifoClosedTransactionModels.get(potmStart).getDmAcctId()
-//                    .equals(this.fifoClosedTransactionModels.get(j).getDmAcctId())) {
-//                //not same DMAcctId
-//                break;
-//            }
+            if (!this.fifoClosedTransactionModels.get(potmStart)
+                .getDateOpen()
+                .equals(this.fifoClosedTransactionModels.get(j)
+                    .getDateOpen())) {
+                //not same open date
+                break;
+            }
+
             //j transaction should be part of the pctm
             ptm.getFifoClosedTransactionModels()
                 .add(new FIFOClosedTransactionModel(
@@ -545,5 +580,7 @@ public class ClosedPositionsStockController
         ptm.setEquityType(ptm.getFifoClosedTransactionModels().get(0).getEquityType());
 
         ptm.setBComplete(false);
+        
+        ptm.setTransactionName(ptm.getTicker() + " " + (totalOpen < 0 ? "LONG" : "SHORT"));
     }
 }
