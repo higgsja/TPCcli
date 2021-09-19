@@ -59,7 +59,7 @@ public class ClosedPositionsStockBase
 
         //clear positionsClosed
         CMDBController.executeSQL("delete from hlhtxc5_dmOfx.PositionsClosed where JoomlaId = " + USER_ID);
-
+        
         cpsController.getFifoClosedTransactionModels().clear();
         cpsController.getPositionTransactionModels().clear();
         cpsController.getPositionModels().clear();

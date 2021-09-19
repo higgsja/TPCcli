@@ -129,29 +129,6 @@ public class ClosedPositionsStockController
 
             while (rs.next())
             {
-//                this.fifoClosedTransactionModels.add(new FIFOClosedTransactionModel(
-//                    rs.getInt("DMAcctId"),
-//                    rs.getInt("JoomlaId"),
-//                    rs.getString("FiTId"),
-//                    rs.getInt("TransGrp"),
-//                    rs.getString("Ticker"),
-//                    rs.getString("EquityId"),
-//                    rs.getString("TransactionName"),
-//                    rs.getDate("DateOpen"),
-//                    rs.getDate("DateClose"),
-//                    rs.getDate("DateExpire"),
-//                    rs.getDouble("Units"),
-//                    rs.getDouble("PriceOpen"),
-//                    rs.getDouble("PriceClose"),
-//                    rs.getDouble("TotalOpen"),
-//                    rs.getDouble("TotalClose"),
-//                    rs.getDouble("Gain"),
-//                    rs.getDouble("GainPct"),
-//                    rs.getString("EquityType"),
-//                    rs.getString("PosType"),
-//                    rs.getString("TransType"),
-//                    rs.getInt("Complete")));
-
                 this.fifoClosedTransactionModels.add(FIFOClosedTransactionModel.builder()
                     .dmAcctId(rs.getInt("DMAcctId"))
                     .joomlaId(rs.getInt("JoomlaId"))
@@ -288,11 +265,12 @@ public class ClosedPositionsStockController
                 //not same DMAcctId
                 break;
             }
-            
+
             if (this.positionTransactionModels.get(pmStart)
                 .getDateOpen()
                 .equals(this.positionTransactionModels.get(pmStart)
-                    .getDateClose())) {
+                    .getDateClose()))
+            {
                 //special case
                 //open and close dates are the same; we aggregated these lots; now needs to be unique pcm
                 break;
@@ -301,11 +279,11 @@ public class ClosedPositionsStockController
             if (!this.positionTransactionModels.get(pmStart)
                 .getDateOpen()
                 .equals(this.positionTransactionModels.get(j)
-                    .getDateOpen())) {
+                    .getDateOpen()))
+            {
                 //not same open date
                 break;
             }
-
 
             //j transaction should be part of the pctm
             pm.getPositionClosedTransactionModels()
@@ -360,12 +338,12 @@ public class ClosedPositionsStockController
         pm.setDateClose(dateClose);
 
         pm.setPriceOpen(totalOpen / pm.getUnits());
-        pm.setPrice(totalClose / pm.getUnits());
+        pm.setPrice(totalClose / Math.abs(pm.getUnits()));
 
         pm.setDays(0);
 
         pm.setTacticId(pm.getPositionType().equalsIgnoreCase("LONG")
-                ? PositionOpenModel.TACTICID_LONG : PositionOpenModel.TACTICID_SHORT);
+            ? PositionOpenModel.TACTICID_LONG : PositionOpenModel.TACTICID_SHORT);
     }
 
     /**
@@ -480,7 +458,7 @@ public class ClosedPositionsStockController
                 //not the same equityId
                 break;
             }
-            
+
             if (this.fifoClosedTransactionModels.get(potmStart)
                 .getDateOpen()
                 .equals(
@@ -490,18 +468,28 @@ public class ClosedPositionsStockController
                     .getDateOpen()
                     .equals(
                         this.fifoClosedTransactionModels.get(j)
-                            .getDateClose())) {
+                            .getDateClose()))
+            {
                 //special case where open and close date the same. need those to be distinct ptm
                 //  but also aggregated when more than one lot
-                //  otherwise, ignore closing date
                 break;
             }
 
             if (!this.fifoClosedTransactionModels.get(potmStart)
-                .getDateOpen()
+                .getDateClose()
                 .equals(this.fifoClosedTransactionModels.get(j)
-                    .getDateOpen())) {
-                //not same open date
+                    .getDateClose()))
+            {
+                //not same close date
+                break;
+            }
+
+            if (!this.fifoClosedTransactionModels.get(potmStart)
+                .getPositionType()
+                .equals(this.fifoClosedTransactionModels.get(j)
+                    .getPositionType()))
+            {
+                //not same positionType
                 break;
             }
 
@@ -580,7 +568,7 @@ public class ClosedPositionsStockController
         ptm.setEquityType(ptm.getFifoClosedTransactionModels().get(0).getEquityType());
 
         ptm.setBComplete(false);
-        
+
         ptm.setTransactionName(ptm.getTicker() + " " + (totalOpen < 0 ? "LONG" : "SHORT"));
     }
 }

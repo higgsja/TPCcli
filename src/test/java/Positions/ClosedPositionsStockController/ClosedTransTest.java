@@ -1,7 +1,9 @@
 package Positions.ClosedPositionsStockController;
 
+import com.hpi.TPCCMcontrollers.*;
 import com.hpi.entities.*;
 import java.sql.Date;
+import java.util.*;
 import lombok.*;
 import org.junit.*;
 
@@ -15,6 +17,67 @@ public class ClosedTransTest
     public void before()
     {
         super.before();
+
+        //add transactions to the array for use
+        transactionsList.add(ftm1);
+        transactionsList.add(ftm2);
+
+        //add transactions to fifoClosedTransactions
+        String sql;
+
+        for (FIFOClosedTransactionModel fctm : transactionsList)
+        {sql = "insert ignore into hlhtxc5_dmOfx.FIFOClosedTransactions (";
+        sql += FIFOClosedTransactionModel.COLUMNS;
+        sql += ") ";
+        sql += "values (";
+            sql += fctm.getDmAcctId();
+            sql += ", ";
+            sql += fctm.getJoomlaId();
+            sql += ", '";
+            sql += fctm.getFiTId();
+            sql += "', ";
+            sql += fctm.getTransactionGrp();
+            sql += ", '";
+            sql += fctm.getTicker();
+            sql += "', '";
+            sql += fctm.getEquityId();
+            sql += "', ";
+            sql += fctm.getTransactionName() == null ? null : "'" + fctm.getTransactionName() + "'";
+            sql += ", '";
+            sql += fctm.getDateOpen();
+            sql += "', '";
+            sql += fctm.getDateClose();
+            sql += "', ";
+            sql += fctm.getDateExpire() == null ? null : "'" + fctm.getDateExpire() + "'";
+            sql += ", ";
+            sql += fctm.getUnits();
+            sql += ", ";
+            sql += fctm.getPriceOpen();
+            sql += ", ";
+            sql += fctm.getPriceClose();
+            sql += ", ";
+            sql += fctm.getTotalOpen();
+            sql += ", ";
+            sql += fctm.getTotalClose();
+            sql += ", ";
+            sql += fctm.getGain();
+            sql += ", ";
+            sql += fctm.getGainPct();
+            sql += ", '";
+            sql += fctm.getEquityType();
+            sql += "', '";
+            sql += fctm.getPositionType();
+            sql += "', '";
+            sql += fctm.getTransactionType();
+            sql += "', ";
+            sql += fctm.getComplete();
+            sql += ", ";
+            //sql += fctm.getDays();
+            sql += '0'; //0 days
+            sql += ")";
+
+            CMDBController.executeSQL(sql);
+        }
     }
 
     @After
@@ -103,7 +166,11 @@ public class ClosedTransTest
     }
 
     /**
-     * 2 transactions from 2 accounts
+     * 2 transactions
+     * same EquityId
+     * from 1 account
+     * different open dates
+     * same close date
      */
 //    @Ignore
     @Test
@@ -138,10 +205,10 @@ public class ClosedTransTest
         Integer[][] integerTests =
         {
             {
-                1, cpsController.getPositionTransactionModels().size(), 2
+                1, cpsController.getPositionTransactionModels().size(), 1
             },
             {
-                2, cpsController.getPositionModels().size(), 2
+                2, cpsController.getPositionModels().size(), 1
             },
             {
                 11, cpsController.getPositionModels().get(0).getTacticId(), PositionOpenModel.TACTICID_LONG
@@ -152,10 +219,10 @@ public class ClosedTransTest
         Double[][] doubleTests =
         {
             {
-                1.0, cpsController.getPositionModels().get(0).getUnits(), 100.0
+                1.0, cpsController.getPositionModels().get(0).getUnits(), -200.0
             },
             {
-                2.0, cpsController.getPositionModels().get(0).getPriceOpen(), -100.0
+                2.0, cpsController.getPositionModels().get(0).getPriceOpen(), 100.0
             },
             {
                 3.0, cpsController.getPositionModels().get(0).getPrice(), 101.0
@@ -186,16 +253,23 @@ public class ClosedTransTest
 //                .equals(CMHPIUtils.convertStringToLocalDateTime("2021-03-05 00:00:00")));
     }
 
-    private static final FIFOClosedTransactionModel ftm1 = FIFOClosedTransactionModel.builder()
+    private static final ArrayList<FIFOClosedTransactionModel> transactionsList = new ArrayList<>();
+
+    //do not change the ftm* elements as it will break tests
+    //  always use what is available for a start point; then
+    //  always add more for further testing
+    private final FIFOClosedTransactionModel ftm1 = FIFOClosedTransactionModel.builder()
+        //single long stock on aapl
         .dmAcctId(1)
-        .joomlaId(816)
+        .joomlaId(USER_ID)
         .fiTId("210429_6034_0")
         .transactionGrp(3338)
         .equityId("AAPL")
         .ticker("AAPL")
         .dateOpen(Date.valueOf("2021-04-29"))
         .dateClose(Date.valueOf("2021-07-28"))
-        .units(100.0)
+        .dateExpire(null)
+        .units(-100.0)
         .priceOpen(100.0)
         .priceClose(101.0)
         .totalOpen(-10000.0)
@@ -203,22 +277,26 @@ public class ClosedTransTest
         .transactionType("BUY")
         .equityType("STOCK")
         .positionType("LONG")
+        .gain(100.0)
         .gainPct(1.0)
-        .days(null)
+//        .days(0)
         .complete(0)
         .bComplete(false)
         .build();
 
-    private static final FIFOClosedTransactionModel ftm2 = FIFOClosedTransactionModel.builder()
+    private final FIFOClosedTransactionModel ftm2 = FIFOClosedTransactionModel.builder()
+        //single long stock on aapl; 
+        //  different dateOpen; same dateClose as ftm1
         .dmAcctId(1)
-        .joomlaId(816)
+        .joomlaId(USER_ID)
         .fiTId("210429_6034_1")
         .transactionGrp(3338)
         .equityId("AAPL")
         .ticker("AAPL")
         .dateOpen(Date.valueOf("2021-05-29"))
         .dateClose(Date.valueOf("2021-07-28"))
-        .units(100.0)
+        .dateExpire(null)
+        .units(-100.0)
         .priceOpen(100.0)
         .priceClose(101.0)
         .totalOpen(-10000.0)
@@ -227,7 +305,8 @@ public class ClosedTransTest
         .equityType("STOCK")
         .positionType("LONG")
         .gainPct(1.0)
-        .days(null)
+        .gain(100.0)
+//        .days(0)
         .complete(0)
         .bComplete(false)
         .build();
