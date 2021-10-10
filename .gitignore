@@ -25,4 +25,7 @@ hs_err_pid*
 # other
 /node_modules/
 /target/
+/stub/dist/
+/stub/dist/lib
+/stub/digest*.txt
 *.bak*
