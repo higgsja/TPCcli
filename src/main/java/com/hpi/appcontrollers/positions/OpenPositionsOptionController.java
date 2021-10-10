@@ -905,14 +905,17 @@ public class OpenPositionsOptionController
         Double totalActPct;
         Double gain;
         Double gainPct;
+        java.sql.Date dateOpen;
 
         totalOpen = totalMktVal = totalLMktVal = totalActPct = 0.0;
+        dateOpen = new java.sql.Date(0);
 
         for (PositionOpenTransactionModel potm : pom.getPositionOpenTransactionModels()) {
             totalOpen += potm.getTotalOpen();
             totalMktVal += potm.getMktVal();
             totalLMktVal += potm.getLMktVal();
             totalActPct += potm.getActPct();
+            dateOpen = potm.getDateOpen().after(dateOpen)? potm.getDateOpen() : dateOpen;
         }
 
         gain = totalMktVal + totalOpen;
@@ -932,9 +935,11 @@ public class OpenPositionsOptionController
         pom.setTicker(pom.getPositionOpenTransactionModels()
             .get(0)
             .getTicker());
-        pom.setDateOpen(pom.getPositionOpenTransactionModels()
-            .get(0)
-            .getDateOpen());
+//        pom.setDateOpen(pom.getPositionOpenTransactionModels()
+//            .get(0)
+//            .getDateOpen());
+
+        pom.setDateOpen(dateOpen);
 
         pom.setPriceOpen(totalOpen / (pom.getUnits() * 100.0));
         pom.setPrice(totalMktVal / (pom.getUnits() * 100.0));

@@ -82,10 +82,7 @@ public class OpenTransTest
             },
             {
                 7.0, opsController.getPositionModels().get(0).getLMktVal(), 10000.0
-            },
-            {
-                8.0, opsController.getPositionModels().get(0).getActPct(), 0.0
-            },
+            }
         };
 
         for (String[] test : stringTests)
@@ -141,7 +138,7 @@ public class OpenTransTest
         Integer[][] integerTests =
         {
             {
-                1, opsController.getPositionTransactionModels().size(), 1
+                1, opsController.getPositionTransactionModels().size(), 2
             },
             {
                 2, opsController.getPositionModels().size(), 1
@@ -170,10 +167,7 @@ public class OpenTransTest
             },
             {
                 7.0, opsController.getPositionModels().get(0).getLMktVal(), 20000.0
-            },
-            {
-                8.0, opsController.getPositionModels().get(0).getActPct(), 0.0
-            },
+            }
         };
 
         for (String[] test : stringTests)
@@ -231,7 +225,7 @@ public class OpenTransTest
         .build();
 
     private static final FIFOOpenTransactionModel ftm2 = FIFOOpenTransactionModel.builder()
-        .dmAcctId(1)
+        .dmAcctId(2)
         .joomlaId(816)
         .fiTId("210911_6582_0")
         .ticker("AAPL")
