@@ -307,8 +307,11 @@ public class OpenPositionsStockController
         Double totalActPct;
         Double gain;
         Double gainPct;
+        java.sql.Date dateOpen;
 
         totalOpen = totalMktVal = totalLMktVal = totalActPct = units = 0.0;
+        dateOpen = new java.sql.Date(0);
+        
 
         for (PositionOpenTransactionModel ptm : pm.getPositionOpenTransactionModels())
         {
@@ -317,6 +320,7 @@ public class OpenPositionsStockController
             totalMktVal += ptm.getMktVal();
             totalLMktVal += ptm.getLMktVal();
             totalActPct += ptm.getActPct();
+            dateOpen = ptm.getDateOpen().after(dateOpen) ? ptm.getDateOpen() : dateOpen;
         }
 
         gain = totalMktVal + totalOpen;
@@ -335,7 +339,8 @@ public class OpenPositionsStockController
 
         pm.setTicker(pm.getPositionOpenTransactionModels().get(0).getTicker());
 
-        pm.setDateOpen(pm.getPositionOpenTransactionModels().get(0).getDateOpen());
+        //pm.setDateOpen(pm.getPositionOpenTransactionModels().get(0).getDateOpen());
+        pm.setDateOpen(dateOpen);
 
         pm.setPriceOpen(Math.abs(totalOpen) / (pm.getUnits()));
         pm.setPrice(totalMktVal / (pm.getUnits()));
