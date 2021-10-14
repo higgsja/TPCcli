@@ -3,14 +3,16 @@ package com.hpi.appcontrollers.positions;
 import com.hpi.hpiUtils.OCCclass;
 import com.hpi.entities.PositionOpenModel;
 import com.hpi.entities.PositionOpenTransactionModel;
+import java.text.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.apache.commons.lang3.math.NumberUtils;
 
 public class PositionBaseStock {
 
-    private final String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    private final String[] months = new DateFormatSymbols().getShortMonths();
+//    private final String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+//        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
     private final ArrayList<PositionOpenModel> pomAddList = new ArrayList<>();
 

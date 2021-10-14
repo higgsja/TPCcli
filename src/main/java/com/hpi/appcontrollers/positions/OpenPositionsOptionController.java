@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.*;
 import java.util.*;
 import javax.swing.JOptionPane;
 import lombok.Getter;
@@ -44,18 +45,7 @@ public class OpenPositionsOptionController
 
     protected OpenPositionsOptionController()
     {
-        this.months = new String[]{"Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec"};
+        this.months = new DateFormatSymbols().getShortMonths();
         // protected prevents instantiation outside of package
         this.userId = CMDBModel.getUserId();
         this.fifoOpenTransactionModels = new ArrayList<>();
@@ -102,7 +92,8 @@ public class OpenPositionsOptionController
     {
         String sql;
 
-        for (PositionOpenModel pom : this.positionOpenModels) {
+        this.positionOpenModels.forEach(pom ->
+        {
             Integer positionId;
 
             //add the positionClosedModel to positionsOpen table
@@ -113,7 +104,7 @@ public class OpenPositionsOptionController
             //add the array of transactions to positionsPositionTransactions table
             this.insertPositionOpenTransactionsTableSQL(positionId,
                 pom);
-        }
+        });
     }
 
     private void insertPositionOpenTransactionsTableSQL(Integer positionId,
@@ -121,7 +112,8 @@ public class OpenPositionsOptionController
     {
         String sql;
 
-        for (PositionOpenTransactionModel potm : pom.getPositionOpenTransactionModels()) {
+        for (PositionOpenTransactionModel potm : pom.getPositionOpenTransactionModels())
+        {
             sql = String.format(PositionOpenTransactionModel.POSITION_TRANSACTION_INSERT,
                 potm.getDmAcctId(),
                 potm.getJoomlaId(),
@@ -145,7 +137,6 @@ public class OpenPositionsOptionController
                 potm.getMktVal(),
                 potm.getLMktVal(),
                 potm.getActPct());
-
             CMDBController.executeSQL(sql);
         }
     }
@@ -991,13 +982,6 @@ public class OpenPositionsOptionController
                 break;
             }
 
-            //todo: may want to enable single account view
-            //  for now focussed on aggregated views
-//            if (!this.fifoOpenTransactionModels.get(potmStart).getDmAcctId()
-//                    .equals(this.fifoOpenTransactionModels.get(j).getDmAcctId())) {
-//                //not same DMAcctId
-//                break;
-//            }
             //j transaction should be part of the pctm
             potm.getFifoOpenTransactionModels()
                 .add(new FIFOOpenTransactionModel(
@@ -1009,78 +993,6 @@ public class OpenPositionsOptionController
         }
     }
 
-//    /**
-//     * loop the balance of the transactions for adds to the position based on: same
-//     * DMAcctId, Ticker, GmtDtTradeOpen
-//     *
-//     * @param i    initial transaction index
-//     * @param potm working positionClosedModel
-//     */
-//    private void addTransactions(int i, PositionOpenModel pom, PositionOpenTransactionModel potm) {
-//        Integer pctmStart;
-//
-//        //expect multiple lots on multiple legs
-//        //move starting point to new position index
-//        pctmStart = i;
-//        //loop the rest of the fifoTransactionModels array for transactions to add to position
-//        for (int j = i + 1; j < this.fifoOpenTransactionModels.size(); j++) {
-//            if (this.fifoOpenTransactionModels.get(j).getBComplete()) {
-//                continue;
-//            }
-//            if (!this.fifoOpenTransactionModels.get(pctmStart).getDmAcctId()
-//                .equals(this.fifoOpenTransactionModels.get(j).getDmAcctId())) {
-//                //not same DMAcctId
-//                break;
-//            }
-//            if (!this.fifoOpenTransactionModels.get(pctmStart).getTicker()
-//                .equals(this.fifoOpenTransactionModels.get(j).getTicker())) {
-//                //not same ticker
-//                break;
-//            }
-//            if (!this.fifoOpenTransactionModels.get(pctmStart).getGmtDtTradeOpen()
-//                .equals(this.fifoOpenTransactionModels.get(j).getGmtDtTradeOpen())) {
-//                //not same open date
-//                break;
-//            }
-////            if (!this.fifoOpenTransactionModels.get(pctmStart).getTransType().equalsIgnoreCase(
-////                    this.fifoOpenTransactionModels.get(j).getTransType())) {
-////                //not the same transaction type
-////                break;
-////            }
-//            if (!this.fifoOpenTransactionModels.get(pctmStart).getEquityId()
-//                .equals(this.fifoOpenTransactionModels.get(j).getEquityId())) {
-//                //not the same equityId; new pctm in the pcm
-//                potm = PositionClosedTransactionModel.builder()
-//                    .dmAcctId(this.fifoOpenTransactionModels.get(j).getDmAcctId())
-//                    .joomlaId(this.userId)
-//                    .positionId(-999)
-//                    .build();
-//
-//                //add positionClosedTransactionModel to the positionClosedModel array
-//                pom.getPositionClosedTransactionModels().add(potm);
-//
-//                //add first fifoClosedTransaction to the positionClosedTransactionModel.fifoOpenTransactionModels
-//                potm.getFifoClosedTransactionModels().add(new FIFOClosedTransactionModel(
-//                    this.fifoOpenTransactionModels.get(j)));
-//
-//                // mark it complete
-//                this.fifoOpenTransactionModels.get(j).setBComplete(true);
-//
-//                pctmStart = j;
-//
-//                continue;
-//            }
-//            //disregard close date. could close multi-leg position one leg at a time
-//
-//            //j transaction should be part of the position
-//            // add to the position
-//            potm.getFifoClosedTransactionModels().add(new FIFOClosedTransactionModel(
-//                this.fifoOpenTransactionModels.get(j)));
-//
-//            // mark it complete
-//            this.fifoOpenTransactionModels.get(j).setBComplete(true);
-//        }
-//    }
     /**
      * Use the positionClosedModel.positionOpenTransactionModels to establish
      * tacticId
@@ -1559,31 +1471,6 @@ public class OpenPositionsOptionController
             .equalsIgnoreCase("selltoopen")) {
             pom.setTacticId(PositionOpenModel.TACTICID_SHORT);
         }
-
-//        totalOpen = totalMktVal = totalLMktVal = totalActPct = 0.0;
-//        for (PositionOpenTransactionModel potm : pom.getPositionOpenTransactionModels()) {
-//            totalOpen += potm.getTotalOpen();
-//            totalMktVal += potm.getMktVal();
-//            totalLMktVal += potm.getLMktVal();
-//            totalActPct += potm.getActPct();
-//        }
-//
-//        pom.setUnits(pom.getPositionOpenTransactionModels().get(0).getUnits());
-//
-//        pom.setIPrice(totalOpen / (pom.getUnits() * 100.0));
-//        pom.setPrice(totalMktVal / (pom.getUnits() * 100.0));
-//
-//        pom.setGain((totalOpen + totalMktVal));
-//        pom.setGainPct(100.0 * pom.getGain() / Math.abs(totalOpen));
-//
-//        pom.setMktVal(totalMktVal);
-//        pom.setLMktVal(totalLMktVal);
-//        pom.setActPct(totalActPct);
-//
-//        pom.setType(totalOpen > 0.0 ? "SHORT" : "LONG");
-//
-//        pom.setGmtDtTrade(CMHPIUtils.convertSQLDateToLocalDateTime(
-//            pom.getPositionOpenTransactionModels().get(0).getGmtDtTradeOpen()));
     }
 
     /**

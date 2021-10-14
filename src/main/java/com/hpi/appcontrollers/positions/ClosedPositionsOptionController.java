@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.*;
 import java.util.*;
 import javax.swing.JOptionPane;
 import lombok.Getter;
@@ -22,12 +23,9 @@ public class ClosedPositionsOptionController
 {
 
     private final Integer userId;
-    @Getter
-    private final ArrayList<FIFOClosedTransactionModel> fifoClosedTransactionModels;
-    @Getter
-    private final ArrayList<PositionClosedModel> positionClosedModels;
-    @Getter
-    private final ArrayList<PositionClosedTransactionModel> positionClosedTransactionModels;
+    @Getter private final ArrayList<FIFOClosedTransactionModel> fifoClosedTransactionModels;
+    @Getter private final ArrayList<PositionClosedModel> positionClosedModels;
+    @Getter private final ArrayList<PositionClosedTransactionModel> positionClosedTransactionModels;
     private final ArrayList<PositionClosedModel> pcmAddList;
     private final String[] months;
 
@@ -44,18 +42,7 @@ public class ClosedPositionsOptionController
 
     protected ClosedPositionsOptionController()
     {
-        this.months = new String[]{"Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec"};
+        this.months = new DateFormatSymbols().getShortMonths();
         // protected prevents instantiation outside of package
         this.userId = CMDBModel.getUserId();
         this.fifoClosedTransactionModels = new ArrayList<>();
@@ -100,8 +87,7 @@ public class ClosedPositionsOptionController
      */
     public void doSQL()
     {
-        String sql;
-
+        //positionClosedModels is empty
         for (PositionClosedModel pcm : this.positionClosedModels) {
             Integer positionId;
 
@@ -114,8 +100,7 @@ public class ClosedPositionsOptionController
             }
 
             //add the array of transactions to positionsClosedTransactions table
-            this.insertPositionClosedTransactionsTableSQL(positionId,
-                pcm);
+            this.insertPositionClosedTransactionsTableSQL(positionId, pcm);
         }
     }
 
@@ -184,7 +169,6 @@ public class ClosedPositionsOptionController
             pcm.getDateOpen(),
             pcm.getDateClose(),
             pcm.getDays(),
-            pcm.getComment(),
             pcm.getGain(),
             pcm.getPositionType());
 

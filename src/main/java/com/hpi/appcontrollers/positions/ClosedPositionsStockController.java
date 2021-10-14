@@ -360,6 +360,7 @@ public class ClosedPositionsStockController
             //add the positionClosedModel to positionsClosed table
             positionId = this.insertPositionSQL(pm);
 
+            //positionId is -1
             pm.setPositionId(positionId);
 
             //add the array of transactions to positionsClosedTransactions table
@@ -385,15 +386,13 @@ public class ClosedPositionsStockController
             pm.getDateOpen(),
             pm.getDateClose(),
             pm.getDays(),
-            pm.getComment() == null ? null : "'" + pm.getComment() + "'",
             pm.getGain(),
             pm.getPositionType());
 
         return CMDBController.insertAutoRow(sInsertSQL);
     }
 
-    private void insertPositionTransactionsSQL(Integer positionId,
-        PositionClosedModel pm)
+    private void insertPositionTransactionsSQL(Integer positionId, PositionClosedModel pm)
     {
         String sql;
 
@@ -431,8 +430,7 @@ public class ClosedPositionsStockController
      * @param i
      * @param ptm
      */
-    private void addFtm2Ptm(Integer i,
-        PositionClosedTransactionModel ptm)
+    private void addFtm2Ptm(Integer i, PositionClosedTransactionModel ptm)
     {
         Integer potmStart;
 
