@@ -56,9 +56,7 @@ public class TDAmeritradeFetchStocksController {
             get(0).getAccountModels().get(0).getAcctNumber());
 //        props.setProperty("tda.url", CMOfxDirectModel.getFIMODELS().
 //            get(0).getHttpHost());
-        props.setProperty("tda.debug.bytes.length", CMOfxDirectModel.
-            getFIMODELS().
-            get(0).getDebugBytes());
+        props.setProperty("tda.debug.bytes.length", CMOfxDirectModel.getFIMODELS().get(0).getDebugBytes());
 
         TDAmeritradeFetchStocksController.httpTdaClient = new HttpTdaClient(
             props);
@@ -141,24 +139,6 @@ public class TDAmeritradeFetchStocksController {
 
     private static Boolean doPrices(String symbol) {
         PriceHistory ph;
-//        HttpTdaClient httpTdaClient;
-//        Properties props;
-//
-//        props = new Properties();
-//        props.setProperty("tda.client_id", CMOfxDirectModel.getFIMODELS().
-//            get(0).getClientId());
-//        props.setProperty("tda.token.refresh", CMOfxDirectModel.getFIMODELS().
-//            get(0).getTokenRefresh());
-//        props.setProperty("tda.account.id", CMOfxDirectModel.getFIMODELS().
-//            get(0).getAccountModels().get(0).getAcctNumber());
-//        props.setProperty("tda.url", CMOfxDirectModel.getFIMODELS().
-//            get(0).getHttpHost());
-//        props.setProperty("tda.debug.bytes.length", CMOfxDirectModel.
-//            getFIMODELS().
-//            get(0).getDebugBytes());
-//
-//        httpTdaClient = new HttpTdaClient(props);
-
         //tdAmeritrade style
         symbol = symbol.replace("-", ".");
 
