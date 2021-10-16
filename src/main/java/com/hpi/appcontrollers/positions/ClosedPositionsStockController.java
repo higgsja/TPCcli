@@ -68,7 +68,8 @@ public class ClosedPositionsStockController
     }
 
     /**
-     * aggregate lots into positionOpenTransactionModel
+     * fifoClosedTransactions -> positionsClosedTransactions
+     * aggregate lots into positionClosedTransactionModel
      */
     public void doFtm2Ptm()
     {
@@ -78,16 +79,14 @@ public class ClosedPositionsStockController
 
         for (int i = 0; i < this.fifoClosedTransactionModels.size(); i++)
         {
-            if (this.fifoClosedTransactionModels.get(i)
-                .getBComplete())
+            if (this.fifoClosedTransactionModels.get(i).getBComplete())
             {
                 //fotm already handled
                 continue;
             }
 
             ptm = PositionClosedTransactionModel.builder()
-                .dmAcctId(this.fifoClosedTransactionModels.get(i)
-                    .getDmAcctId())
+                .dmAcctId(this.fifoClosedTransactionModels.get(i).getDmAcctId())
                 .joomlaId(this.userId)
                 .positionId(-999)
                 .build();

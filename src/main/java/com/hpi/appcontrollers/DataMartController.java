@@ -903,7 +903,7 @@ public class DataMartController //      extends DBCore
 
     public void doClosedFIFO()
     {
-        //put close stock into table
+        //put close stock into table: ok
         CMDBController.executeSQL(String.format(
             FIFOClosedTransactionModel.INSERT_CLOSED_STOCK_FIFO_2_FIFO_CLOSED_TRANSACTIONS,
             userId));

@@ -313,7 +313,7 @@ public class CmdLineController
             //process dmOfx options to dataMart
             DataMartController.getInstance().processFIFOOptionLotsAccounts();
 
-            //main dataMart processing
+            //main dataMart processing: ok to here
             DataMartController.getInstance().processDataMart();
 
             System.out.println("      start positions\n");

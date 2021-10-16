@@ -26,10 +26,11 @@ public class ClosedTransTest
         String sql;
 
         for (FIFOClosedTransactionModel fctm : transactionsList)
-        {sql = "insert ignore into hlhtxc5_dmOfx.FIFOClosedTransactions (";
-        sql += FIFOClosedTransactionModel.COLUMNS;
-        sql += ") ";
-        sql += "values (";
+        {
+            sql = "insert ignore into hlhtxc5_dmOfx.FIFOClosedTransactions (";
+            sql += FIFOClosedTransactionModel.COLUMNS;
+            sql += ") ";
+            sql += "values (";
             sql += fctm.getDmAcctId();
             sql += ", ";
             sql += fctm.getJoomlaId();
@@ -85,7 +86,7 @@ public class ClosedTransTest
     {
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void ClosedTrans1()
     {
@@ -172,7 +173,7 @@ public class ClosedTransTest
      * different open dates
      * same close date
      */
-//    @Ignore
+    @Ignore
     @Test
     public void ClosedTrans2()
     {
@@ -279,7 +280,7 @@ public class ClosedTransTest
         .positionType("LONG")
         .gain(100.0)
         .gainPct(1.0)
-//        .days(0)
+        //        .days(0)
         .complete(0)
         .bComplete(false)
         .build();
@@ -306,7 +307,7 @@ public class ClosedTransTest
         .positionType("LONG")
         .gainPct(1.0)
         .gain(100.0)
-//        .days(0)
+        //        .days(0)
         .complete(0)
         .bComplete(false)
         .build();
