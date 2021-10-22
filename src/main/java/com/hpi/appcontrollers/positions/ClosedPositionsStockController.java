@@ -132,7 +132,6 @@ public class ClosedPositionsStockController
                     .dmAcctId(rs.getInt("DMAcctId"))
                     .joomlaId(rs.getInt("JoomlaId"))
                     .fiTId(rs.getString("FiTId"))
-                    //                    .transactionGrp(rs.getInt("TransactionGrp"))
                     .ticker(rs.getString("Ticker"))
                     .equityId(rs.getString("EquityId"))
                     .transactionName(rs.getString("TransactionName"))
@@ -203,18 +202,16 @@ public class ClosedPositionsStockController
 
             pom = PositionClosedModel.builder()
                 .positionId(-999)
-                .dmAcctId(this.positionTransactionModels.get(i)
-                    .getDmAcctId())
+                .dmAcctId(this.positionTransactionModels.get(i).getDmAcctId())
                 .joomlaId(this.userId)
                 .build();
 
             //add first positionOpenTransaction to the positionOpenModel.positionOpenTransactionModels
             pom.getPositionClosedTransactionModels()
-                .add(new PositionClosedTransactionModel(
-                    this.positionTransactionModels.get(i)));
+                .add(new PositionClosedTransactionModel(this.positionTransactionModels.get(i)));
 
             //add positionOpenModel to the positionOpenModels array
-            //using the previously built pcm
+            //using the previously built pom
             this.positionModels.add(pom);
 
             //mark initial transaction complete
@@ -323,16 +320,18 @@ public class ClosedPositionsStockController
         pm.setUnits(totalUnits);
         pm.setGain(gain);
         pm.setGainPct(gainPct);
+        pm.setTotalOpen(totalOpen);
+        pm.setTotalClose(totalClose);
 
-        pm.setPositionType(totalOpen < 0 ? "LONG" : "SHORT");
+        pm.setPositionType(pm.getPositionClosedTransactionModels().get(0).getPositionType());
+        pm.setEquityType(pm.getPositionClosedTransactionModels().get(0).getEquityType());
+        pm.setTransactionType(pm.getPositionClosedTransactionModels().get(0).getTransactionType());
 
         pm.setTicker(pm.getPositionClosedTransactionModels().get(0).getTicker());
         pm.setEquityId(pm.getTicker());
         pm.setPositionName(pm.getTicker() + " " + pm.getPositionType());
 
-        pm.setDateOpen(pm.getPositionClosedTransactionModels()
-            .get(0)
-            .getDateOpen());
+        pm.setDateOpen(pm.getPositionClosedTransactionModels().get(0).getDateOpen());
 
         pm.setDateClose(dateClose);
 
@@ -386,7 +385,11 @@ public class ClosedPositionsStockController
             pm.getDateClose(),
             pm.getDays(),
             pm.getGain(),
-            pm.getPositionType());
+            pm.getPositionType(),
+            pm.getTransactionType(),
+            pm.getTotalOpen(),
+            pm.getTotalClose(),
+            pm.getEquityType());
 
         return CMDBController.insertAutoRow(sInsertSQL);
     }
@@ -402,7 +405,7 @@ public class ClosedPositionsStockController
                 potm.getJoomlaId(),
                 positionId,
                 potm.getFiTId(),
-                potm.getEquityId(),
+//                potm.getEquityId(),   //do not set here as multi-leg positions have no equityId
                 potm.getTransactionName(),
                 potm.getTicker(),
                 potm.getDateOpen(),
@@ -410,6 +413,7 @@ public class ClosedPositionsStockController
                 potm.getUnits(),
                 potm.getPriceOpen(),
                 potm.getPriceClose(),
+                potm.getDays(),
                 potm.getPositionType(),
                 potm.getTotalOpen(),
                 potm.getTotalClose(),
@@ -441,31 +445,27 @@ public class ClosedPositionsStockController
         //  to add to potm fifoOpenTransactionModels array
         for (int j = i + 1; j < this.fifoClosedTransactionModels.size(); j++)
         {
-            if (this.fifoClosedTransactionModels.get(j)
-                .getBComplete())
+            if (this.fifoClosedTransactionModels.get(j).getBComplete())
             {
                 //should never hit
                 continue;
             }
-            if (!this.fifoClosedTransactionModels.get(potmStart)
-                .getEquityId()
-                .equals(this.fifoClosedTransactionModels.get(j)
-                    .getEquityId()))
+            if (!this.fifoClosedTransactionModels.get(potmStart).getDmAcctId()
+                .equals(this.fifoClosedTransactionModels.get(j).getDmAcctId())){
+                //not the same account
+                break;
+            }
+            if (!this.fifoClosedTransactionModels.get(potmStart).getEquityId()
+                .equals(this.fifoClosedTransactionModels.get(j).getEquityId()))
             {
                 //not the same equityId
                 break;
             }
 
-            if (this.fifoClosedTransactionModels.get(potmStart)
-                .getDateOpen()
-                .equals(
-                    this.fifoClosedTransactionModels.get(potmStart)
-                        .getDateClose())
-                && !this.fifoClosedTransactionModels.get(j)
-                    .getDateOpen()
-                    .equals(
-                        this.fifoClosedTransactionModels.get(j)
-                            .getDateClose()))
+            if (this.fifoClosedTransactionModels.get(potmStart).getDateOpen()
+                .equals(this.fifoClosedTransactionModels.get(potmStart).getDateClose())
+                && !this.fifoClosedTransactionModels.get(j).getDateOpen()
+                    .equals(this.fifoClosedTransactionModels.get(j).getDateClose()))
             {
                 //special case where open and close date the same. need those to be distinct ptm
                 //  but also aggregated when more than one lot
@@ -502,7 +502,7 @@ public class ClosedPositionsStockController
 
     private void doAttributesPtm(PositionClosedTransactionModel ptm)
     {
-        Double units;
+        Double totalUnits;
         Double totalOpen;
         Double totalClose;
         Double gain;
@@ -513,56 +513,50 @@ public class ClosedPositionsStockController
         dateOpen = new java.sql.Date(0);
         dateClose = new java.sql.Date(0);
 
-        units = totalOpen = totalClose = 0.0;
+        totalUnits = totalOpen = totalClose = 0.0;
 
         for (FIFOClosedTransactionModel ftm : ptm.getFifoClosedTransactionModels())
         {
-            units += ftm.getUnits();
+            totalUnits += ftm.getUnits();
             totalOpen += ftm.getTotalOpen();
             totalClose += ftm.getTotalClose();
 
             //want this to reflect the last time a position was opened
-            //fctm is sql Date; pctm is sql Date
-            dateOpen = dateOpen.compareTo(ftm.getDateOpen()) < 0
-                ? ftm.getDateOpen() : dateOpen;
+            dateOpen = dateOpen.compareTo(ftm.getDateOpen()) < 0 ? ftm.getDateOpen() : dateOpen;
 
             //want this to reflect the last time a position was closed
-            dateClose = dateClose.compareTo(ftm.getDateClose()) < 0
-                ? ftm.getDateClose() : dateClose;
+            dateClose = dateClose.compareTo(ftm.getDateClose()) < 0 ? ftm.getDateClose() : dateClose;
         }
 
         gain = totalOpen + totalClose;
         gainPct = 100.0 * gain / Math.abs(totalOpen);
 
-        ptm.setUnits(units);
+        ptm.setUnits(totalUnits);
         ptm.setTotalOpen(totalOpen);
         ptm.setTotalClose(totalClose);
 
         ptm.setGain(gain);
         ptm.setGainPct(gainPct);
 
-        ptm.setTransactionType(totalOpen < 0 ? "BUYTOOPEN" : "SELLTOOPEN");
+        ptm.setTransactionType(ptm.getFifoClosedTransactionModels().get(0).getTransactionType());
+        ptm.setPositionType(ptm.getFifoClosedTransactionModels().get(0).getPositionType());
+        ptm.setEquityType(ptm.getFifoClosedTransactionModels().get(0).getEquityType());
 
-        ptm.setFiTId(ptm.getFifoClosedTransactionModels()
-            .get(0)
-            .getFiTId() + "_w");
+        ptm.setFiTId(ptm.getFifoClosedTransactionModels().get(0).getFiTId() + "_w");
 
-        ptm.setTicker(ptm.getFifoClosedTransactionModels()
-            .get(0)
-            .getTicker());
+        ptm.setTicker(ptm.getFifoClosedTransactionModels().get(0).getTicker());
         ptm.setEquityId(ptm.getTicker());
-        ptm.setTransactionName(ptm.getTicker());
+//        ptm.setTransactionName(ptm.getTicker());
 
         ptm.setDateOpen(dateOpen);
         ptm.setDateClose(dateClose);
 
-        ptm.setPriceOpen(totalOpen / units);
-        ptm.setPriceClose(totalClose / units);
+        //todo: need to back out commission,fees, etc
+        ptm.setPriceOpen(totalOpen / totalUnits);
+        ptm.setPriceClose(totalClose / totalUnits);
 
-//        ptm.setDays(ptm.getFifoClosedTransactionModels().get(0).getDays());
-        ptm.setPosType(ptm.getFifoClosedTransactionModels().get(0).getPositionType());
-
-        ptm.setEquityType(ptm.getFifoClosedTransactionModels().get(0).getEquityType());
+        ptm.setDays(0);
+//        ptm.setPosType(ptm.getFifoClosedTransactionModels().get(0).getPositionType());
 
         ptm.setBComplete(false);
 

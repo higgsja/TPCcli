@@ -132,10 +132,10 @@ public class ClosedTransTest
         Double[][] doubleTests =
         {
             {
-                1.0, cpsController.getPositionModels().get(0).getUnits(), 100.0
+                1.0, cpsController.getPositionModels().get(0).getUnits(), -100.0
             },
             {
-                2.0, cpsController.getPositionModels().get(0).getPriceOpen(), -100.0
+                2.0, cpsController.getPositionModels().get(0).getPriceOpen(), 100.0
             },
             {
                 3.0, cpsController.getPositionModels().get(0).getPrice(), 101.0
@@ -173,7 +173,7 @@ public class ClosedTransTest
      * different open dates
      * same close date
      */
-    @Ignore
+//    @Ignore
     @Test
     public void ClosedTrans2()
     {

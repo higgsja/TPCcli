@@ -1,14 +1,13 @@
-package Positions.ClosedPositionsStockController;
+package com.hpi.ClosedPositionsOptionController;
 
 import com.hpi.TPCCMcontrollers.*;
 import com.hpi.TPCCMprefs.*;
 import com.hpi.appcontrollers.positions.*;
 import org.junit.*;
 
-public class ClosedPositionsStockBase
+public class ClosedPositionsOptionBase
 {
-
-    public static ClosedPositionsStockController cpsController;
+    public static ClosedPositionsOptionController cpoController;
 
     public static final Integer USER_ID = 5;
 
@@ -18,25 +17,25 @@ public class ClosedPositionsStockBase
         CMDBModel.getInstance();
         CMDBModel.setUserId(USER_ID);
         CMDBController.initDBConnection();
-
+        
         CMLanguageController.getInstance();
 
-        cpsController = ClosedPositionsStockController.getInstance();
+        cpoController = ClosedPositionsOptionController.getInstance();
     }
 
     @AfterClass
     public static void afterClass()
     {
     }
-
+    
     @Before
     public void before()
     {
         //clear closedStockFIFO for user id
-        CMDBController.executeSQL("delete from hlhtxc5_dmOfx.ClosedStockFIFO where JoomlaId = " + USER_ID);
+        CMDBController.executeSQL("delete from hlhtxc5_dmOfx.ClosedOptionFIFO where JoomlaId = " + USER_ID);
 
         //clear openStockFIFO for user id
-        CMDBController.executeSQL("delete from hlhtxc5_dmOfx.OpenStockFIFO where JoomlaId = " + USER_ID);
+        CMDBController.executeSQL("delete from hlhtxc5_dmOfx.OpenOptionFIFO where JoomlaId = " + USER_ID);
 
         //clear fifoOpenTransactions
         CMDBController
@@ -59,9 +58,5 @@ public class ClosedPositionsStockBase
 
         //clear positionsClosed
         CMDBController.executeSQL("delete from hlhtxc5_dmOfx.PositionsClosed where JoomlaId = " + USER_ID);
-        
-        cpsController.getFifoClosedTransactionModels().clear();
-        cpsController.getPositionTransactionModels().clear();
-        cpsController.getPositionModels().clear();
     }
 }

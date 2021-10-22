@@ -36,7 +36,8 @@ public class ClosedPositionsOptionController
      */
     private static ClosedPositionsOptionController instance;
 
-    static {
+    static
+    {
         ClosedPositionsOptionController.instance = null;
     }
 
@@ -53,7 +54,8 @@ public class ClosedPositionsOptionController
 
     public synchronized static ClosedPositionsOptionController getInstance()
     {
-        if (ClosedPositionsOptionController.instance == null) {
+        if (ClosedPositionsOptionController.instance == null)
+        {
             ClosedPositionsOptionController.instance = new ClosedPositionsOptionController();
         }
         return ClosedPositionsOptionController.instance;
@@ -87,17 +89,20 @@ public class ClosedPositionsOptionController
      */
     public void doSQL()
     {
-        //positionClosedModels is empty
-        for (PositionClosedModel pcm : this.positionClosedModels) {
+        for (PositionClosedModel pcm : this.positionClosedModels)
+        {
             Integer positionId;
 
             //add the positionClosedModel to positionsClosed table
             positionId = this.insertPositionSQL(pcm);
-            
-            if (positionId == -1){
-                //todo: got an error
+
+            if (positionId == -1)
+            {
+                //todo: got an error spy
                 return;
             }
+
+            pcm.setPositionId(positionId);
 
             //add the array of transactions to positionsClosedTransactions table
             this.insertPositionClosedTransactionsTableSQL(positionId, pcm);
@@ -109,13 +114,14 @@ public class ClosedPositionsOptionController
     {
         String sql;
 
-        for (PositionClosedTransactionModel pctm : pcm.getPositionClosedTransactionModels()) {
+        for (PositionClosedTransactionModel pctm : pcm.getPositionClosedTransactionModels())
+        {
             sql = String.format(PositionClosedTransactionModel.POSITION_TRANSACTION_INSERT,
                 pctm.getDmAcctId(),
                 pctm.getJoomlaId(),
                 positionId,
                 pctm.getFiTId(),
-                pctm.getEquityId(),
+                //                pctm.getEquityId(),   //do not set here as multi-leg positions have no equityId
                 pctm.getTransactionName(),
                 pctm.getTicker(),
                 pctm.getDateOpen(),
@@ -123,6 +129,7 @@ public class ClosedPositionsOptionController
                 pctm.getUnits(),
                 pctm.getPriceOpen(),
                 pctm.getPriceClose(),
+                pctm.getDays(),
                 pctm.getPositionType(),
                 pctm.getTotalOpen(),
                 pctm.getTotalClose(),
@@ -136,11 +143,12 @@ public class ClosedPositionsOptionController
         }
     }
 
-    private void setFifoClosedTransactionsComplete()
+    public void setFifoClosedTransactionsComplete()
     {
         String sql;
 
-        for (FIFOClosedTransactionModel fctm : this.fifoClosedTransactionModels) {
+        for (FIFOClosedTransactionModel fctm : this.fifoClosedTransactionModels)
+        {
             sql = String.format(FIFOClosedTransactionModel.UPDATE_COMPLETE,
                 FIFOClosedTransactionModel.COMPLETE,
                 fctm.getDmAcctId(),
@@ -170,7 +178,11 @@ public class ClosedPositionsOptionController
             pcm.getDateClose(),
             pcm.getDays(),
             pcm.getGain(),
-            pcm.getPositionType());
+            pcm.getPositionType(),
+            pcm.getTransactionType(),
+            pcm.getTotalOpen(),
+            pcm.getTotalClose(),
+            pcm.getEquityType());
 
         return CMDBController.insertAutoRow(sInsertSQL);
     }
@@ -180,9 +192,11 @@ public class ClosedPositionsOptionController
      */
     public void doPositionName()
     {
-        for (PositionClosedModel pcm : this.positionClosedModels) {
+        for (PositionClosedModel pcm : this.positionClosedModels)
+        {
 
-            switch (pcm.getTacticId()) {
+            switch (pcm.getTacticId())
+            {
                 case PositionOpenModel.TACTICID_CUSTOM:
                     pcm.setPositionName("Custom");
                     break;
@@ -301,8 +315,7 @@ public class ClosedPositionsOptionController
         positionName += " ";
         positionName += closedClass0.getStrike();
         positionName += " ";
-        positionName += closedClass0.getPutcall()
-            .equalsIgnoreCase("c") ? "Call" : "Put";
+        positionName += closedClass0.getPutcall().equalsIgnoreCase("c") ? "Call" : "Put";
 
         return positionName;
     }
@@ -338,27 +351,23 @@ public class ClosedPositionsOptionController
         positionName += closedClass0.getPutcall()
             .equalsIgnoreCase("c") ? "Call" : "Put";
         positionName += " Vrtcl";
-        if (bCustom) {
+        if (bCustom)
+        {
             positionName += " Cstm";
         }
 
         return positionName;
     }
 
-    private String nameStrangle(PositionClosedModel pcm,
-        Boolean bCustom)
+    private String nameStrangle(PositionClosedModel pcm, Boolean bCustom)
     {
         String positionName;
         Integer month;
         OCCclass closedClass0;
         OCCclass closedClass1;
 
-        closedClass0 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getEquityId());
-        closedClass1 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(1)
-            .getEquityId());
+        closedClass0 = new OCCclass(pcm.getPositionClosedTransactionModels().get(0).getEquityId());
+        closedClass1 = new OCCclass(pcm.getPositionClosedTransactionModels().get(1).getEquityId());
 
         //aapl ddJanYY 150/120 Strangle
         positionName = closedClass0.getTicker();
@@ -374,7 +383,8 @@ public class ClosedPositionsOptionController
         positionName += closedClass1.getStrike();
         positionName += closedClass1.getPutcall();
         positionName += " Strngl";
-        if (bCustom) {
+        if (bCustom)
+        {
             positionName += " Cstm";
         }
 
@@ -389,12 +399,8 @@ public class ClosedPositionsOptionController
         OCCclass closedClass0;
         OCCclass closedClass1;
 
-        closedClass0 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getEquityId());
-        closedClass1 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(1)
-            .getEquityId());
+        closedClass0 = new OCCclass(pcm.getPositionClosedTransactionModels().get(0).getEquityId());
+        closedClass1 = new OCCclass(pcm.getPositionClosedTransactionModels().get(1).getEquityId());
 
         //aapl 150 ddJanYY/ddFebYY Calendar
         positionName = closedClass0.getTicker();
@@ -405,7 +411,6 @@ public class ClosedPositionsOptionController
         month = NumberUtils.toInt(closedClass0.getExpMonth());
         positionName += months[month - 1];
         positionName += closedClass0.getExpYear();
-//        positionName += " ";
         positionName += "/";
         positionName += closedClass1.getExpDay();
         month = NumberUtils.toInt(closedClass1.getExpMonth());
@@ -413,7 +418,8 @@ public class ClosedPositionsOptionController
         positionName += closedClass1.getExpYear();
         positionName += " ";
         positionName += " Calndr";
-        if (bCustom) {
+        if (bCustom)
+        {
             positionName += " Cstm";
         }
 
@@ -433,12 +439,8 @@ public class ClosedPositionsOptionController
         OCCclass closedClass0;
         OCCclass closedClass1;
 
-        closedClass0 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getEquityId());
-        closedClass1 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(1)
-            .getEquityId());
+        closedClass0 = new OCCclass(pcm.getPositionClosedTransactionModels().get(0).getEquityId());
+        closedClass1 = new OCCclass(pcm.getPositionClosedTransactionModels().get(1).getEquityId());
 
         //aapl ddJanYY 150 Straddle
         positionName = closedClass0.getTicker();
@@ -450,7 +452,8 @@ public class ClosedPositionsOptionController
         positionName += " ";
         positionName += closedClass0.getStrike();
         positionName += " Stradl";
-        if (bCustom) {
+        if (bCustom)
+        {
             positionName += " Cstm";
         }
 
@@ -466,18 +469,10 @@ public class ClosedPositionsOptionController
         OCCclass closedClass2;
         OCCclass closedClass3;
 
-        closedClass0 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getEquityId());
-        closedClass1 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(1)
-            .getEquityId());
-        closedClass2 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(2)
-            .getEquityId());
-        closedClass3 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(3)
-            .getEquityId());
+        closedClass0 = new OCCclass(pcm.getPositionClosedTransactionModels().get(0).getEquityId());
+        closedClass1 = new OCCclass(pcm.getPositionClosedTransactionModels().get(1).getEquityId());
+        closedClass2 = new OCCclass(pcm.getPositionClosedTransactionModels().get(2).getEquityId());
+        closedClass3 = new OCCclass(pcm.getPositionClosedTransactionModels().get(3).getEquityId());
 
         //aapl ddJanYY 185/196/161/172 Iron Condor
         positionName = closedClass0.getTicker();
@@ -508,18 +503,10 @@ public class ClosedPositionsOptionController
         OCCclass closedClass2;
         OCCclass closedClass3;
 
-        closedClass0 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getEquityId());
-        closedClass1 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(1)
-            .getEquityId());
-        closedClass2 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(2)
-            .getEquityId());
-        closedClass3 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(3)
-            .getEquityId());
+        closedClass0 = new OCCclass(pcm.getPositionClosedTransactionModels().get(0).getEquityId());
+        closedClass1 = new OCCclass(pcm.getPositionClosedTransactionModels().get(1).getEquityId());
+        closedClass2 = new OCCclass(pcm.getPositionClosedTransactionModels().get(2).getEquityId());
+        closedClass3 = new OCCclass(pcm.getPositionClosedTransactionModels().get(3).getEquityId());
 
         //aapl ddJanYY 185/196/210 CALL Butterfly
         //todo: leave like an iron condor for now
@@ -551,18 +538,10 @@ public class ClosedPositionsOptionController
         OCCclass closedClass2;
         OCCclass closedClass3;
 
-        closedClass0 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getEquityId());
-        closedClass1 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(1)
-            .getEquityId());
-        closedClass2 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(2)
-            .getEquityId());
-        closedClass3 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(3)
-            .getEquityId());
+        closedClass0 = new OCCclass(pcm.getPositionClosedTransactionModels().get(0).getEquityId());
+        closedClass1 = new OCCclass(pcm.getPositionClosedTransactionModels().get(1).getEquityId());
+        closedClass2 = new OCCclass(pcm.getPositionClosedTransactionModels().get(2).getEquityId());
+        closedClass3 = new OCCclass(pcm.getPositionClosedTransactionModels().get(3).getEquityId());
 
         //aapl ddJanYY 185/192/196/210 Call Condor
         positionName = closedClass0.getTicker();
@@ -594,12 +573,8 @@ public class ClosedPositionsOptionController
         OCCclass closedClass0;
         OCCclass closedClass1;
 
-        closedClass0 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getEquityId());
-        closedClass1 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(1)
-            .getEquityId());
+        closedClass0 = new OCCclass(pcm.getPositionClosedTransactionModels().get(0).getEquityId());
+        closedClass1 = new OCCclass(pcm.getPositionClosedTransactionModels().get(1).getEquityId());
 
         //aapl ddJanYY 129/130 Collar
         positionName = closedClass0.getTicker();
@@ -615,7 +590,8 @@ public class ClosedPositionsOptionController
         positionName += " ";
         positionName += closedClass0.getPutcall();
         positionName += " Collar";
-        if (bCustom) {
+        if (bCustom)
+        {
             positionName += " Cstm";
         }
 
@@ -630,12 +606,8 @@ public class ClosedPositionsOptionController
         OCCclass closedClass0;
         OCCclass closedClass1;
 
-        closedClass0 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getEquityId());
-        closedClass1 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(1)
-            .getEquityId());
+        closedClass0 = new OCCclass(pcm.getPositionClosedTransactionModels().get(0).getEquityId());
+        closedClass1 = new OCCclass(pcm.getPositionClosedTransactionModels().get(1).getEquityId());
 
         //aapl 129 ddJanYY/130 ddFebYY CALL Diagonal
         positionName = closedClass0.getTicker();
@@ -654,7 +626,8 @@ public class ClosedPositionsOptionController
         positionName += " ";
         positionName += closedClass0.getPutcall();
         positionName += " Diagnl";
-        if (bCustom) {
+        if (bCustom)
+        {
             positionName += " Cstm";
         }
 
@@ -670,35 +643,32 @@ public class ClosedPositionsOptionController
 
         this.positionClosedTransactionModels.clear();
 
-        for (int i = 0; i < this.fifoClosedTransactionModels.size(); i++) {
-            if (this.fifoClosedTransactionModels.get(i)
-                .getBComplete()) {
+        for (int i = 0; i < this.fifoClosedTransactionModels.size(); i++)
+        {
+            if (this.fifoClosedTransactionModels.get(i).getBComplete())
+            {
                 //fctm already handled
                 continue;
             }
 
             pctm = PositionClosedTransactionModel.builder()
-                .dmAcctId(this.fifoClosedTransactionModels.get(i)
-                    .getDmAcctId())
+                .dmAcctId(this.fifoClosedTransactionModels.get(i).getDmAcctId())
                 .joomlaId(this.userId)
                 .positionId(-999)
                 .build();
 
             //add first fifoClosedTransaction to the positionClosedTransactionModel.fifoClosedTransactionModels
-            pctm.getFifoClosedTransactionModels()
-                .add(new FIFOClosedTransactionModel(
-                    this.fifoClosedTransactionModels.get(i)));
+            pctm.getFifoClosedTransactionModels().add(new FIFOClosedTransactionModel(
+                this.fifoClosedTransactionModels.get(i)));
 
             //add positionClosedTransactionModel to the positionClosedTransactionModel array
             //using the previously built pctm
             this.positionClosedTransactionModels.add(pctm);
 
             //mark initial transaction complete
-            this.fifoClosedTransactionModels.get(i)
-                .setBComplete(true);
+            this.fifoClosedTransactionModels.get(i).setBComplete(true);
 
-            this.addFctm2Pctm(i,
-                pctm);
+            this.addFctm2Pctm(i, pctm);
 
             //set attributes in the pctm
             this.doAttributesPctm(pctm);
@@ -707,67 +677,59 @@ public class ClosedPositionsOptionController
 
     private void doAttributesPctm(PositionClosedTransactionModel pctm)
     {
-        Double units;
+        Double totalUnits;
         Double totalOpen;
         Double totalClose;
         Double gain;
         Double gainPct;
-        java.sql.Date gmtDtTradeClose;
+        java.sql.Date dateOpen;
+        java.sql.Date dateClose;
 
-        gmtDtTradeClose = new java.sql.Date(0);
-        units = totalOpen = totalClose = 0.0;
+        dateOpen = new java.sql.Date(0);
+        dateClose = new java.sql.Date(0);
 
-        for (FIFOClosedTransactionModel fctm : pctm.getFifoClosedTransactionModels()) {
-            units += fctm.getUnits();
+        totalUnits = totalOpen = totalClose = 0.0;
+
+        for (FIFOClosedTransactionModel fctm : pctm.getFifoClosedTransactionModels())
+        {
+            totalUnits += fctm.getUnits();
             totalOpen += fctm.getTotalOpen();
             totalClose += fctm.getTotalClose();
-            gmtDtTradeClose = gmtDtTradeClose.after(fctm.getDateClose()) ? gmtDtTradeClose : fctm
-                .getDateClose();
+
+            //want this to reflect the last time a position was opened
+            dateOpen = dateOpen.compareTo(fctm.getDateOpen()) > 0 ? dateOpen : fctm.getDateOpen();
+
+            //want this to reflect the last time a position was closed
+            dateClose = dateClose.compareTo(fctm.getDateClose()) > 0 ? dateClose : fctm.getDateClose();
         }
 
         gain = totalOpen + totalClose;
         gainPct = 100.0 * gain / totalOpen;
 
-        pctm.setEquityId(pctm.getFifoClosedTransactionModels()
-            .get(0)
-            .getEquityId());
-
-        pctm.setUnits(units);
+        pctm.setUnits(totalUnits);
         pctm.setTotalOpen(totalOpen);
         pctm.setTotalClose(totalClose);
+
         pctm.setGain(gain);
         pctm.setGainPct(gainPct);
 
-        pctm.setFiTId(pctm.getFifoClosedTransactionModels()
-            .get(0)
-            .getFiTId() + "_y");
-        pctm.setTicker(pctm.getFifoClosedTransactionModels()
-            .get(0)
-            .getTicker());
-        pctm.setDateOpen(pctm.getFifoClosedTransactionModels()
-            .get(0)
-            .getDateOpen());
-        pctm.setDateClose(gmtDtTradeClose);
+        pctm.setTransactionType(pctm.getFifoClosedTransactionModels().get(0).getTransactionType());
+        pctm.setPositionType(pctm.getFifoClosedTransactionModels().get(0).getPositionType());
+        pctm.setEquityType(pctm.getFifoClosedTransactionModels().get(0).getEquityType());
 
-        pctm.setPriceOpen(totalOpen / (units * 100.0));
-        pctm.setPriceClose(totalClose / (units * 100.0));
+        pctm.setFiTId(pctm.getFifoClosedTransactionModels().get(0).getFiTId() + "_y");
+        pctm.setTicker(pctm.getFifoClosedTransactionModels().get(0).getTicker());
+        pctm.setEquityId(pctm.getFifoClosedTransactionModels().get(0).getEquityId());
 
-        pctm.setDateExpire(pctm.getFifoClosedTransactionModels()
-            .get(0)
-            .getDateExpire());
+        pctm.setDateOpen(dateOpen);
+        pctm.setDateClose(dateClose);
 
-        pctm.setDays(0);
+        pctm.setPriceOpen(totalOpen / (totalUnits * 100.0));
+        pctm.setPriceClose(totalClose / (totalUnits * 100.0));
 
-        pctm.setPositionType(pctm.getFifoClosedTransactionModels()
-            .get(0)
-            .getPositionType());
-        pctm.setTransactionType(pctm.getFifoClosedTransactionModels()
-            .get(0)
-            .getTransactionType());
+        pctm.setDateExpire(pctm.getFifoClosedTransactionModels().get(0).getDateExpire());
 
-        pctm.setEquityType(pctm.getFifoClosedTransactionModels()
-            .get(0)
-            .getEquityType());
+        pctm.setDays(pctm.getFifoClosedTransactionModels().get(0).getDays());
 
         pctm.setBComplete(false);
 
@@ -783,9 +745,10 @@ public class ClosedPositionsOptionController
 
         this.positionClosedModels.clear();
 
-        for (int i = 0; i < this.positionClosedTransactionModels.size(); i++) {
-            if (this.positionClosedTransactionModels.get(i)
-                .getBComplete()) {
+        for (int i = 0; i < this.positionClosedTransactionModels.size(); i++)
+        {
+            if (this.positionClosedTransactionModels.get(i).getBComplete())
+            {
                 //fctm already handled
                 continue;
             }
@@ -798,28 +761,24 @@ public class ClosedPositionsOptionController
                 .build();
 
             //add first positionClosedTransaction to the positionClosedModel.positionClosedTransactionModels
-            pcm.getPositionClosedTransactionModels()
-                .add(new PositionClosedTransactionModel(
-                    this.positionClosedTransactionModels.get(i)));
+            pcm.getPositionClosedTransactionModels().add(new PositionClosedTransactionModel(
+                this.positionClosedTransactionModels.get(i)));
 
             //add positionClosedModel to the positionClosedModels array
             //using the previously built pcm
             this.positionClosedModels.add(pcm);
 
             //mark initial transaction complete
-            this.positionClosedTransactionModels.get(i)
-                .setBComplete(true);
+            this.positionClosedTransactionModels.get(i).setBComplete(true);
 
-            this.addPctm2Pcm(i,
-                pcm);
+            this.addPctm2Pcm(i, pcm);
 
             //set attributes in the pcm
             this.doAttributesPctm2Pcm(pcm);
         }
     }
 
-    private void addPctm2Pcm(Integer i,
-        PositionClosedModel pcm)
+    private void addPctm2Pcm(Integer i, PositionClosedModel pcm)
     {
         Integer pcmStart;
 
@@ -829,42 +788,39 @@ public class ClosedPositionsOptionController
 
         //loop the rest of the positionTransactionModels array for transactions
         //  to add to pcm positionCloseTransactionModels array
-        for (int j = i + 1; j < this.positionClosedTransactionModels.size(); j++) {
-            if (this.positionClosedTransactionModels.get(j)
-                .getBComplete()) {
+        for (int j = i + 1; j < this.positionClosedTransactionModels.size(); j++)
+        {
+            if (this.positionClosedTransactionModels.get(j).getBComplete())
+            {
                 //never hit
                 continue;
             }
 
-            if (!this.positionClosedTransactionModels.get(pcmStart)
-                .getTicker()
-                .equals(this.positionClosedTransactionModels.get(j)
-                    .getTicker())) {
+            if (!this.positionClosedTransactionModels.get(pcmStart).getTicker()
+                .equals(this.positionClosedTransactionModels.get(j).getTicker()))
+            {
                 //not same ticker
                 break;
             }
 
-            if (!this.positionClosedTransactionModels.get(pcmStart)
-                .getDmAcctId()
-                .equals(this.positionClosedTransactionModels.get(j)
-                    .getDmAcctId())) {
+            if (!this.positionClosedTransactionModels.get(pcmStart).getDmAcctId()
+                .equals(this.positionClosedTransactionModels.get(j).getDmAcctId()))
+            {
                 //not same DMAcctId
                 break;
             }
 
-            if (this.positionClosedTransactionModels.get(pcmStart)
-                .getDateOpen()
-                .equals(this.positionClosedTransactionModels.get(pcmStart)
-                    .getDateClose())) {
+            if (this.positionClosedTransactionModels.get(pcmStart).getDateOpen()
+                .equals(this.positionClosedTransactionModels.get(pcmStart).getDateClose()))
+            {
                 //special case
                 //open and close dates are the same; we aggregated these lots; now needs to be unique pcm
                 break;
             }
 
-            if (!this.positionClosedTransactionModels.get(pcmStart)
-                .getDateOpen()
-                .equals(this.positionClosedTransactionModels.get(j)
-                    .getDateOpen())) {
+            if (!this.positionClosedTransactionModels.get(pcmStart).getDateOpen()
+                .equals(this.positionClosedTransactionModels.get(j).getDateOpen()))
+            {
                 //not same open date
                 break;
             }
@@ -876,57 +832,90 @@ public class ClosedPositionsOptionController
 //            }
 
             //j transaction should be part of the pctm
-            pcm.getPositionClosedTransactionModels()
-                .add(new PositionClosedTransactionModel(
-                    this.positionClosedTransactionModels.get(j)));
+            pcm.getPositionClosedTransactionModels().add(new PositionClosedTransactionModel(
+                this.positionClosedTransactionModels.get(j)));
 
             // mark it complete
-            this.positionClosedTransactionModels.get(j)
-                .setBComplete(true);
+            this.positionClosedTransactionModels.get(j).setBComplete(true);
+
+//              another special case
+//              multiple verticals purchased on the same day and sold on the same later day
+//              add the shares of the positionTransactionNames; if zero it is this case
+            //todo: this approach precludes any condor type positions same day same day
+//            Double totalUnits = 0.0;
+//            for (PositionClosedTransactionModel pctm : pcm.getPositionClosedTransactionModels())
+//            {
+//                totalUnits += pctm.getUnits();
+//            }
+//
+//            if (totalUnits.equals(0.0))
+//            {
+//                break;
+//            }
         }
     }
 
     private void doAttributesPctm2Pcm(PositionClosedModel pcm)
     {
-        Double units;
+        Double totalUnits;
         Double totalOpen;
         Double totalClose;
         Double gain;
         Double gainPct;
-        java.sql.Date gmtDtTradeClose;
+        java.sql.Date dateClose;
 
-        gmtDtTradeClose = new java.sql.Date(0);
-        totalOpen = totalClose = 0.0;
+        dateClose = new java.sql.Date(0);
+        totalUnits = totalOpen = totalClose = 0.0;
 
-        for (PositionClosedTransactionModel pctm : pcm.getPositionClosedTransactionModels()) {
-
+        for (PositionClosedTransactionModel pctm : pcm.getPositionClosedTransactionModels())
+        {
+            totalUnits += pctm.getUnits();
             totalOpen += pctm.getTotalOpen();
             totalClose += pctm.getTotalClose();
-            gmtDtTradeClose = gmtDtTradeClose.after(pctm.getDateClose()) ? gmtDtTradeClose : pctm
-                .getDateClose();
+
+            dateClose = dateClose.after(pctm.getDateClose()) ? dateClose : pctm.getDateClose();
         }
 
         gain = totalOpen + totalClose;
         gainPct = 100.0 * gain / Math.abs(totalOpen);
 
-        pcm.setUnits(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getUnits());
+        if (pcm.getPositionClosedTransactionModels().size() == 1)
+        {
+            //this will only be true if we have one or more lots of the same equity
+            //resulting in a single position
+            pcm.setUnits(totalUnits);
+        } else
+        {
+            //now have multiple positions; units on each should be the same or a problem
+            //and whatever the common units, need to use that
+            pcm.setUnits(Math.abs(pcm.getPositionClosedTransactionModels().get(0).getUnits()));
+        }
+
         pcm.setGain(gain);
         pcm.setGainPct(gainPct);
+        pcm.setTotalOpen(totalOpen);
+        pcm.setTotalClose(totalClose);
 
-        pcm.setTicker(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getTicker());
-        pcm.setDateOpen(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getDateOpen());
-        pcm.setDateClose(gmtDtTradeClose);
+        pcm.setPositionType(pcm.getPositionClosedTransactionModels().get(0).getPositionType());
+        pcm.setEquityType(pcm.getPositionClosedTransactionModels().get(0).getEquityType());
+        //this is incorrect as transactions can be combination of selltoopen, buytoopen, etc.
+//        pcm.setTransactionType(pcm.getPositionClosedTransactionModels().get(0).getTransactionType());
+        pcm.setTransactionType(pcm.getTotalOpen() > 0 ? "SHORT" : "LONG");
 
+        pcm.setTicker(pcm.getPositionClosedTransactionModels().get(0).getTicker());
+        //incorrect as there is no equityId for multi-leg; make all null to avoid confusion
+//        pcm.setEquityId(pcm.getPositionClosedTransactionModels().get(0).getEquityId());
+        pcm.setEquityId(null);
+
+        pcm.setDateOpen(pcm.getPositionClosedTransactionModels().get(0).getDateOpen());
+        pcm.setDateClose(dateClose);
+
+        //cases where this results in division by 0
+        //need to go deeper to fifoClosedTransactionModels to get average open/close price
         pcm.setPriceOpen(totalOpen / (pcm.getUnits() * 100.0));
         pcm.setPrice(totalClose / (pcm.getUnits() * 100.0));
 
-        pcm.setDays(0);
+        pcm.setDays(pcm.getPositionClosedTransactionModels().get(0).getDays());
     }
 
     /**
@@ -946,127 +935,53 @@ public class ClosedPositionsOptionController
 
         //loop the rest of the fifoTransactionModels array for transactions
         //  to add to pctm fifoCloseTransactionModels array
-        for (int j = i + 1; j < this.fifoClosedTransactionModels.size(); j++) {
-            if (this.fifoClosedTransactionModels.get(j)
-                .getBComplete()) {
+        for (int j = i + 1; j < this.fifoClosedTransactionModels.size(); j++)
+        {
+            if (this.fifoClosedTransactionModels.get(j).getBComplete())
+            {
                 //should never hit
                 continue;
             }
-            if (!this.fifoClosedTransactionModels.get(pctmStart)
-                .getEquityId()
-                .equals(this.fifoClosedTransactionModels.get(j)
-                    .getEquityId())) {
+            if (!this.fifoClosedTransactionModels.get(pctmStart).getDmAcctId()
+                .equals(this.fifoClosedTransactionModels.get(j).getDmAcctId()))
+            {
+                //not the same account
+                break;
+            }
+            if (!this.fifoClosedTransactionModels.get(pctmStart).getEquityId()
+                .equals(this.fifoClosedTransactionModels.get(j).getEquityId()))
+            {
                 //not the same equityId
                 break;
             }
 
-            if (this.fifoClosedTransactionModels.get(pctmStart)
-                .getDateOpen()
-                .equals(
-                    this.fifoClosedTransactionModels.get(pctmStart)
-                        .getDateClose())
-                && !this.fifoClosedTransactionModels.get(j)
-                    .getDateOpen()
-                    .equals(
-                        this.fifoClosedTransactionModels.get(j)
-                            .getDateClose())) {
+            if (this.fifoClosedTransactionModels.get(pctmStart).getDateOpen()
+                .equals(this.fifoClosedTransactionModels.get(pctmStart).getDateClose())
+                && !this.fifoClosedTransactionModels.get(j).getDateOpen()
+                    .equals(this.fifoClosedTransactionModels.get(j).getDateClose()))
+            {
                 //special case where open and close date the same. need those to be distinct pctm
                 //  but also aggregated when more than one lot
                 //  otherwise, ignore closing date
                 break;
             }
 
-            if (!this.fifoClosedTransactionModels.get(pctmStart)
-                .getDateOpen()
-                .equals(this.fifoClosedTransactionModels.get(j)
-                    .getDateOpen())) {
+            if (!this.fifoClosedTransactionModels.get(pctmStart).getDateOpen()
+                .equals(this.fifoClosedTransactionModels.get(j).getDateOpen()))
+            {
                 //not same open date
                 break;
             }
 
             //j transaction should be part of the pctm
-            pctm.getFifoClosedTransactionModels()
-                .add(new FIFOClosedTransactionModel(
-                    this.fifoClosedTransactionModels.get(j)));
+            pctm.getFifoClosedTransactionModels().add(new FIFOClosedTransactionModel(
+                this.fifoClosedTransactionModels.get(j)));
 
             // mark it complete
-            this.fifoClosedTransactionModels.get(j)
-                .setBComplete(true);
+            this.fifoClosedTransactionModels.get(j).setBComplete(true);
         }
     }
 
-//    /**
-//     * loop the balance of the transactions for adds to the position based on: same
-//     * DMAcctId, Ticker, DateOpen
-//     *
-//     * @param i    initial transaction index
-//     * @param pctm working positionClosedModel
-//     */
-//    private void addTransactions(int i, PositionClosedModel pcm, PositionClosedTransactionModel pctm) {
-//        Integer pctmStart;
-//
-//        //expect multiple lots on multiple legs
-//        //move starting point to new position index
-//        pctmStart = i;
-//        //loop the rest of the fifoTransactionModels array for transactions to add to position
-//        for (int j = i + 1; j < this.fifoClosedTransactionModels.size(); j++) {
-//            if (this.fifoClosedTransactionModels.get(j).getBComplete()) {
-//                continue;
-//            }
-//            if (!this.fifoClosedTransactionModels.get(pctmStart).getDmAcctId()
-//                .equals(this.fifoClosedTransactionModels.get(j).getDmAcctId())) {
-//                //not same DMAcctId
-//                break;
-//            }
-//            if (!this.fifoClosedTransactionModels.get(pctmStart).getTicker()
-//                .equals(this.fifoClosedTransactionModels.get(j).getTicker())) {
-//                //not same ticker
-//                break;
-//            }
-//            if (!this.fifoClosedTransactionModels.get(pctmStart).getDateOpen()
-//                .equals(this.fifoClosedTransactionModels.get(j).getDateOpen())) {
-//                //not same open date
-//                break;
-//            }
-////            if (!this.fifoClosedTransactionModels.get(pctmStart).getTransType().equalsIgnoreCase(
-////                    this.fifoClosedTransactionModels.get(j).getTransType())) {
-////                //not the same transaction type
-////                break;
-////            }
-//            if (!this.fifoClosedTransactionModels.get(pctmStart).getEquityId()
-//                .equals(this.fifoClosedTransactionModels.get(j).getEquityId())) {
-//                //not the same equityId; new pctm in the pcm
-//                pctm = PositionClosedTransactionModel.builder()
-//                    .dmAcctId(this.fifoClosedTransactionModels.get(j).getDmAcctId())
-//                    .joomlaId(this.userId)
-//                    .positionId(-999)
-//                    .build();
-//
-//                //add positionClosedTransactionModel to the positionClosedModel array
-//                pcm.getPositionClosedTransactionModels().add(pctm);
-//
-//                //add first fifoClosedTransaction to the positionClosedTransactionModel.fifoClosedTransactionModels
-//                pctm.getFifoClosedTransactionModels().add(new FIFOClosedTransactionModel(
-//                    this.fifoClosedTransactionModels.get(j)));
-//
-//                // mark it complete
-//                this.fifoClosedTransactionModels.get(j).setBComplete(true);
-//
-//                pctmStart = j;
-//
-//                continue;
-//            }
-//            //disregard close date. could close multi-leg position one leg at a time
-//
-//            //j transaction should be part of the position
-//            // add to the position
-//            pctm.getFifoClosedTransactionModels().add(new FIFOClosedTransactionModel(
-//                this.fifoClosedTransactionModels.get(j)));
-//
-//            // mark it complete
-//            this.fifoClosedTransactionModels.get(j).setBComplete(true);
-//        }
-//    }
     /**
      * Use the positionClosedModel.positionClosedTransactionModels to establish
      * tacticId
@@ -1108,48 +1023,49 @@ public class ClosedPositionsOptionController
         callsList = new ArrayList<>();
 
         //iterate the position closed transaction array
-        pctmIterator = pcm.getPositionClosedTransactionModels()
-            .iterator();
+        pctmIterator = pcm.getPositionClosedTransactionModels().iterator();
 
-        OCCclass occClassPctm0 = new OCCclass(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getEquityId());
-        while (pctmIterator.hasNext()) {
+        OCCclass occClassPctm0 = new OCCclass(pcm.getPositionClosedTransactionModels().get(0).getEquityId());
+        while (pctmIterator.hasNext())
+        {
             tempPctm = pctmIterator.next();
             OCCclass occClassPctm = new OCCclass(tempPctm.getEquityId());
 
-            if (occClassPctm.getDtExpiry()
-                .equals(occClassPctm0.getDtExpiry())) {
+            if (occClassPctm.getDtExpiry().equals(occClassPctm0.getDtExpiry()))
+            {
                 //same expiry
-                if (occClassPctm.getPutcall()
-                    .equalsIgnoreCase("p")) {
+                if (occClassPctm.getPutcall().equalsIgnoreCase("p"))
+                {
                     //same expiry
                     //put
                     putsList.add(tempPctm);
 
-                    if (tempPctm.getTransactionType()
-                        .equalsIgnoreCase("buytoopen")) {
+                    if (tempPctm.getTransactionType().equalsIgnoreCase("buytoopen"))
+                    {
                         //same expiry
                         //put
                         //long
                         longPut += 1;
-                    } else {
+                    } else
+                    {
                         //same expiry
                         //put
                         //short
                         shortPut += 1;
                     }
-                } else {
+                } else
+                {
                     //same expiry
                     //call
                     callsList.add(tempPctm);
-                    if (tempPctm.getTransactionType()
-                        .equalsIgnoreCase("buytoopen")) {
+                    if (tempPctm.getTransactionType().equalsIgnoreCase("buytoopen"))
+                    {
                         //same expiry
                         //call
                         //long
                         longCall += 1;
-                    } else {
+                    } else
+                    {
                         //same expiry
                         //call
                         //short
@@ -1161,12 +1077,11 @@ public class ClosedPositionsOptionController
                 Double d2;
 
                 d1 = Math.abs(tempPctm.getUnits());
-                d2 = Math.abs(pcm.getPositionClosedTransactionModels()
-                    .get(0)
-                    .getUnits());
+                d2 = Math.abs(pcm.getPositionClosedTransactionModels().get(0).getUnits());
 
                 bSameUnits = d1.equals(d2);
-            } else {
+            } else
+            {
                 //different expiry
                 //todo: break up into individual positions
                 //  or a pair of calls and a pair of puts
@@ -1178,11 +1093,13 @@ public class ClosedPositionsOptionController
         }
 
         //todo: separate into positions
-        if (!bSameExpiry) {
+        if (!bSameExpiry)
+        {
             pcm.setTacticId(PositionOpenModel.TACTICID_CUSTOM);
             return;
         }
-        if (!bSameUnits) {
+        if (!bSameUnits)
+        {
             pcm.setTacticId(PositionOpenModel.TACTICID_CUSTOM);
             return;
         }
@@ -1194,22 +1111,24 @@ public class ClosedPositionsOptionController
         totalCall = longCall + shortCall;
         totalPut = longPut + shortPut;
 
-        if (totalPut.equals(0)) {
+        if (totalPut.equals(0))
+        {
             //all calls
             //todo: all different strikes
             //condor (calls)
             ret = PositionOpenModel.TACTICID_CONDOR;
         }
 
-        if (totalCall.equals(0)) {
+        if (totalCall.equals(0))
+        {
             //all puts
             //todo: all different strikes
             //condor (puts)
             ret = PositionOpenModel.TACTICID_CONDOR;
         }
 
-        if (longPut.equals(shortPut) && longPut.equals(longCall) && longPut
-            .equals(shortCall)) {
+        if (longPut.equals(shortPut) && longPut.equals(longCall) && longPut.equals(shortCall))
+        {
             //equal parts longPut, shortPut, longCall, shortCall
             //todo: all different strikes
             //iron condor
@@ -1222,14 +1141,13 @@ public class ClosedPositionsOptionController
 
         //set the rest of the positionModel attributes
         totalOpen = totalClose = 0.0;
-        for (PositionClosedTransactionModel pctm : pcm.getPositionClosedTransactionModels()) {
+        for (PositionClosedTransactionModel pctm : pcm.getPositionClosedTransactionModels())
+        {
             totalOpen += pctm.getTotalOpen();
             totalClose += pctm.getTotalClose();
         }
 
-        pcm.setUnits(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getUnits());
+        pcm.setUnits(pcm.getPositionClosedTransactionModels().get(0).getUnits());
 
         pcm.setPriceOpen(totalOpen / ((pcm.getUnits() * 100.0)));
         pcm.setPrice(totalClose / ((pcm.getUnits() * 100.0)));
@@ -1240,9 +1158,7 @@ public class ClosedPositionsOptionController
         pcm.setPositionType(totalOpen > 0.0 ? "SHORT" : "LONG");
 
         //latest close date should be the last one?
-        pcm.setDateClose(pcm.getPositionClosedTransactionModels()
-            .get(2)
-            .getDateClose());
+        pcm.setDateClose(pcm.getPositionClosedTransactionModels().get(2).getDateClose());
     }
 
     /**
@@ -1250,8 +1166,8 @@ public class ClosedPositionsOptionController
      * attributes
      *
      * @param aggregatedPositionClosedTransactionModels the transactions of the
-     *                                                  position aggregated
-     * @param pcm                                       the position
+     * position aggregated
+     * @param pcm the position
      */
     private void doTwoLegs(PositionClosedModel pcm)
     {
@@ -1267,180 +1183,168 @@ public class ClosedPositionsOptionController
         Double totalOpen;
         Double totalClose;
 
-        pctm1 = pcm.getPositionClosedTransactionModels()
-            .get(0);
-        pctm2 = pcm.getPositionClosedTransactionModels()
-            .get(1);
+        pctm1 = pcm.getPositionClosedTransactionModels().get(0);
+        pctm2 = pcm.getPositionClosedTransactionModels().get(1);
 
         occTrans1 = new OCCclass(pctm1.getEquityId());
         occTrans2 = new OCCclass(pctm2.getEquityId());
 
-        if (occTrans1.getPutcall()
-            .equalsIgnoreCase(occTrans2.getPutcall())) {
+        if (occTrans1.getPutcall().equalsIgnoreCase(occTrans2.getPutcall()))
+        {
             //all are either put or call
             //vertical, calendar, diagonal
-            if (occTrans1.getDtExpiry()
-                .equals(occTrans2.getDtExpiry())) {
+            if (occTrans1.getDtExpiry().equals(occTrans2.getDtExpiry()))
+            {
                 //all are either put or call
                 //all expiries are the same
-                if (pctm1.getTransactionType()
-                    .equals(pctm2.getTransactionType())) {
+                if (pctm1.getTransactionType().equals(pctm2.getTransactionType()))
+                {
                     //all are either put or call
                     //all expiries are the same
                     //all same transType (buytoopen ...)
                     //hit
                     ret = PositionOpenModel.TACTICID_CUSTOM;
-                } else {
+                } else
+                {
                     //all are either put or call
                     //all expiries are the same
                     //all different transType (buytoopen ...)
                     //vertical, collar, calendar, diagonal
-                    if (occTrans1.getDStrike()
-                        .equals(occTrans2.getDStrike())) {
+                    if (occTrans1.getDStrike().equals(occTrans2.getDStrike()))
+                    {
                         //all are either put or call
                         //all expiries are the same
                         //all different transType (buytoopen ...)
                         //all strikes the same
                         //not hit
                         ret = PositionOpenModel.TACTICID_CUSTOM;
-                    } else {
+                    } else
+                    {
                         //all are either put or call
                         //all expiries are the same
                         //all different transType (buytoopen ...)
                         //hit
                         Double double1, double2;
-                        double1 = Math.abs(pcm.getPositionClosedTransactionModels()
-                            .get(0)
-                            .getUnits());
-                        double2 = Math.abs(pcm.getPositionClosedTransactionModels()
-                            .get(1)
-                            .getUnits());
+                        double1 = Math.abs(pcm.getPositionClosedTransactionModels().get(0).getUnits());
+                        double2 = Math.abs(pcm.getPositionClosedTransactionModels().get(1).getUnits());
                         ret = double1.equals(double2)
                             ? PositionOpenModel.TACTICID_VERTICAL
                             : PositionOpenModel.TACTICID_VERTICAL_CUSTOM;
                     }
                 }
-            } else {
+            } else
+            {
                 //all are either put or call
                 //all expiries are not the same
                 //calendar, diagonal
-                if (occTrans1.getDStrike()
-                    .equals(occTrans2.getDStrike())) {
+                if (occTrans1.getDStrike().equals(occTrans2.getDStrike()))
+                {
                     //all are either put or call
                     //all expiries are not the same
                     //all strikes are the same
                     //hit
-                    if (pcm.getPositionClosedTransactionModels()
-                        .get(0)
-                        .getUnits()
-                        .equals(pcm
-                            .getPositionClosedTransactionModels()
-                            .get(1)
-                            .getUnits())) {
+                    if (pcm.getPositionClosedTransactionModels().get(0).getUnits()
+                        .equals(pcm.getPositionClosedTransactionModels().get(1).getUnits()))
+                    {
                         ret = PositionOpenModel.TACTICID_CALENDAR;
-                    } else {
+                    } else
+                    {
                         ret = PositionOpenModel.TACTICID_CALENDAR_CUSTOM;
                     }
-                } else {
+                } else
+                {
                     //all are either put or call
                     //all expiries are not the same
                     //all strikes are not the same
                     //hit
-                    if (pctm1.getTransactionType()
-                        .equals(pctm2.getTransactionType())) {
+                    if (pctm1.getTransactionType().equals(pctm2.getTransactionType()))
+                    {
                         //all are either put or call
                         //all expiries are not the same
                         //all strikes are not the same
 
                         //all transType (buytoopen ...) same
                         ret = PositionOpenModel.TACTICID_CUSTOM;
-                    } else {
+                    } else
+                    {
                         //all are either put or call
                         //all expiries are not the same
                         //all strikes are not the same
                         //all transType(buytoopen ...) not the same
-                        if (pcm.getPositionClosedTransactionModels()
-                            .get(0)
-                            .getUnits()
-                            .equals(pcm
-                                .getPositionClosedTransactionModels()
-                                .get(1)
-                                .getUnits())) {
+                        if (pcm.getPositionClosedTransactionModels().get(0).getUnits()
+                            .equals(pcm.getPositionClosedTransactionModels().get(1).getUnits()))
+                        {
                             ret = PositionOpenModel.TACTICID_DIAGONAL;
-                        } else {
+                        } else
+                        {
                             ret = PositionOpenModel.TACTICID_DIAGONAL_CUSTOM;
                         }
                     }
                 }
             }
-        } else {
+        } else
+        {
             //have puts and calls
             //straddle, strangle, collar
-            if (occTrans1.getDtExpiry()
-                .equals(occTrans2.getDtExpiry())) {
+            if (occTrans1.getDtExpiry().equals(occTrans2.getDtExpiry()))
+            {
                 //not all calls or puts
                 //all expiries are the same
-                if (pctm1.getTransactionType()
-                    .equalsIgnoreCase(pctm2.getTransactionType())) {
+                if (pctm1.getTransactionType().equalsIgnoreCase(pctm2.getTransactionType()))
+                {
                     //not all calls or puts
                     //all expiries are the same
                     //all same transType (buytoopen ...)
                     //straddle, strangle
-                    if (occTrans1.getDStrike()
-                        .equals(occTrans2.getDStrike())) {
+                    if (occTrans1.getDStrike().equals(occTrans2.getDStrike()))
+                    {
                         //not all calls or puts
                         //all expiries are the same
                         //all same transType (buytoopen ...)
                         //all strikes the same
                         //not hit
-                        if (pcm.getPositionClosedTransactionModels()
-                            .get(0)
-                            .getUnits()
-                            .equals(pcm
-                                .getPositionClosedTransactionModels()
-                                .get(1)
-                                .getUnits())) {
+                        if (pcm.getPositionClosedTransactionModels().get(0).getUnits()
+                            .equals(pcm.getPositionClosedTransactionModels().get(1).getUnits()))
+                        {
                             ret = PositionOpenModel.TACTICID_STRADDLE;
-                        } else {
+                        } else
+                        {
                             ret = PositionOpenModel.TACTICID_STRADDLE_CUSTOM;
                         }
-                    } else {
+                    } else
+                    {
                         //not all calls or puts
                         //all expiries are the same
                         //all same transType (buytoopen ...)
                         //all strikes are not the same
                         //hit
-                        if (pcm.getPositionClosedTransactionModels()
-                            .get(0)
-                            .getUnits()
-                            .equals(pcm
-                                .getPositionClosedTransactionModels()
-                                .get(1)
-                                .getUnits())) {
+                        if (pcm.getPositionClosedTransactionModels().get(0).getUnits()
+                            .equals(pcm.getPositionClosedTransactionModels().get(1).getUnits()))
+                        {
                             ret = PositionOpenModel.TACTICID_STRANGLE;
-                        } else {
+                        } else
+                        {
                             ret = PositionOpenModel.TACTICID_STRANGLE_CUSTOM;
                         }
 
                     }
-                } else {
+                } else
+                {
                     //not all calls or puts
                     //all expiries are the same
                     //all not same transType (buytoopen ...)
                     //not hit
-                    if (pcm.getPositionClosedTransactionModels()
-                        .get(0)
-                        .getUnits()
-                        .equals(pcm
-                            .getPositionClosedTransactionModels()
-                            .get(1)
-                            .getUnits())) {
+                    if (pcm.getPositionClosedTransactionModels().get(0).getUnits()
+                        .equals(pcm.getPositionClosedTransactionModels().get(1).getUnits()))
+                    {
                         ret = PositionOpenModel.TACTICID_COLLAR;
-                    } else {
+                    } else
+                    {
                         ret = PositionOpenModel.TACTICID_COLLAR_CUSTOM;
                     }
                 }
-            } else {
+            } else
+            {
                 //not all calls or puts
                 //all expiries are not the same
                 //hit
@@ -1451,22 +1355,17 @@ public class ClosedPositionsOptionController
         pcm.setTacticId(ret);
 
         //set the rest of the positionModel attributes
-        pcm.setUnits(Double.min(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getUnits(),
-            pcm.getPositionClosedTransactionModels()
-                .get(1)
-                .getUnits()));
+        pcm.setUnits(Double.min(pcm.getPositionClosedTransactionModels().get(0).getUnits(),
+            pcm.getPositionClosedTransactionModels().get(1).getUnits()));
 
         totalOpen = totalClose = 0.0;
-        for (PositionClosedTransactionModel pctm : pcm.getPositionClosedTransactionModels()) {
+        for (PositionClosedTransactionModel pctm : pcm.getPositionClosedTransactionModels())
+        {
             totalOpen += pctm.getTotalOpen();
             totalClose += pctm.getTotalClose();
         }
 
-        pcm.setUnits(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getUnits());
+        pcm.setUnits(pcm.getPositionClosedTransactionModels().get(0).getUnits());
 
         pcm.setPriceOpen(totalOpen / ((pcm.getUnits() * 100.0)));
         pcm.setPrice(totalClose / ((pcm.getUnits() * 100.0)));
@@ -1476,23 +1375,15 @@ public class ClosedPositionsOptionController
 
         pcm.setPositionType(totalOpen > 0.0 ? "SHORT" : "LONG");
 
-        pcm.setDateOpen(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getDateOpen());
+        pcm.setDateOpen(pcm.getPositionClosedTransactionModels().get(0).getDateOpen());
 
-        if (pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getDateClose()
-            .after(pcm.getPositionClosedTransactionModels()
-                .get(1)
-                .getDateClose())) {
-            pcm.setDateClose(pcm.getPositionClosedTransactionModels()
-                .get(0)
-                .getDateClose());
-        } else {
-            pcm.setDateClose(pcm.getPositionClosedTransactionModels()
-                .get(1)
-                .getDateClose());
+        if (pcm.getPositionClosedTransactionModels().get(0).getDateClose()
+            .after(pcm.getPositionClosedTransactionModels().get(1).getDateClose()))
+        {
+            pcm.setDateClose(pcm.getPositionClosedTransactionModels().get(0).getDateClose());
+        } else
+        {
+            pcm.setDateClose(pcm.getPositionClosedTransactionModels().get(1).getDateClose());
         }
     }
 
@@ -1506,29 +1397,24 @@ public class ClosedPositionsOptionController
         Double totalOpen;
         Double totalClose;
 
-        if (pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getTransactionType()
-            .equalsIgnoreCase("buytoopen")) {
+        if (pcm.getPositionClosedTransactionModels().get(0).getTransactionType().equalsIgnoreCase("buytoopen"))
+        {
             pcm.setTacticId(PositionOpenModel.TACTICID_LONG);
         }
 
-        if (pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getTransactionType()
-            .equalsIgnoreCase("selltoopen")) {
+        if (pcm.getPositionClosedTransactionModels().get(0).getTransactionType().equalsIgnoreCase("selltoopen"))
+        {
             pcm.setTacticId(PositionOpenModel.TACTICID_SHORT);
         }
 
         totalOpen = totalClose = 0.0;
-        for (PositionClosedTransactionModel pctm : pcm.getPositionClosedTransactionModels()) {
+        for (PositionClosedTransactionModel pctm : pcm.getPositionClosedTransactionModels())
+        {
             totalOpen += pctm.getTotalOpen();
             totalClose += pctm.getTotalClose();
         }
 
-        pcm.setUnits(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getUnits());
+        pcm.setUnits(pcm.getPositionClosedTransactionModels().get(0).getUnits());
 
         pcm.setPriceOpen(totalOpen / (pcm.getUnits() * 100.0));
         pcm.setPrice(totalClose / (pcm.getUnits() * 100.0));
@@ -1538,13 +1424,9 @@ public class ClosedPositionsOptionController
 
         pcm.setPositionType(totalOpen > 0.0 ? "SHORT" : "LONG");
 
-        pcm.setDateOpen(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getDateOpen());
+        pcm.setDateOpen(pcm.getPositionClosedTransactionModels().get(0).getDateOpen());
 
-        pcm.setDateClose(pcm.getPositionClosedTransactionModels()
-            .get(0)
-            .getDateClose());
+        pcm.setDateClose(pcm.getPositionClosedTransactionModels().get(0).getDateClose());
     }
 
     /**
@@ -1556,41 +1438,34 @@ public class ClosedPositionsOptionController
 
         pcmAddList.clear();
 
-        for (PositionClosedModel pcm : this.positionClosedModels) {
+        for (PositionClosedModel pcm : this.positionClosedModels)
+        {
 
             switch (pcm.getPositionClosedTransactionModels()
-                .size()) {
+                .size())
+            {
                 case 1:
                     this.doOneLeg(pcm);
                     break;
                 case 2:
                     this.doTwoLegs(pcm);
                     //handle custom result
-                    if (pcm.getTacticId() == PositionOpenModel.TACTICID_CUSTOM) {
+                    if (pcm.getTacticId() == PositionOpenModel.TACTICID_CUSTOM)
+                    {
                         pcmTemp = new PositionClosedModel(pcm);
 
-                        pcmTemp.getPositionClosedTransactionModels()
-                            .remove(0);
+                        pcmTemp.getPositionClosedTransactionModels().remove(0);
                         pcmTemp.setPositionType(pcmTemp.getPositionClosedTransactionModels()
-                            .get(0)
-                            .getTransactionType()
-                            .equalsIgnoreCase("buytoopen") ? "LONG" : "SHORT");
+                            .get(0).getTransactionType().equalsIgnoreCase("buytoopen") ? "LONG" : "SHORT");
                         pcmTemp.setTacticId(pcmTemp.getPositionClosedTransactionModels()
-                            .get(0)
-                            .getTransactionType()
-                            .equalsIgnoreCase("buytoopen")
+                            .get(0).getTransactionType().equalsIgnoreCase("buytoopen")
                             ? PositionOpenModel.TACTICID_LONG
                             : PositionOpenModel.TACTICID_SHORT);
 
-                        pcm.getPositionClosedTransactionModels()
-                            .remove(1);
-                        pcm.setPositionType(pcm.getPositionClosedTransactionModels()
-                            .get(0)
-                            .getTransactionType()
+                        pcm.getPositionClosedTransactionModels().remove(1);
+                        pcm.setPositionType(pcm.getPositionClosedTransactionModels().get(0).getTransactionType()
                             .equalsIgnoreCase("buytoopen") ? "LONG" : "SHORT");
-                        pcm.setTacticId(pcm.getPositionClosedTransactionModels()
-                            .get(0)
-                            .getTransactionType()
+                        pcm.setTacticId(pcm.getPositionClosedTransactionModels().get(0).getTransactionType()
                             .equalsIgnoreCase("buytoopen")
                             ? PositionOpenModel.TACTICID_LONG
                             : PositionOpenModel.TACTICID_SHORT);
@@ -1610,13 +1485,12 @@ public class ClosedPositionsOptionController
                     //  0,1; 1,2; 0,2
                     pcmTemp = new PositionClosedModel(pcm);
                     //test 0, 1
-                    pcmTemp.getPositionClosedTransactionModels()
-                        .remove(2);
+                    pcmTemp.getPositionClosedTransactionModels().remove(2);
 
                     this.doTwoLegs(pcmTemp);
 
-                    if (!pcmTemp.getTacticId()
-                        .equals(PositionOpenModel.TACTICID_CUSTOM)) {
+                    if (!pcmTemp.getTacticId().equals(PositionOpenModel.TACTICID_CUSTOM))
+                    {
                         //0, 1 is a position
                         //add to addList
                         //not tested
@@ -1626,10 +1500,8 @@ public class ClosedPositionsOptionController
                         this.doTwoLegs(pcmTemp);
 
                         //edit pcm to remove 0, 1 and leave as a one leg position; fix attributes
-                        pcm.getPositionClosedTransactionModels()
-                            .remove(0);
-                        pcm.getPositionClosedTransactionModels()
-                            .remove(0);
+                        pcm.getPositionClosedTransactionModels().remove(0);
+                        pcm.getPositionClosedTransactionModels().remove(0);
 
                         this.doAttributesPctm2Pcm(pcm);
 
@@ -1645,7 +1517,8 @@ public class ClosedPositionsOptionController
                     this.doTwoLegs(pcmTemp);
 
                     if (!pcmTemp.getTacticId()
-                        .equals(PositionOpenModel.TACTICID_CUSTOM)) {
+                        .equals(PositionOpenModel.TACTICID_CUSTOM))
+                    {
                         //1, 2 is a position
                         //add to addList
                         pcmAddList.add(pcmTemp);
@@ -1655,10 +1528,8 @@ public class ClosedPositionsOptionController
                         this.doTwoLegs(pcmTemp);
 
                         //edit pcm to remove 1, 2 and leave as a one leg position; fix attributes
-                        pcm.getPositionClosedTransactionModels()
-                            .remove(1);
-                        pcm.getPositionClosedTransactionModels()
-                            .remove(1);
+                        pcm.getPositionClosedTransactionModels().remove(1);
+                        pcm.getPositionClosedTransactionModels().remove(1);
 
                         this.doAttributesPctm2Pcm(pcm);
 
@@ -1668,12 +1539,11 @@ public class ClosedPositionsOptionController
 
                     pcmTemp = new PositionClosedModel(pcm);
                     //test 0,2
-                    pcmTemp.getPositionClosedTransactionModels()
-                        .remove(1);
+                    pcmTemp.getPositionClosedTransactionModels().remove(1);
                     this.doTwoLegs(pcmTemp);
 
-                    if (!pcmTemp.getTacticId()
-                        .equals(PositionOpenModel.TACTICID_CUSTOM)) {
+                    if (!pcmTemp.getTacticId().equals(PositionOpenModel.TACTICID_CUSTOM))
+                    {
                         //0, 2 is a position
                         //add to addList
                         //not tested
@@ -1683,10 +1553,8 @@ public class ClosedPositionsOptionController
                         this.doTwoLegs(pcmTemp);
 
                         //edit pcm to remove 2,3 and leave as a one leg position; fix attributes
-                        pcm.getPositionClosedTransactionModels()
-                            .remove(0);
-                        pcm.getPositionClosedTransactionModels()
-                            .remove(1);
+                        pcm.getPositionClosedTransactionModels().remove(0);
+                        pcm.getPositionClosedTransactionModels().remove(1);
 
                         this.doAttributesPctm2Pcm(pcm);
 
@@ -1697,63 +1565,46 @@ public class ClosedPositionsOptionController
                     //if none of the hard route pan out, go the easy route
                     //easy route
                     pcmTemp = new PositionClosedModel(pcm);
-                    pcmTemp.getPositionClosedTransactionModels()
-                        .remove(1);
-                    pcmTemp.getPositionClosedTransactionModels()
-                        .remove(1);
+                    pcmTemp.getPositionClosedTransactionModels().remove(1);
+                    pcmTemp.getPositionClosedTransactionModels().remove(1);
                     //only one pctm in the pcm
                     //set the pctm equityId to the fctm equityId
                     pcmTemp.getPositionClosedTransactionModels()
-                        .get(0)
-                        .setEquityId(
-                            pcmTemp.getPositionClosedTransactionModels()
-                                .get(0)
-                                .getFifoClosedTransactionModels()
-                                .get(0)
-                                .getEquityId());
+                        .get(0).setEquityId(pcmTemp.getPositionClosedTransactionModels()
+                        .get(0).getFifoClosedTransactionModels().get(0).getEquityId());
 
                     pcmTemp.setTacticId(pcmTemp.getPositionClosedTransactionModels()
-                        .get(0)
-                        .getTransactionType()
-                        .equalsIgnoreCase("buytoopen")
+                        .get(0).getTransactionType().equalsIgnoreCase("buytoopen")
                         ? PositionOpenModel.TACTICID_LONG
                         : PositionOpenModel.TACTICID_SHORT);
                     pcmAddList.add(pcmTemp);
 
                     pcmTemp = new PositionClosedModel(pcm);
-                    pcmTemp.getPositionClosedTransactionModels()
-                        .remove(0);
-                    pcmTemp.getPositionClosedTransactionModels()
-                        .remove(1);
+                    pcmTemp.getPositionClosedTransactionModels().remove(0);
+                    pcmTemp.getPositionClosedTransactionModels().remove(1);
 
                     this.doAttributesPctm2Pcm(pcmTemp);
 
                     pcmTemp.setTacticId(pcmTemp.getPositionClosedTransactionModels()
-                        .get(0)
-                        .getTransactionType()
-                        .equalsIgnoreCase("buytoopen")
+                        .get(0).getTransactionType().equalsIgnoreCase("buytoopen")
                         ? PositionOpenModel.TACTICID_LONG
                         : PositionOpenModel.TACTICID_SHORT);
                     pcmAddList.add(pcmTemp);
 
-                    pcm.getPositionClosedTransactionModels()
-                        .remove(0);
-                    pcm.getPositionClosedTransactionModels()
-                        .remove(0);
+                    pcm.getPositionClosedTransactionModels().remove(0);
+                    pcm.getPositionClosedTransactionModels().remove(0);
 
                     this.doAttributesPctm2Pcm(pcm);
 
                     pcm.setTacticId(pcm.getPositionClosedTransactionModels()
-                        .get(0)
-                        .getTransactionType()
-                        .equalsIgnoreCase("buytoopen")
+                        .get(0).getTransactionType().equalsIgnoreCase("buytoopen")
                         ? PositionOpenModel.TACTICID_LONG
                         : PositionOpenModel.TACTICID_SHORT);
                     break;
                 case 4:
                     this.doFourLegs(pcm);
-                    if (pcm.getTacticId()
-                        .equals(PositionOpenModel.TACTICID_CUSTOM)) {
+                    if (pcm.getTacticId().equals(PositionOpenModel.TACTICID_CUSTOM))
+                    {
                         int i = 0;
                     }
                     break;
@@ -1769,7 +1620,8 @@ public class ClosedPositionsOptionController
             }
         }
 
-        for (PositionClosedModel pcm : pcmAddList) {
+        for (PositionClosedModel pcm : pcmAddList)
+        {
             //add any new positions to the array
             this.positionClosedModels.add(pcm);
         }
@@ -1782,12 +1634,12 @@ public class ClosedPositionsOptionController
         //get transactions for the joomlaId
         try (Connection con = CMDBController.getConnection();
             PreparedStatement pStmt = con.prepareStatement(String.format(
-                FIFOClosedTransactionModel.SELECT_INCOMPLETE_BY_JOOMLAID_EQUITYTYPE,
-                this.userId,
-                equityType));
-            ResultSet rs = pStmt.executeQuery();) {
+                FIFOClosedTransactionModel.SELECT_INCOMPLETE_BY_JOOMLAID_EQUITYTYPE, this.userId, equityType));
+            ResultSet rs = pStmt.executeQuery();)
+        {
 
-            while (rs.next()) {
+            while (rs.next())
+            {
                 this.fifoClosedTransactionModels.add(new FIFOClosedTransactionModel(
                     rs.getInt("DMAcctId"),
                     rs.getInt("JoomlaId"),
@@ -1813,15 +1665,13 @@ public class ClosedPositionsOptionController
                     rs.getInt("Days"),
                     rs.getInt("Complete") == 1));
             }
-        } catch (SQLException ex) {
+        } catch (SQLException ex)
+        {
             CMHPIUtils.showDefaultMsg(
                 CMLanguageController.getDBErrorProp("Title"),
-                Thread.currentThread()
-                    .getStackTrace()[1].getClassName(),
-                Thread.currentThread()
-                    .getStackTrace()[1].getMethodName(),
-                ex.getMessage(),
-                JOptionPane.ERROR_MESSAGE);
+                Thread.currentThread().getStackTrace()[1].getClassName(),
+                Thread.currentThread().getStackTrace()[1].getMethodName(),
+                ex.getMessage(), JOptionPane.ERROR_MESSAGE);
         }
     }
 }

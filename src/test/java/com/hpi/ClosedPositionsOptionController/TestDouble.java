@@ -17,6 +17,6 @@ class TestDouble {
 
         public void doTest() {
             assertEquals(enumDouble.toString() + ": " + String.format(message, actualDouble, expectedDouble),
-                actualDouble, expectedDouble, 0.001);
+                expectedDouble, actualDouble, 0.001);
         }
     }

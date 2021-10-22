@@ -227,9 +227,10 @@ public class PositionBaseStock {
         pom.setUnits(pom.getPositionOpenTransactionModels().get(0).getUnits());
         pom.setGain(gain);
         pom.setGainPct(gainPct);
-        pom.setMktVal(totalMktVal);
-        pom.setLMktVal(totalLMktVal);
-        pom.setActPct(totalActPct);
+        pom.setTotalOpen(totalOpen);
+//        pom.setMktVal(totalMktVal);
+//        pom.setLMktVal(totalLMktVal);
+//        pom.setActPct(totalActPct);
 
         pom.setPositionType(totalOpen < 0 ? "LONG" : "SHORT");
 
@@ -467,10 +468,12 @@ public class PositionBaseStock {
 
         pom.setGain((totalOpen + totalMktVal));
         pom.setGainPct(100.0 * pom.getGain() / Math.abs(totalOpen));
+        
+        pom.setTotalOpen(totalOpen);
 
-        pom.setMktVal(totalMktVal);
-        pom.setLMktVal(totalLMktVal);
-        pom.setActPct(totalActPct);
+//        pom.setMktVal(totalMktVal);
+//        pom.setLMktVal(totalLMktVal);
+//        pom.setActPct(totalActPct);
 
         pom.setPositionType(totalOpen > 0.0 ? "SHORT" : "LONG");
 
@@ -647,7 +650,7 @@ public class PositionBaseStock {
         pom.setGain((totalMktVal + totalOpen));
         pom.setGainPct(100.0 * pom.getGain() / Math.abs(totalOpen));
 
-        pom.setActPct(totalActPct);
+//        pom.setActPct(totalActPct);
 
         pom.setPositionType(totalOpen > 0.0 ? "SHORT" : "LONG");
 
@@ -738,7 +741,8 @@ public class PositionBaseStock {
 
     String nameLongShortLeap(PositionOpenTransactionModel potm) {
 
-        return potm.getTransactionType().equalsIgnoreCase("buytoopen") ? "LONG" : "SHORT";
+        //return potm.getTransactionType().equalsIgnoreCase("buytoopen") ? "LONG" : "SHORT";
+        return potm.getTransactionType().equalsIgnoreCase("buy") ? "LONG" : "SHORT";
     }
     
     String nameVertical(PositionOpenModel pom, Boolean bCustom) {

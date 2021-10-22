@@ -22,7 +22,7 @@ public class OpenTransTest
     {
     }
 
-//    @Ignore
+    @Ignore
     @Test
     public void OneTrans1()
     {
@@ -74,14 +74,8 @@ public class OpenTransTest
             {
                 3.0, opsController.getPositionModels().get(0).getPrice(), 100.0
             },
-            {
-                4.0, opsController.getPositionModels().get(0).getActPct(), 0.0
-            },
-            {
-                6.0, opsController.getPositionModels().get(0).getMktVal(), 10000.0
-            },
-            {
-                7.0, opsController.getPositionModels().get(0).getLMktVal(), 10000.0
+            {   
+                4.0, opsController.getPositionModels().get(0).getTotalOpen(), -10000.0
             }
         };
 
@@ -99,14 +93,9 @@ public class OpenTransTest
         {
             (new TestDouble(test[0], test[1], test[2])).doTest();
         }
-
-//        assertTrue("Position GMTDtTradeOpen '" + opsc.getPositionModels().get(0).getDateOpen().toString()
-//                       + "' not the expected value of '2021-03-05T00:00'",
-//            opsc.getPositionModels().get(0).getDateOpen()
-//                .equals(CMHPIUtils.convertStringToLocalDateTime("2021-03-05 00:00:00")));
     }
 
-//    @Ignore
+    @Ignore
     @Test
     public void TwoTrans1()
     {
@@ -144,7 +133,7 @@ public class OpenTransTest
                 2, opsController.getPositionModels().size(), 1
             },
             {
-                11, opsController.getPositionModels().get(0).getTacticId(), PositionOpenModel.TACTICID_LONG
+                3, opsController.getPositionModels().get(0).getTacticId(), PositionOpenModel.TACTICID_LONG
             },
         };
 
@@ -160,13 +149,7 @@ public class OpenTransTest
                 3.0, opsController.getPositionModels().get(0).getPrice(), 100.0
             },
             {
-                4.0, opsController.getPositionModels().get(0).getActPct(), 0.0
-            },
-            {
-                6.0, opsController.getPositionModels().get(0).getMktVal(), 20000.0
-            },
-            {
-                7.0, opsController.getPositionModels().get(0).getLMktVal(), 20000.0
+                4.0, opsController.getPositionModels().get(0).getTotalOpen(), -20000.0
             }
         };
 
@@ -193,7 +176,7 @@ public class OpenTransTest
 
     private static final FIFOOpenTransactionModel ftm1 = FIFOOpenTransactionModel.builder()
         .dmAcctId(1)
-        .joomlaId(816)
+        .joomlaId(USER_ID)
         .fiTId("210910_6582_0")
         .ticker("AAPL")
         .equityId("AAPL")
@@ -226,7 +209,7 @@ public class OpenTransTest
 
     private static final FIFOOpenTransactionModel ftm2 = FIFOOpenTransactionModel.builder()
         .dmAcctId(2)
-        .joomlaId(816)
+        .joomlaId(USER_ID)
         .fiTId("210911_6582_0")
         .ticker("AAPL")
         .equityId("AAPL")
