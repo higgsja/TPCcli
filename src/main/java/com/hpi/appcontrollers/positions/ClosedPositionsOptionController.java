@@ -6,6 +6,7 @@ import com.hpi.TPCCMcontrollers.CMLanguageController;
 import com.hpi.TPCCMprefs.CMDBModel;
 import com.hpi.entities.*;
 import com.hpi.hpiUtils.CMHPIUtils;
+import static java.lang.Math.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -99,6 +100,11 @@ public class ClosedPositionsOptionController
             if (positionId == -1)
             {
                 //todo: got an error spy
+                CMHPIUtils.showDefaultMsg(
+                    CMLanguageController.getDBErrorProp("Title"),
+                    Thread.currentThread().getStackTrace()[1].getClassName(),
+                    Thread.currentThread().getStackTrace()[1].getMethodName(),
+                    "\n\n=======================that pcg issue===================\n\n", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
@@ -680,6 +686,13 @@ public class ClosedPositionsOptionController
         Double totalUnits;
         Double totalOpen;
         Double totalClose;
+//        Double transactionModelsPriceClose;
+//        Double transactionModelsPriceOpen;
+//        Double transactionModelsUnits;
+//        Double transactionModelsTotalOpen;
+//        Double transactionModelsTotalClose;
+//        Double totalUnitsOpen;
+//        Double totalUnitsClose;
         Double gain;
         Double gainPct;
         java.sql.Date dateOpen;
@@ -688,10 +701,20 @@ public class ClosedPositionsOptionController
         dateOpen = new java.sql.Date(0);
         dateClose = new java.sql.Date(0);
 
-        totalUnits = totalOpen = totalClose = 0.0;
+        totalUnits = totalOpen = totalClose
+            //            = transactionModelsPriceOpen 
+            //            = transactionModelsPriceClose = transactionModelsUnits 
+            //            = transactionModelsTotalOpen = transactionModelsTotalClose 
+            //            = totalUnitsOpen = totalUnitsClose 
+            = 0.0;
 
         for (FIFOClosedTransactionModel fctm : pctm.getFifoClosedTransactionModels())
         {
+//            transactionModelsPriceOpen += fctm.getPriceOpen() * fctm.getUnits();
+//            transactionModelsPriceClose += fctm.getPriceClose() * fctm.getUnits();
+//            transactionModelsTotalOpen += fctm.getTotalOpen();
+//            transactionModelsTotalClose += fctm.getTotalClose();
+//            transactionModelsUnits += abs(fctm.getUnits());
             totalUnits += fctm.getUnits();
             totalOpen += fctm.getTotalOpen();
             totalClose += fctm.getTotalClose();
@@ -824,12 +847,22 @@ public class ClosedPositionsOptionController
                 //not same open date
                 break;
             }
-//              ok to be different in pcm
+//              ok for transactionType to be different in pcm
 //            if (!this.fifoClosedTransactionModels.get(pctmStart).getTransType().equalsIgnoreCase(
 //                    this.fifoClosedTransactionModels.get(j).getTransType())) {
 //                //not the same transaction type
 //                break;
 //            }
+
+            //todo: for now, restrict to multi-legs that have the same number of units
+            //there are legit position types that do not meet this but we will not handle them right now
+            Double tUnits1 = abs(this.positionClosedTransactionModels.get(pcmStart).getUnits());
+            Double tUnits2 = abs(this.positionClosedTransactionModels.get(j).getUnits());
+            if (!tUnits1.equals(tUnits2))
+            {
+                //not same units
+                break;
+            }
 
             //j transaction should be part of the pctm
             pcm.getPositionClosedTransactionModels().add(new PositionClosedTransactionModel(
@@ -837,21 +870,6 @@ public class ClosedPositionsOptionController
 
             // mark it complete
             this.positionClosedTransactionModels.get(j).setBComplete(true);
-
-//              another special case
-//              multiple verticals purchased on the same day and sold on the same later day
-//              add the shares of the positionTransactionNames; if zero it is this case
-            //todo: this approach precludes any condor type positions same day same day
-//            Double totalUnits = 0.0;
-//            for (PositionClosedTransactionModel pctm : pcm.getPositionClosedTransactionModels())
-//            {
-//                totalUnits += pctm.getUnits();
-//            }
-//
-//            if (totalUnits.equals(0.0))
-//            {
-//                break;
-//            }
         }
     }
 
@@ -879,17 +897,8 @@ public class ClosedPositionsOptionController
         gain = totalOpen + totalClose;
         gainPct = 100.0 * gain / Math.abs(totalOpen);
 
-        if (pcm.getPositionClosedTransactionModels().size() == 1)
-        {
-            //this will only be true if we have one or more lots of the same equity
-            //resulting in a single position
-            pcm.setUnits(totalUnits);
-        } else
-        {
-            //now have multiple positions; units on each should be the same or a problem
-            //and whatever the common units, need to use that
-            pcm.setUnits(Math.abs(pcm.getPositionClosedTransactionModels().get(0).getUnits()));
-        }
+        //todo: we restricted multi-leg to have the same units each so just get the first one
+        pcm.setUnits(Math.abs(pcm.getPositionClosedTransactionModels().get(0).getUnits()));
 
         pcm.setGain(gain);
         pcm.setGainPct(gainPct);
@@ -900,6 +909,7 @@ public class ClosedPositionsOptionController
         pcm.setEquityType(pcm.getPositionClosedTransactionModels().get(0).getEquityType());
         //this is incorrect as transactions can be combination of selltoopen, buytoopen, etc.
 //        pcm.setTransactionType(pcm.getPositionClosedTransactionModels().get(0).getTransactionType());
+//          look at sign of totalOpen instead
         pcm.setTransactionType(pcm.getTotalOpen() > 0 ? "SHORT" : "LONG");
 
         pcm.setTicker(pcm.getPositionClosedTransactionModels().get(0).getTicker());

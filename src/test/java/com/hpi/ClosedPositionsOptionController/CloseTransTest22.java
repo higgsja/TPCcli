@@ -32,6 +32,7 @@ public class CloseTransTest22
      * short same put in 2 transactions; long put in 1 transactions
      * short put in 1 transactions; long put in 1 transactions
      * same underlying; same open date; same close date
+     * outcome is 2 separate vertical positions
      */
 //    @Ignore
     @Test
@@ -58,7 +59,7 @@ public class CloseTransTest22
         String[][] stringTests =
         {
             {
-                "a", cpoController.getPositionClosedModels().get(0).getPositionName(), "SPY 17Apr20 230.0/220.0 Put Vrtcl"
+                "a", cpoController.getPositionClosedModels().get(0).getPositionName(), "SPY 17Apr20 220.0/230.0 Put Vrtcl"
             },
             {
                 "b", cpoController.getPositionClosedModels().get(0).getTicker(), "spy"
@@ -79,13 +80,13 @@ public class CloseTransTest22
         Double[][] doubleTests =
         {
             {
-                1.0, cpoController.getPositionClosedModels().get(0).getUnits(), 5.0
+                1.0, cpoController.getPositionClosedModels().get(0).getUnits(), -5.0
             },
             {
-                2.0, cpoController.getPositionClosedModels().get(0).getPriceOpen(), 2.595
+                2.0, cpoController.getPositionClosedModels().get(0).getPriceOpen(), -2.595
             },
             {
-                3.0, cpoController.getPositionClosedModels().get(0).getPrice(), -2.003
+                3.0, cpoController.getPositionClosedModels().get(0).getPrice(), 2.003
             },
             {
                 4.0, cpoController.getPositionClosedModels().get(0).getTotalOpen(), 1297.69
