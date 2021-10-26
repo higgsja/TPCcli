@@ -959,21 +959,21 @@ public class OpenPositionsOptionController
         Boolean bSameUnits;
         Boolean bCredit;
         Double dTotal;
-        Double dMktVal;
-        Double dLMktVal;
+//        Double dMktVal;
+//        Double dLMktVal;
         ArrayList<PositionOpenTransactionModel> putsList;
         ArrayList<PositionOpenTransactionModel> callsList;
         Iterator<PositionOpenTransactionModel> potmIterator;
         PositionOpenTransactionModel tempPotm;
         Double totalOpen;
         Double totalMktVal;
-        Double totalLMktVal;
-        Double totalActPct;
+//        Double totalLMktVal;
+//        Double totalActPct;
 
         ret = PositionOpenModel.TACTICID_CUSTOM;
         longPut = shortPut = longCall = shortCall = 0;
         bSameExpiry = bSameUnits = bCredit = true;
-        dTotal = dMktVal = dLMktVal = 0.0;
+        dTotal = 0.0;
         //units are positive for buy, negative for sell.
 
         putsList = new ArrayList<>();
@@ -1055,8 +1055,8 @@ public class OpenPositionsOptionController
             }
 
             dTotal += tempPotm.getTotalOpen();
-            dMktVal += tempPotm.getMktVal();
-            dLMktVal += tempPotm.getLMktVal();
+//            dMktVal += tempPotm.getMktVal();
+//            dLMktVal += tempPotm.getLMktVal();
         }
 
         //todo: separate into positions
@@ -1107,13 +1107,13 @@ public class OpenPositionsOptionController
 
         pom.setPositionType(bCredit ? "SHORT" : "LONG");
 
-        totalOpen = totalMktVal = totalLMktVal = totalActPct = 0.0;
+        totalOpen = totalMktVal = 0.0;
         for (PositionOpenTransactionModel potm : pom.getPositionOpenTransactionModels())
         {
             totalOpen += potm.getTotalOpen();
             totalMktVal += potm.getMktVal();
-            totalLMktVal += potm.getLMktVal();
-            totalActPct += potm.getActPct();
+//            totalLMktVal += potm.getLMktVal();
+//            totalActPct += potm.getActPct();
         }
 
         pom.setUnits(pom.getPositionOpenTransactionModels()
@@ -1155,8 +1155,8 @@ public class OpenPositionsOptionController
         Double totalOpen;
         Double totalClose;
         Double totalMktVal;
-        Double totalLMktVal;
-        Double totalActPct;
+//        Double totalLMktVal;
+//        Double totalActPct;
 
         potm1 = pom.getPositionOpenTransactionModels().get(0);
         potm2 = pom.getPositionOpenTransactionModels().get(1);
@@ -1339,13 +1339,13 @@ public class OpenPositionsOptionController
         pom.setUnits(Double.min(pom.getPositionOpenTransactionModels().get(0).getUnits(),
             pom.getPositionOpenTransactionModels().get(1).getUnits()));
 
-        totalOpen = totalClose = totalMktVal = totalLMktVal = totalActPct = 0.0;
-        for (PositionOpenTransactionModel pctm : pom.getPositionOpenTransactionModels())
+        totalOpen = totalClose = totalMktVal = 0.0;
+        for (PositionOpenTransactionModel potm : pom.getPositionOpenTransactionModels())
         {
-            totalOpen += pctm.getTotalOpen();
-            totalMktVal += pctm.getMktVal();
-            totalLMktVal += pctm.getLMktVal();
-            totalActPct += pctm.getActPct();
+            totalOpen += potm.getTotalOpen();
+            totalMktVal += potm.getMktVal();
+//            totalLMktVal += potm.getLMktVal();
+//            totalActPct += potm.getActPct();
         }
 
         pom.setUnits(pom.getPositionOpenTransactionModels()
