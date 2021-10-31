@@ -778,8 +778,7 @@ public class ClosedPositionsOptionController
 
             pcm = PositionClosedModel.builder()
                 .positionId(-999)
-                .dmAcctId(this.positionClosedTransactionModels.get(i)
-                    .getDmAcctId())
+                .dmAcctId(this.positionClosedTransactionModels.get(i).getDmAcctId())
                 .joomlaId(this.userId)
                 .build();
 

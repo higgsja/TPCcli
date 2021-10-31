@@ -405,7 +405,7 @@ public class ClosedPositionsStockController
                 potm.getJoomlaId(),
                 positionId,
                 potm.getFiTId(),
-//                potm.getEquityId(),   //do not set here as multi-leg positions have no equityId
+//                potm.getEquityId(), cannot do for options so do not do for stocks either
                 potm.getTransactionName(),
                 potm.getTicker(),
                 potm.getDateOpen(),

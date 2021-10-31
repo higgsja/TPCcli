@@ -22,7 +22,7 @@ public class OpenTransTest
     {
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void OneTrans1()
     {
@@ -95,7 +95,7 @@ public class OpenTransTest
         }
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void TwoTrans1()
     {

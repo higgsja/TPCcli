@@ -93,8 +93,7 @@ public class OpenPositionsStockController
 
             //initialize positionTransactionModel
             ptm = PositionOpenTransactionModel.builder()
-                .dmAcctId(this.fifoTransactionModels.get(i)
-                    .getDmAcctId())
+                .dmAcctId(this.fifoTransactionModels.get(i).getDmAcctId())
                 .joomlaId(this.userId)
                 .positionId(-999)
                 .build();
@@ -214,8 +213,7 @@ public class OpenPositionsStockController
             //initialize positionOpenModel
             pom = PositionOpenModel.builder()
                 .positionId(-999)
-                //                .dmAcctId(this.positionTransactionModels.get(i)
-                //                    .getDmAcctId())
+                .dmAcctId(this.positionTransactionModels.get(i).getDmAcctId())
                 .joomlaId(this.userId)
                 .build();
 
@@ -360,7 +358,7 @@ public class OpenPositionsStockController
         String sInsertSQL;
 
         sInsertSQL = String.format(PositionOpenModel.POSITION_INSERT3,
-            //            pom.getDmAcctId(),
+            pom.getDmAcctId(),
             pom.getJoomlaId(),
             pom.getTicker(),
             pom.getEquityId(),
@@ -371,7 +369,7 @@ public class OpenPositionsStockController
             pom.getPrice(),
             pom.getGainPct(),
             pom.getDateOpen(),
-            0,  //days
+            0, //days
             pom.getGain(),
             pom.getPositionType(),
             pom.getTotalOpen(),
@@ -398,7 +396,7 @@ public class OpenPositionsStockController
                 potm.getJoomlaId(),
                 positionId,
                 potm.getFiTId(),
-//                potm.getEquityId(), //do not set here as multi-leg positions have no equityId
+                //                potm.getEquityId(), //do not set here as multi-leg positions have no equityId
                 potm.getTransactionName(),
                 potm.getTicker(),
                 potm.getDateOpen(),

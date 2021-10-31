@@ -115,7 +115,7 @@ public class OpenPositionsOptionController
                 potm.getJoomlaId(),
                 positionId,
                 potm.getFiTId(),
-//                potm.getEquityId(),   //do not set here as multi-leg positions have no equityId
+                //                potm.getEquityId(),   //do not set here as multi-leg positions have no equityId
                 potm.getTransactionName(),
                 potm.getTicker(),
                 potm.getDateOpen(),
@@ -160,6 +160,7 @@ public class OpenPositionsOptionController
         String sInsertSQL;
 
         sInsertSQL = String.format(PositionOpenModel.POSITION_INSERT3,
+            pom.getDmAcctId(),
             pom.getJoomlaId(),
             pom.getTicker(),
             pom.getEquityId(),
@@ -649,8 +650,7 @@ public class OpenPositionsOptionController
             }
 
             potm = PositionOpenTransactionModel.builder()
-                .dmAcctId(this.fifoOpenTransactionModels.get(i)
-                    .getDmAcctId())
+                .dmAcctId(this.fifoOpenTransactionModels.get(i).getDmAcctId())
                 .joomlaId(this.userId)
                 .positionId(-999)
                 .build();
@@ -749,8 +749,7 @@ public class OpenPositionsOptionController
 
             pom = PositionOpenModel.builder()
                 .positionId(-999)
-                //                .dmAcctId(this.positionOpenTransactionModels.get(i)
-                //                    .getDmAcctId())
+                .dmAcctId(this.positionOpenTransactionModels.get(i).getDmAcctId())
                 .joomlaId(this.userId)
                 .build();
 
@@ -871,7 +870,7 @@ public class OpenPositionsOptionController
         pom.setTransactionType(pom.getTotalOpen() > 0 ? "SHORT" : "LONG");
 
         pom.setTicker(pom.getPositionOpenTransactionModels().get(0).getTicker());
-                //incorrect as there is no equityId for multi-leg; make all null to avoid confusion
+        //incorrect as there is no equityId for multi-leg; make all null to avoid confusion
 //        pom.setEquityId(pom.getPositionOpenTransactionModels().get(0).getEquityId());
         pom.setEquityId(null);
 
@@ -1652,7 +1651,7 @@ public class OpenPositionsOptionController
                 CMLanguageController.getDBErrorProp("Title"),
                 Thread.currentThread().getStackTrace()[1].getClassName(),
                 Thread.currentThread().getStackTrace()[1].getMethodName(),
-                ex.getMessage(),JOptionPane.ERROR_MESSAGE);
+                ex.getMessage(), JOptionPane.ERROR_MESSAGE);
         }
     }
 }
