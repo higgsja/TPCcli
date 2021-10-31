@@ -727,7 +727,7 @@ public class ClosedPositionsOptionController
         }
 
         gain = totalOpen + totalClose;
-        gainPct = 100.0 * gain / totalOpen;
+        gainPct = 100.0 * gain / abs(totalOpen);
 
         pctm.setUnits(totalUnits);
         pctm.setTotalOpen(totalOpen);
