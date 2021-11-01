@@ -36,8 +36,7 @@ public class AppController
     }
     //***
 
-    public void startApp(String[] args)
-    {
+    public void initApp(){
         URL mySource = CmdLineController.class.getProtectionDomain().
               getCodeSource().getLocation();
         System.setProperty("app.root", mySource.getPath());
@@ -49,6 +48,20 @@ public class AppController
         CMPrefsController.getInstance();
         CMGlobalsModel.getInstance();
         CMGlobalsModel.setGui(false);
+    }
+    public void startApp(String[] args)
+    {
+//        URL mySource = CmdLineController.class.getProtectionDomain().
+//              getCodeSource().getLocation();
+//        System.setProperty("app.root", mySource.getPath());
+//
+//        CMLanguageController.getInstance();
+//        CMPrefsController.getInstance().initConfigFiles();
+//        CMDBController.initDBConnection();
+//        CmdLineController.getInstance();
+//        CMPrefsController.getInstance();
+//        CMGlobalsModel.getInstance();
+//        CMGlobalsModel.setGui(false);
         CmdLineController.getInstance().doCommandLine(args);
     }
 

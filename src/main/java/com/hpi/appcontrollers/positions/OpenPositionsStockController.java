@@ -7,6 +7,7 @@ import com.hpi.entities.FIFOOpenTransactionModel;
 import com.hpi.entities.PositionOpenModel;
 import com.hpi.entities.PositionOpenTransactionModel;
 import com.hpi.hpiUtils.CMHPIUtils;
+import static java.lang.Math.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -317,8 +318,8 @@ public class OpenPositionsStockController
         //pm.setDateOpen(pm.getPositionOpenTransactionModels().get(0).getDateOpen());
         pm.setDateOpen(dateOpen);
 
-        pm.setPriceOpen(Math.abs(totalOpen) / (pm.getUnits()));
-        pm.setPrice(totalMktVal / (pm.getUnits()));
+        pm.setPriceOpen(Math.abs(totalOpen) / abs(pm.getUnits()));
+        pm.setPrice(totalMktVal / abs(pm.getUnits()));
 
         pm.setDays(pm.getPositionOpenTransactionModels().get(0).getDays());
 
@@ -506,7 +507,7 @@ public class OpenPositionsStockController
         }
 
         gain = totalOpen + totalMktVal;
-        gainPct = 100.0 * gain / Math.abs(totalOpen);
+        gainPct = 100.0 * gain / abs(totalOpen);
 
         potm.setUnits(units);
         potm.setTotalOpen(totalOpen);
@@ -523,7 +524,7 @@ public class OpenPositionsStockController
         potm.setTicker(potm.getFifoOpenTransactionModels().get(0).getTicker());
         potm.setDateOpen(dateOpen);
 
-        potm.setPriceOpen(totalOpen / units);
+        potm.setPriceOpen(totalOpen / abs(units));
 
         potm.setDays(potm.getFifoOpenTransactionModels().get(0).getDays());
 

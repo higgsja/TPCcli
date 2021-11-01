@@ -380,9 +380,9 @@ public class DbOfxController
         for (Integer acctId : acctIdList) {
             //all account handling; remove from dmOfx tables anything for the account
             //exceptions are the optional tables
-            sqlDmOfx = "delete from %s where DMAcctId = '%s';";
+            sqlDmOfx = "delete from %s where JoomlaId = '" + userId + "';";
             for (String table : tables) {
-                CMDBController.executeSQL(String.format(sqlDmOfx, table, acctId));
+                CMDBController.executeSQL(String.format(sqlDmOfx, table));
             }
 
             //demo account handling
