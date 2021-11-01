@@ -6,6 +6,7 @@ import com.hpi.TPCCMcontrollers.CMLanguageController;
 import com.hpi.TPCCMprefs.CMDBModel;
 import com.hpi.entities.*;
 import com.hpi.hpiUtils.CMHPIUtils;
+import static java.lang.Math.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -698,7 +699,7 @@ public class OpenPositionsOptionController
         }
 
         gain = totalOpen + totalMktVal;
-        gainPct = 100.0 * gain / Math.abs(totalOpen);
+        gainPct = 100.0 * gain / abs(totalOpen);
 
         potm.setUnits(totalUnits);
         potm.setTotalOpen(totalOpen);
@@ -718,7 +719,7 @@ public class OpenPositionsOptionController
 
         potm.setDateOpen(dateOpen);
 
-        potm.setPriceOpen(Math.abs(totalOpen) / (totalUnits * 100.0));
+        potm.setPriceOpen(abs(totalOpen) / (totalUnits * 100.0));
 
         potm.setDateExpire(potm.getFifoOpenTransactionModels().get(0).getDateExpire());
 
@@ -855,7 +856,7 @@ public class OpenPositionsOptionController
         }
 
         gain = totalMktVal + totalOpen;
-        gainPct = 100.0 * gain / Math.abs(totalOpen);
+        gainPct = 100.0 * gain / abs(totalOpen);
 
         pom.setUnits(totalUnits);
         pom.setGain(gain);
@@ -876,8 +877,8 @@ public class OpenPositionsOptionController
 
         pom.setDateOpen(dateOpen);
 
-        pom.setPriceOpen(totalOpen / (pom.getUnits() * 100.0));
-        pom.setPrice(totalMktVal / (pom.getUnits() * 100.0));
+        pom.setPriceOpen(abs(totalOpen) / abs(pom.getUnits() * 100.0));
+        pom.setPrice(abs(totalMktVal) / abs(pom.getUnits() * 100.0));
 
         pom.setDays(pom.getPositionOpenTransactionModels().get(0).getDays());
     }
