@@ -6,8 +6,6 @@ import org.springframework.boot.autoconfigure.*;
 @SpringBootApplication
 public class TPCcliEx
 {
-//    @Autowired private static AppController appController;
-
     /**
      * Application entry point.
      *
@@ -16,9 +14,11 @@ public class TPCcliEx
     public static void main(String[] args)
     {
 
-        AppController appCoreController;
-        appCoreController = AppController.getInstance();
+        AppController appController;
+        appController = AppController.getInstance();
+        
+        appController.initApp();
 
-        appCoreController.startApp(args);
+        appController.startApp(args);
     }
 }
