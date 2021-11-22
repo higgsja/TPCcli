@@ -20,138 +20,139 @@ import org.kohsuke.args4j.Option;
 public class CmdLineController
     extends OfxAggregateBase
 {
-    
+
     String[] args;
-    
+
     @Option(name = "--help", usage = "help")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bhelp = false;
-    
+
     @Option(name = "--date", usage = "yyyy-MM-DD date")
     static String sDate = "";
-    
+
     @Option(name = "--progressBar", usage = "Progress bar")
     private static String sCLIProgressBar;
-    
+
     @Option(name = "--dataMart", usage = "Rebuilds the data mart")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bAll = false;
-    
+
     @Option(name = "--positions", usage = "Translate Transactions to Positions")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bPositions = false;
-    
+
     @Option(name = "--directory", usage = "Fully specified directory")
     static String sDirectory;
-    
+
     @Option(name = "--equityInfo", usage = "Update equityInfo table")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bEquityInfo = false;
-    
+
     @Option(name = "--equityHistoryIEX", usage = "Retrieve history from last date")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bequityHistoryIEX = false;
-    
+
     @Option(name = "--equityHistoryIEXMin", usage
         = "Retrieve history from last "
         + "date on select tickers")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bequityHistoryIEXMin = false;
-    
+
     @Option(name = "--file", usage = "Fully specified file name")
     static String sFilename;
-    
+
     @Option(name = "--mpt", usage = "Modern Portfolio Theory Test")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bMpt = false;
-    
+
     @Option(name = "--ofxInstitutions", usage
         = "update ofxInstitutions table from OFXHome")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bOfxInstitutions = false;
-    
+
     @Option(name = "--optionHistory", usage
         = "Updates database with option history")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bOptionHistory = false;
-    
+
     @Option(name = "--processOfxFiles", usage
         = "process files in the directory")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bOfxFiles = false;
-    
+
     @Option(name = "--trdstnDl", usage = "Download .qfx file from Tradestation")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bTrdStnDl = false;
-    
+
     @Option(name = "--tdAmeritradeOptions2", usage
         = "All Open options data pull against tdAmeritrade")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bTdAmeritradeOptions2 = false;
-    
+
     @Option(name = "--tdAmeritradeOptions3", usage
         = "All Active stock options data pull against tdAmeritrade")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bTdAmeritradeOptions3 = false;
-    
+
     @Option(name = "--tdAmeritradeStocks", usage
         = "Run routines against tdAmeritrade")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bTdAmeritradeStocks = false;
-    
+
     @Option(name = "--clearDmOfxUserId", usage
         = "Clears account dmOfx data for restart; dbOfx data not touched")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bClearDmOfxAcct = false;
-    
-    public static void setBClearDmOfxAcct(Boolean clear){
+
+    public static void setBClearDmOfxAcct(Boolean clear)
+    {
         bClearDmOfxAcct = clear;
     }
-    
+
     @Option(name = "--clearPositions", usage
         = "Clears account dmOfx positions data for refresh; dbOfx data not touched")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bClearPositions = false;
-    
+
     @Option(name = "--clearDbOfxUserId", usage = "Clears account dbOfx data for restart; "
         + "dmOfx data not touched: best to use --clearDmOfxUserId then --clearDbOfxUserId")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bClearDbOfxAcct = false;
-    
+
     @Option(name = "--userId", usage = "Numerical user Id")
     static Integer userId;
-    
+
     @Option(name = "--acctId", usage = "Numerical Account Id")
     static Integer acctId;
-    
+
     @Option(name = "--buildDemo", usage
         = "Builds Demo Account, default userId of 1")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bBuildDemoAcct = false;
-    
+
     @Option(name = "--ignoreFiTId", usage
         = "Marks the given FiTId as 'ignore' in all dbOfx tables")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bIgnoreFiTId = false;
-    
+
     @Option(name = "--resetSkip", usage
         = "Marks the given FiTId Skip field to false in all dbOfx tables")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bResetSkip = false;
-    
+
     @Option(name = "--fiTId", usage = "FiTId to be marked 'ignore'")
     static String fiTId;
 
     //*** Singleton
     private static CmdLineController instance;
-    
+
     protected CmdLineController()
     {
         // protected prevents instantiation outside of package
         CmdLineController.sCLIProgressBar = "true";
 //        this.sectorId = null;
     }
-    
+
     public synchronized static CmdLineController getInstance()
     {
         if (CmdLineController.instance == null)
@@ -167,7 +168,7 @@ public class CmdLineController
     public void doCommandLine(String[] args)
     {
         CMDBModel.getInstance().getJoomlaId();
-        
+
         if (args.length == 0)
         {
             CmdLineController.bAll = true;
@@ -176,7 +177,7 @@ public class CmdLineController
         {
             return;
         }
-        
+
         if (CmdLineController.bhelp)
         {
             System.out.print(String.format(CMLanguageController.
@@ -185,38 +186,36 @@ public class CmdLineController
                 + "."
                 + CMGlobalsModel.getCURRENT_BUILD()
                 + System.getProperty("line.separator")));
-            
+
             System.exit(0);
         }
-        
+
         if (CmdLineController.bClearDmOfxAcct)
         {
             //use command line userId
             DbOfxController.getInstance().doClearDmOfxUserId(CmdLineController.userId);
 //            return;
         }
-        
+
         if (CmdLineController.bClearPositions)
         {
             DbOfxController.getInstance().doClearPositions();
 //            return;
         }
-        
+
         if (CmdLineController.bClearDbOfxAcct)
         {
             //use command line userId
             DbOfxController.getInstance().doClearDbOfxUserId(CmdLineController.userId);
             return;
         }
-        
+
         if (CmdLineController.bIgnoreFiTId)
         {
-            DbOfxController.getInstance().
-                doIgnoreFiTId(CmdLineController.fiTId,
-                    CmdLineController.acctId, 1);
+            DbOfxController.getInstance().doIgnoreFiTId(CmdLineController.fiTId, CmdLineController.acctId, 1);
             return;
         }
-        
+
         if (CmdLineController.bResetSkip)
         {
             DbOfxController.getInstance().
@@ -224,85 +223,85 @@ public class CmdLineController
                     CmdLineController.acctId, 0);
             return;
         }
-        
+
         if (CmdLineController.bBuildDemoAcct)
         {
             //use command line userId
             DbOfxController.getInstance().doBuildDemoAcct(CmdLineController.userId);
             return;
         }
-        
+
         if (CmdLineController.bTrdStnDl)
         {
             OfxFileController.getInstance().
                 processTradeStationDownload(CmdLineController.sDirectory);
             return;
         }
-        
+
         if (CmdLineController.bEquityInfo)
         {
             FinVizController2.doEquityInfo();
-            
+
             return;
         }
-        
+
         if (CmdLineController.bequityHistoryIEX)
         {
             IEXTradingController.doHistorical(CmdLineController.sDate, false);
-            
+
             return;
         }
-        
+
         if (CmdLineController.bequityHistoryIEXMin)
         {
             IEXTradingController.doHistorical(CmdLineController.sDate, true);
-            
+
             return;
         }
-        
+
         if (CmdLineController.bOptionHistory)
         {
             OptionHistoryController.getInstance().doOptionHistory();
-            
+
             return;
         }
-        
+
         if (CmdLineController.bTdAmeritradeOptions2)
         {
             TDAmeritradeFetchOptionsController2.doPrices("open");
-            
+
             return;
         }
-        
+
         if (CmdLineController.bTdAmeritradeOptions3)
         {
             TDAmeritradeFetchOptionsController2.doPrices("active");
-            
+
             return;
         }
-        
+
         if (CmdLineController.bTdAmeritradeStocks)
         {
             TDAmeritradeFetchStocksController.doHistorical();
-            
+
             return;
         }
-        
+
         if (CmdLineController.bOfxInstitutions)
         {
             OFXHomeController.getInstance().doOfxData();
         }
-        
+
         if (CmdLineController.bOfxFiles)
         {
             // files
             OfxFileController.getInstance().processOfxFiles2SQLSetup();
         }
-        
+
         if (CmdLineController.bAll)
         {
             String sql;
-            
+
             try
             {
                 this.updateAppTracking("TPCCL|dataMart");
@@ -317,7 +316,7 @@ public class CmdLineController
                 CMDBModel.setUserId(userId);
 //                DbOfxController.getInstance().doClearDmOfxUserId(CmdLineController.userId);
             }
-            
+
             if (CMDBModel.getUserId() == null)
             {
                 // there are arguments but they do not match what we can handle
@@ -351,23 +350,23 @@ public class CmdLineController
 
             //main dataMart processing: ok to here
             DataMartController.getInstance().processDataMart();
-            
+
             System.out.println("      start positions\n");
-            
+
             OpenPositionsStockController.getInstance().doPositions();
             ClosedPositionsStockController.getInstance().doPositions();
-            
+
             OpenPositionsOptionController.getInstance().doOpenPositions();
             ClosedPositionsOptionController.getInstance().doClosedPositions();
-            
+
             System.out.println("      finish positions\n");
-            
+
             System.out.println("        --- FINISHED ---\n");
         }
-        
+
         if (CmdLineController.bPositions)
         {
-            
+
             System.out.println("        --- STARTING ---\n");
             try
             {
@@ -389,34 +388,34 @@ public class CmdLineController
                     JOptionPane.ERROR_MESSAGE);
                 System.exit(1);
             }
-            
+
             OpenPositionsStockController.getInstance().doPositions();
             ClosedPositionsStockController.getInstance().doPositions();
-            
+
             OpenPositionsOptionController.getInstance().doOpenPositions();
             ClosedPositionsOptionController.getInstance().doClosedPositions();
-            
+
             System.out.println("        --- FINISHED ---\n");
         }
     }
-    
+
     public Boolean doParseCmdLine(String[] aArgs)
     {
         Properties errorProps;
         CmdLineParser parser;
         parser = new CmdLineParser(this);
-        
+
         args = aArgs.clone();
-        
+
         errorProps = CMLanguageController.getErrorProps();
-        
+
         try
         {
             parser.parseArgument(args);
         } catch (CmdLineException e)
         {
             String s;
-            
+
             s = String.format(errorProps.getProperty("Formatted1"),
                 Arrays.toString(args));
 
@@ -431,22 +430,22 @@ public class CmdLineController
         }
         return true;
     }
-    
+
     public void updateAppTracking(String sAction)
         throws SQLException
     {
         String sql;
-        
+
         if (CMDBModel.getUserId() == null
             || CMDBModel.getUserId() == 816)
         {
             return;
         }
-        
+
         sql
             = "insert into hlhtxc5_dmOfx.AppTracking (JoomlaId, Action) values ('"
             + CMDBModel.getUserId() + "', '" + sAction + "');";
-        
+
         try (Connection con = CMDBController.getConnection();
             PreparedStatement pStmt = con.prepareStatement(sql))
         {
@@ -462,7 +461,7 @@ public class CmdLineController
                 ex.getMessage(), JOptionPane.INFORMATION_MESSAGE);
         }
     }
-    
+
     public static synchronized String getsCLIProgressBar()
     {
         return CmdLineController.sCLIProgressBar;

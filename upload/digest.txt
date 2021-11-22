@@ -1,4 +1,5 @@
-getdown.txt = c576ef0775de007d49c62d6d86ab7c7b
+getdown.txt = 478d309f6fb33beccd1fb30daa63c366
+dist/lib/commons-math3-3.6.1.jar = 57284be024bd7ce51dad23fab00e1016
 dist/lib/annotations-13.0.jar = 8c551b70dd53faea6b7dd986f4121bdc
 dist/lib/args4j-2.33.jar = 6f7ea116fa5920309b5b51bda9c8aa59
 dist/lib/byte-buddy-1.8.15.jar = 16000937938cf9308bfe785e20e3c119
@@ -66,7 +67,7 @@ dist/lib/spring-jcl-5.3.8.jar = 7a1a94698abe6cf0728855a46e97d3d7
 dist/lib/spring-jdbc-5.3.8.jar = 4112b9ee8bd965e1142ce314b7afa044
 dist/lib/spring-tx-5.3.8.jar = 9c074b87ac9c1425d0c959218ca96c66
 dist/lib/td-ameritrade-client-2.4.1.jar = d29175ea93f5fe7b4cf7611622096b87
-dist/lib/TPCCM-1.0.jar = 6a7a03b0ea099677708d90d7947d7137
+dist/lib/TPCCM-1.0.jar = 03981ad4a3a79f7bc37208ae33546480
 dist/lib/validation-api-2.0.1.Final.jar = aaa3b847daf97862f1fafc83b4cbc0f9
-dist/TPCcli-1.0.jar = f0c2a8a42dca764c1a975db91a7207ae
-digest.txt = ac4ba67b3c8321050517fc6ddd864ad4
+dist/TPCcli-1.0.jar = f00bd8eccbc02922c6188aa79878a415
+digest.txt = e315445cdfc8cbefccd49c85bc00fb7f

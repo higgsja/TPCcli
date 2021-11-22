@@ -348,7 +348,7 @@ public class OptionTest1
         .dateClose(java.sql.Date.valueOf("2021-11-05"))
         .dateExpire(java.sql.Date.valueOf("2022-01-21"))
         .shPerCtrct(100)
-        .units(10.0)
+        .units(-10.0)
         //        .priceOpen(132.28)
         .priceClose(279.65)
         //        .markUpDn(null)

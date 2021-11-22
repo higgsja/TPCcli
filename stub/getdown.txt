@@ -70,6 +70,7 @@ java_min_version = 1080000
 
 allow_offline = false
 
+code = dist/lib/commons-math3-3.6.1.jar
 code = dist/lib/annotations-13.0.jar
 code = dist/lib/args4j-2.33.jar
 code = dist/lib/byte-buddy-1.8.15.jar
