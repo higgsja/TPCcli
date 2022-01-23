@@ -83,6 +83,15 @@ public class CmdLineController
     @Option(name = "--trdstnDl", usage = "Download .qfx file from Tradestation")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bTrdStnDl = false;
+    
+@Option(name = "--eTradeDlFF", usage = "Download .qfx file from eTrade, fireFox")
+    @SuppressWarnings("FieldMayBeFinal")
+    static Boolean bETradeDlFF = false;
+
+@Option(name = "--eTradeDlCrm", usage = "Download .qfx file from eTrade, Chrome")
+    @SuppressWarnings("FieldMayBeFinal")
+    static Boolean bETradeDlCrm = false;
+
 
     @Option(name = "--tdAmeritradeOptions2", usage
         = "All Open options data pull against tdAmeritrade")
@@ -235,6 +244,18 @@ public class CmdLineController
         {
             OfxFileController.getInstance().
                 processTradeStationDownload(CmdLineController.sDirectory);
+            return;
+        }
+        
+        if (CmdLineController.bETradeDlFF)
+        {
+            OfxFileController.getInstance().processETradeDownloadFF(CmdLineController.sDirectory);
+            return;
+        }
+        
+        if (CmdLineController.bETradeDlCrm)
+        {
+            OfxFileController.getInstance().processETradeDownloadCrm(CmdLineController.sDirectory);
             return;
         }
 

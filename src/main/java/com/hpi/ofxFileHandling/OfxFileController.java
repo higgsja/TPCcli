@@ -21,16 +21,15 @@ import java.util.logging.Level;
 import javax.swing.JOptionPane;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-// import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.*;
 import org.openqa.selenium.firefox.*;
 
 /**
  *
  */
 public class OfxFileController
-      extends OfxAggregateBase
+    extends OfxAggregateBase
 {
 
     private OfxOfx ofx;
@@ -48,7 +47,7 @@ public class OfxFileController
         this.doc = null;
 
         this.errorPrefix
-              = this.getClass().getName();
+            = this.getClass().getName();
         this.fErrorPrefix = null;
     }
 
@@ -65,6 +64,266 @@ public class OfxFileController
      *
      * @param sDirectory
      */
+    public void processETradeDownloadCrm(String sDirectory)
+    {
+        String s;
+        WebDriver driver;
+        ChromeOptions options;
+//        JavascriptExecutor js;
+//        Map<String, Object> vars;
+
+        System.setProperty("webdriver.chrome.driver", "/home/white/OneDrive/Documents/Dev/Apps/lib/chromedriver");
+        options = new ChromeOptions();
+        options
+            .addArguments("--user-agent=" + "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36");
+        options.addArguments("--disable-blink-features=AutomationControlled");
+        driver = new ChromeDriver(options);
+//        js = (JavascriptExecutor) driver;
+//        vars = new HashMap<String, Object>();
+
+        driver.get("https://us.etrade.com/e/t/user/login?TARGET=/e/t/invest/downloadofxtransactions?fp%3DTH");
+        driver.manage().window().setSize(new Dimension(1589, 885));
+
+        if (!driver.getTitle().contentEquals("Log On to E*TRADE | E*TRADE Financial"))
+        {
+            //failed
+            return;
+        }
+
+        {
+            WebElement user = driver.findElement(By.name("USER"));
+            WebElement password = driver.findElement(By.name("PASSWORD"));
+            WebElement login = driver.findElement(By.id("logon_button"));
+
+            user.sendKeys("higgsja3082");
+            password.sendKeys("J!gger3082");
+            login.click();
+        }
+
+        //test on right page
+        if (!driver.getTitle()
+            .contentEquals("E*TRADE FINANCIAL - Account records - Bank - Account Details - Download"))
+        {
+            //failed
+            return;
+        }
+        {
+            WebElement dropdown = driver.findElement(By.id("dataFormat"));
+            dropdown.sendKeys("Quicken");
+//            dropdown.findElement(By
+//                .xpath("//option[. = 'Quicken Web Connect For Quicken 2004 and Quicken for Macintosh']")).click();
+        }
+//        {
+//            WebElement element = driver.findElement(By.id("dataFormat"));
+//            Actions builder = new Actions(driver);
+//            builder.moveToElement(element).clickAndHold().perform();
+//        }
+//        {
+//            WebElement element = driver.findElement(By.id("dataFormat"));
+//            Actions builder = new Actions(driver);
+//            builder.moveToElement(element).perform();
+//        }
+//        {
+//            WebElement element = driver.findElement(By.id("dataFormat"));
+//            Actions builder = new Actions(driver);
+//            builder.moveToElement(element).release().perform();
+//        }
+
+//        driver.findElement(By.cssSelector(".row:nth-child(2) .col-centered-8")).click();
+//        driver.findElement(By.id("FromDate")).click();
+//        driver.findElement(By.id("FromDate")).click();
+        {
+            WebElement element = driver.findElement(By.id("FromDate"));
+            //Actions builder = new Actions(driver);
+            //builder.doubleClick(element).perform();
+            element.sendKeys("01/01/22");
+        }
+
+        {
+            WebElement element = driver.findElement(By.id("ToDate"));
+            //Actions builder = new Actions(driver);
+            //builder.doubleClick(element).perform();
+            element.sendKeys("01/22/22");
+        }
+
+        driver.quit();
+
+    }
+
+    /**
+     *
+     * @param sDirectory
+     */
+    public void processETradeDownloadFF(String sDirectory)
+    {
+        String s;
+        WebDriver driver;
+        WebElement webElement;
+        FirefoxOptions options;
+
+        // delete file if exists
+        try
+        {
+            Files.deleteIfExists(Paths.get("/home/white/Documents/Quicken/17780196.qfx"));
+        } catch (IOException e)
+        {
+
+        }
+
+        System.setProperty("webdriver.gecko.driver", "/home/white/OneDrive/Documents/Dev/Apps/lib/geckodriver");
+
+        options = new FirefoxOptions();
+        options.addPreference("browser.download.folderList", 2);
+        options.addPreference("browser.download.manager.showWhenStarting", false);
+
+        //Set downloadPath
+        options.addPreference(
+            "browser.download.dir", "/home/white/OneDrive/Documents/Quicken");
+
+        //Set File Open &amp; Save preferences
+        options.addPreference("browser.helperApps.neverAsk.openFile",
+            "text/csv,"
+            + "application/x-msexcel,"
+            + "application/excel,"
+            + "application/x-excel,application/vnd.ms-excel,"
+            + "image/png,"
+            + "image/jpeg,"
+            + "text/html,"
+            + "text/plain,"
+            + "application/msword,"
+            + "application/xml");
+
+        options.addPreference("browser.helperApps.neverAsk.saveToDisk",
+            "text/csv,"
+            + "application/octet-stream"
+            + "application/x-msexcel,"
+            + "application/excel,"
+            + "application/x-excel,"
+            + "application/vnd.ms-excel,"
+            + "image/png,"
+            + "image/jpeg,text/html,"
+            + "text/plain,"
+            + "application/msword,"
+            + "application/xml");
+
+        options.addPreference("browser.helperApps.alwaysAsk.force", false);
+        options.addPreference("browser.download.manager.alertOnEXEOpen", false);
+        options.addPreference("browser.download.manager.focusWhenStarting", false);
+        options.addPreference("browser.download.manager.useWindow", false);
+        options.addPreference("browser.download.manager.showAlertOnComplete", false);
+        options.addPreference("browser.download.manager.closeWhenDone",
+            false);
+
+        driver = new FirefoxDriver(options);
+
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+        //Open URL
+        //driver.get("https://clientcenter.tradestation.com/support/myaccount/Equities/TaxCenter.aspx");
+        driver.get("https://us.etrade.com/e/t/invest/downloadofxtransactions?fp=TH");
+
+        if (!driver.getTitle().contentEquals("Log On to E*TRADE | E*TRADE Financial"))
+        {
+            //failed
+            return;
+        }
+
+        driver.findElement(By.id("user_orig")).sendKeys("higgsja3082");
+        driver.findElement(By.name("PASSWORD")).sendKeys("J!gger3082");
+        driver.findElement(By.id("logon_button")).click();
+
+        // finally on the page
+//        WebElement element = driver.findElement(By.id("dataFormat"));
+//        element.sendKeys("Quicken");
+//        element.sendKeys(Keys.ENTER);
+        //from date
+        driver.findElement(By.id("FromDate")).clear();
+        driver.findElement(By.id("FromDate")).sendKeys("01/01/22");
+//        element.sendKeys(Keys.ENTER);
+        //end date
+        driver.findElement(By.id("ToDate")).clear();
+        driver.findElement(By.id("ToDate")).sendKeys("01/20/22");
+
+        webElement = driver.findElement(By.id("dataFormat"));
+        webElement.sendKeys("Quicken");
+//        element.sendKeys(Keys.ENTER);
+
+//        try
+//        {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException ex)
+//        {
+//            java.util.logging.Logger.getLogger(OfxFileController.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        element.sendKeys(Keys.ESCAPE);
+        // do not like it but fails to click the button otherwise
+//        try
+//        {
+//            Thread.sleep(500);
+//        } catch (InterruptedException ex)
+//        {
+//            java.util.logging.Logger.getLogger(OfxFileController.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+        webElement = driver.findElement(By.id("downloadBtn"));
+        webElement.sendKeys(Keys.ENTER);
+//        driver.findElement(By.id("downloadBtn")).click();
+
+        // todo: check that file exists instead
+//        try
+//        {
+//            Thread.sleep(5000);
+//        }
+//        catch (InterruptedException ex)
+//        {
+//            java.util.logging.Logger.getLogger(OfxFileController.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        driver.close();
+//        driver.quit();
+//        // delete file if exists
+//        try
+//        {
+//            Files.deleteIfExists(Paths.get(
+//                  "/home/white/Documents/Quicken/17531730.qfx"));
+//        }
+//        catch (IOException e)
+//        {
+//
+//        }
+//        driver.findElement(By.id("ddlAccounts")).sendKeys("1");
+        // finally on the page; select the right file format
+//        driver.findElement(By.id("ddlFileTypes")).sendKeys("Q");
+//        driver.findElement(By.id("ddlFileTypes")).sendKeys(Keys.ENTER);
+        // do not like it but fails to click the button otherwise
+//        try
+//        {
+//            Thread.sleep(500);
+//        }
+//        catch (InterruptedException ex)
+//        {
+//            java.util.logging.Logger.getLogger(OfxFileController.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//
+////        driver.findElement(By.id("btnSearch")).click();
+//
+//        // todo: check that file exists instead
+//        try
+//        {
+//            Thread.sleep(5000);
+//        }
+//        catch (InterruptedException ex)
+//        {
+//            java.util.logging.Logger.getLogger(OfxFileController.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+////        driver.close();
+        //likely need to pause ...
+        driver.quit();
+
+    }
+
+    /**
+     *
+     * @param sDirectory
+     */
     public void processTradeStationDownload(String sDirectory)
     {
         String s;
@@ -75,60 +334,59 @@ public class OfxFileController
         try
         {
             Files.deleteIfExists(Paths.get(
-                  "/home/white/Documents/Quicken/17780196.qfx"));
-        }
-        catch (IOException e)
+                "/home/white/Documents/Quicken/17780196.qfx"));
+        } catch (IOException e)
         {
 
         }
 
         System.setProperty("webdriver.gecko.driver",
-              "/home/white/Documents/Dev/Apps/lib/geckodriver");
+            "/home/white/Documents/Dev/Apps/lib/geckodriver");
 
         options = new FirefoxOptions();
         options.addPreference("browser.download.folderList", 2);
         options.addPreference(
-              "browser.download.manager.showWhenStarting", false);
+            "browser.download.manager.showWhenStarting", false);
 
         //Set downloadPath
         options.addPreference(
-              "browser.download.dir", "/home/white/Documents/Quicken");
+            "browser.download.dir", "/home/white/Documents/Quicken");
 
         //Set File Open &amp; Save preferences
         options.addPreference("browser.helperApps.neverAsk.openFile",
-              "text/csv,"
-              + "application/x-msexcel,"
-              + "application/excel,"
-              + "application/x-excel,application/vnd.ms-excel,"
-              + "image/png,"
-              + "image/jpeg,"
-              + "text/html,"
-              + "text/plain,"
-              + "application/msword,"
-              + "application/xml");
+            "text/csv,"
+            + "application/x-msexcel,"
+            + "application/excel,"
+            + "application/x-excel,application/vnd.ms-excel,"
+            + "image/png,"
+            + "image/jpeg,"
+            + "text/html,"
+            + "text/plain,"
+            + "application/msword,"
+            + "application/xml");
 
         options.addPreference("browser.helperApps.neverAsk.saveToDisk",
-              "text/csv,"
-              + "application/octet-stream"
-              + "application/x-msexcel,"
-              + "application/excel,"
-              + "application/x-excel,"
-              + "application/vnd.ms-excel,"
-              + "image/png,"
-              + "image/jpeg,text/html,"
-              + "text/plain,"
-              + "application/msword,"
-              + "application/xml");
+            "text/csv,"
+            + "application/octet-stream"
+            + "application/x-msexcel,"
+            + "application/excel,"
+            + "application/x-excel,"
+            + "application/vnd.ms-excel,"
+            + "image/png,"
+            + "image/jpeg,text/html,"
+            + "text/plain,"
+            + "application/msword,"
+            + "application/xml");
         options.addPreference("browser.helperApps.alwaysAsk.force", false);
         options.addPreference("browser.download.manager.alertOnEXEOpen",
-              false);
+            false);
         options.addPreference("browser.download.manager.focusWhenStarting",
-              false);
+            false);
         options.addPreference("browser.download.manager.useWindow", false);
         options.addPreference("browser.download.manager.showAlertOnComplete",
-              false);
+            false);
         options.addPreference("browser.download.manager.closeWhenDone",
-              false);
+            false);
 
         driver = new FirefoxDriver(options);
 
@@ -145,9 +403,12 @@ public class OfxFileController
 
         driver.findElement(By.id("UserName")).sendKeys("BlueSoccer01");
         driver.findElement(By.id("Password")).sendKeys("ArmyMule76");
-        driver.findElement(By.xpath("/html/body/div/div/div/div[2]/div/div[2]/div[2]/div[1]/section/form/div[3]/div/input")).click();
+        driver.findElement(By
+            .xpath("/html/body/div/div/div/div[2]/div/div[2]/div[2]/div[1]/section/form/div[3]/div/input")).click();
         // get security question
-        s = driver.findElement(By.xpath("/html/body/div/div/div/div[2]/div/div[2]/div[2]/div[1]/section/form/div[1]/div[2]/label")).getText();
+        s = driver.findElement(By
+            .xpath("/html/body/div/div/div/div[2]/div/div[2]/div[2]/div[1]/section/form/div[1]/div[2]/label"))
+            .getText();
 
         switch (s)
         {
@@ -176,8 +437,7 @@ public class OfxFileController
         try
         {
             Thread.sleep(500);
-        }
-        catch (InterruptedException ex)
+        } catch (InterruptedException ex)
         {
             java.util.logging.Logger.getLogger(OfxFileController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -188,8 +448,7 @@ public class OfxFileController
         try
         {
             Thread.sleep(5000);
-        }
-        catch (InterruptedException ex)
+        } catch (InterruptedException ex)
         {
             java.util.logging.Logger.getLogger(OfxFileController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -200,9 +459,8 @@ public class OfxFileController
         try
         {
             Files.deleteIfExists(Paths.get(
-                  "/home/white/Documents/Quicken/17531730.qfx"));
-        }
-        catch (IOException e)
+                "/home/white/Documents/Quicken/17531730.qfx"));
+        } catch (IOException e)
         {
 
         }
@@ -217,8 +475,7 @@ public class OfxFileController
         try
         {
             Thread.sleep(500);
-        }
-        catch (InterruptedException ex)
+        } catch (InterruptedException ex)
         {
             java.util.logging.Logger.getLogger(OfxFileController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -229,8 +486,7 @@ public class OfxFileController
         try
         {
             Thread.sleep(5000);
-        }
-        catch (InterruptedException ex)
+        } catch (InterruptedException ex)
         {
             java.util.logging.Logger.getLogger(OfxFileController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -254,18 +510,17 @@ public class OfxFileController
         try
         {
             Files.deleteIfExists(Paths.get(
-                  "/home/white/Documents/Quicken/17780196.qfx"));
+                "/home/white/Documents/Quicken/17780196.qfx"));
 
             Files.deleteIfExists(Paths.get(
-                  "/home/white/Documents/Quicken/17531730.qfx"));
-        }
-        catch (IOException e)
+                "/home/white/Documents/Quicken/17531730.qfx"));
+        } catch (IOException e)
         {
 
         }
 
         System.setProperty("webdriver.gecko.driver",
-              "/home/white/Documents/Dev/Apps/lib/geckodriver");
+            "/home/white/Documents/Dev/Apps/lib/geckodriver");
 
         FirefoxBinary firefoxBinary = new FirefoxBinary();
         firefoxBinary.addCommandLineOptions("--headless");
@@ -275,44 +530,44 @@ public class OfxFileController
 
         options.addPreference("browser.download.folderList", 2);
         options.addPreference(
-              "browser.download.manager.showWhenStarting", false);
+            "browser.download.manager.showWhenStarting", false);
 
         //Set downloadPath
         options.addPreference(
-              "browser.download.dir", "/home/white/Documents/Quicken");
+            "browser.download.dir", "/home/white/Documents/Quicken");
 
         //Set File Open &amp; Save preferences
         options.addPreference("browser.helperApps.neverAsk.openFile",
-              "text/csv,"
-              + "application/x-msexcel,"
-              + "application/excel,"
-              + "application/x-excel,application/vnd.ms-excel,"
-              + "image/png,"
-              + "image/jpeg,"
-              + "text/html,"
-              + "text/plain,"
-              + "application/msword,"
-              + "application/xml");
+            "text/csv,"
+            + "application/x-msexcel,"
+            + "application/excel,"
+            + "application/x-excel,application/vnd.ms-excel,"
+            + "image/png,"
+            + "image/jpeg,"
+            + "text/html,"
+            + "text/plain,"
+            + "application/msword,"
+            + "application/xml");
 
         options.addPreference("browser.helperApps.neverAsk.saveToDisk",
-              "text/csv,"
-              + "application/octet-stream"
-              + "application/x-msexcel,"
-              + "application/excel,"
-              + "application/x-excel,"
-              + "application/vnd.ms-excel,"
-              + "image/png,"
-              + "image/jpeg,text/html,"
-              + "text/plain,"
-              + "application/msword,"
-              + "application/xml");
+            "text/csv,"
+            + "application/octet-stream"
+            + "application/x-msexcel,"
+            + "application/excel,"
+            + "application/x-excel,"
+            + "application/vnd.ms-excel,"
+            + "image/png,"
+            + "image/jpeg,text/html,"
+            + "text/plain,"
+            + "application/msword,"
+            + "application/xml");
         options.addPreference("browser.helperApps.alwaysAsk.force", false);
         options.addPreference("browser.download.manager.alertOnEXEOpen", false);
         options.addPreference("browser.download.manager.focusWhenStarting",
-              false);
+            false);
         options.addPreference("browser.download.manager.useWindow", false);
         options.addPreference("browser.download.manager.showAlertOnComplete",
-              false);
+            false);
         options.addPreference("browser.download.manager.closeWhenDone", false);
 
         driver = new FirefoxDriver(options);
@@ -330,9 +585,12 @@ public class OfxFileController
 
         driver.findElement(By.id("UserName")).sendKeys("BlueSoccer01");
         driver.findElement(By.id("Password")).sendKeys("ArmyMule76");
-        driver.findElement(By.xpath("/html/body/div/div/div/div[2]/div/div[2]/div[2]/div[1]/section/form/div[3]/div/input")).click();
+        driver.findElement(By
+            .xpath("/html/body/div/div/div/div[2]/div/div[2]/div[2]/div[1]/section/form/div[3]/div/input")).click();
         // get security question
-        s = driver.findElement(By.xpath("/html/body/div/div/div/div[2]/div/div[2]/div[2]/div[1]/section/form/div[1]/div[2]/label")).getText();
+        s = driver.findElement(By
+            .xpath("/html/body/div/div/div/div[2]/div/div[2]/div[2]/div[1]/section/form/div[1]/div[2]/label"))
+            .getText();
 
         switch (s)
         {
@@ -360,8 +618,7 @@ public class OfxFileController
         try
         {
             Thread.sleep(500);
-        }
-        catch (InterruptedException ex)
+        } catch (InterruptedException ex)
         {
             java.util.logging.Logger.getLogger(OfxFileController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -372,8 +629,7 @@ public class OfxFileController
         try
         {
             Thread.sleep(5000);
-        }
-        catch (InterruptedException ex)
+        } catch (InterruptedException ex)
         {
             java.util.logging.Logger.getLogger(OfxFileController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -384,8 +640,7 @@ public class OfxFileController
         try
         {
             Thread.sleep(500);
-        }
-        catch (InterruptedException ex)
+        } catch (InterruptedException ex)
         {
             java.util.logging.Logger.getLogger(OfxFileController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -396,8 +651,7 @@ public class OfxFileController
         try
         {
             Thread.sleep(5000);
-        }
-        catch (InterruptedException ex)
+        } catch (InterruptedException ex)
         {
             java.util.logging.Logger.getLogger(OfxFileController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -423,7 +677,7 @@ public class OfxFileController
         // get list of files to process
         this.fileList = new ArrayList<>();
         folder = new File(CMDirectoriesModel.getInstance().
-              getProps().getProperty("OfxFiles"));
+            getProps().getProperty("OfxFiles"));
 
         files = folder.listFiles();
 
@@ -448,8 +702,8 @@ public class OfxFileController
         for (String file : this.fileList)
         {
             s = String.format(CMLanguageController.getAppProp("FCFormat1"),
-                  file,
-                  CMHPIUtils.getLongDate());
+                file,
+                CMHPIUtils.getLongDate());
 
             System.out.println("Processing file: " + s + "\n");
 
@@ -465,7 +719,7 @@ public class OfxFileController
             if (this.ofx.getSignOnMsgsRSv1().getSonRS().getStatus().getCode() != 0)
             {
                 switch (this.ofx.getSignOnMsgsRSv1().getSonRS().
-                      getStatus().getCode())
+                    getStatus().getCode())
                 {
                     case 2000:
                     case 3000:
@@ -504,13 +758,11 @@ public class OfxFileController
                 try
                 {
                     Files.deleteIfExists(Paths.get(file));
-                }
-                catch (IOException ex)
+                } catch (IOException ex)
                 {
                     // not important
                 }
-            }
-            else
+            } else
             {
                 return false;
             }
@@ -525,20 +777,16 @@ public class OfxFileController
 //         s = String.format(CMLanguageController.getAppProp("FCFormat1"),
 //               sInputFile,
 //               CMHPIUtils.getLongDate());
-
 //         // initialize BrokersController
 //         BrokersController.getInstance();
-
 //         // ensure in right database
 // //        this.connectDB("OfxBroker");
-
 //         if (!processOfxFile(sInputFile))
 //         {
 //             s = String.format(CMLanguageController.getAppProp("FCFormat2"),
 //                   sInputFile, CMHPIUtils.getLongDate());
 //             return false;
 //         }
-
         // ignore the signon message other than status
         if (this.ofx.getSignOnMsgsRSv1().getSonRS().getStatus().getCode() != 0)
         {
@@ -610,7 +858,7 @@ public class OfxFileController
 //                    + this.ofx.getSignOnMsgsRSv1().getSonRS().
 //                            getStatus().getCode().toString();
             switch (this.ofx.getSignOnMsgsRSv1().getSonRS().
-                  getStatus().getCode())
+                getStatus().getCode())
             {
                 case 2000:
                 case 3000:
@@ -627,24 +875,24 @@ public class OfxFileController
                 case 15512:
                 case 15513:
                     s = CMLanguageController.getErrorProps().
-                          getProperty("OfxSignonStatus"
-                                + this.ofx.getSignOnMsgsRSv1().
-                                      getSonRS().getStatus().getCode());
+                        getProperty("OfxSignonStatus"
+                            + this.ofx.getSignOnMsgsRSv1().
+                                getSonRS().getStatus().getCode());
                     break;
                 default:
                     s = String.format(CMLanguageController.
-                          getErrorProps().getProperty("Formatted3"),
-                          this.ofx.getSignOnMsgsRSv1().getSonRS().getStatus().getCode());
+                        getErrorProps().getProperty("Formatted3"),
+                        this.ofx.getSignOnMsgsRSv1().getSonRS().getStatus().getCode());
             }
             s = String.format(CMLanguageController.
-                  getErrorProp("GeneralError"), s);
+                getErrorProp("GeneralError"), s);
 
-            CMHPIUtils.showDefaultMsg(CMLanguageController.getAppProp("Title") +
-                        CMLanguageController.getErrorProp("Title"),
-                  Thread.currentThread().getStackTrace()[1].getClassName(),
-                  Thread.currentThread().getStackTrace()[1].getMethodName(),
-                  s,
-                  JOptionPane.ERROR_MESSAGE);
+            CMHPIUtils.showDefaultMsg(CMLanguageController.getAppProp("Title")
+                + CMLanguageController.getErrorProp("Title"),
+                Thread.currentThread().getStackTrace()[1].getClassName(),
+                Thread.currentThread().getStackTrace()[1].getMethodName(),
+                s,
+                JOptionPane.ERROR_MESSAGE);
 
             throw new UnsupportedOperationException(s);
         }
@@ -663,18 +911,18 @@ public class OfxFileController
 //        CMDBController.getInstance().close();
 //        this.connectDB("OfxBroker");
         this.ofx.getInvStmtMsgsRSv1().getInvStmtTrnRS().
-              getInvStmtRS().getInvAcctFrom().
-              doSQL(this.ofx.getSignOnMsgsRSv1().getSonRS().getOfxFI());
+            getInvStmtRS().getInvAcctFrom().
+            doSQL(this.ofx.getSignOnMsgsRSv1().getSonRS().getOfxFI());
 
         this.ofx.getInvStmtMsgsRSv1().getInvStmtTrnRS().
-              getInvStmtRS().doSQL(this.ofx.getInvStmtMsgsRSv1().
-                    getInvStmtTrnRS().getInvStmtRS().
-                    getInvAcctFrom());
+            getInvStmtRS().doSQL(this.ofx.getInvStmtMsgsRSv1().
+                getInvStmtTrnRS().getInvStmtRS().
+                getInvAcctFrom());
 
         this.ofx.getSecListMsgsRSv1().getSecList().doSQL(this.ofx.
-              getInvStmtMsgsRSv1().
-              getInvStmtTrnRS().getInvStmtRS().
-              getInvAcctFrom());
+            getInvStmtMsgsRSv1().
+            getInvStmtTrnRS().getInvStmtRS().
+            getInvAcctFrom());
 
         // run any required stored procedures after all Ofx work is complete
         ofxBrokerAdjustments();
@@ -702,15 +950,15 @@ public class OfxFileController
         if ((e1 = doc.select("ofx").first()) == null)
         {
             s = String.format(CMLanguageController.
-                  getErrorProp("OfxResponseEmpty"));
+                getErrorProp("OfxResponseEmpty"));
 
-            CMHPIUtils.showDefaultMsg(CMLanguageController.getAppProp("Title") +
-                        CMLanguageController.getErrorProp("Title"),
-                  Thread.currentThread().getStackTrace()[1].getClassName(),
-                  Thread.currentThread().getStackTrace()[1].
-                        getMethodName(),
-                  s,
-                  JOptionPane.ERROR_MESSAGE);
+            CMHPIUtils.showDefaultMsg(CMLanguageController.getAppProp("Title")
+                + CMLanguageController.getErrorProp("Title"),
+                Thread.currentThread().getStackTrace()[1].getClassName(),
+                Thread.currentThread().getStackTrace()[1].
+                    getMethodName(),
+                s,
+                JOptionPane.ERROR_MESSAGE);
 
             throw new UnsupportedOperationException(s);
         }
@@ -728,7 +976,7 @@ public class OfxFileController
     {
         // conversion of file to XML, returned in 'doc'
         return (doc = FixSGML2XML.getInstance().
-              doSGMLFile2XML(sInputFile)) != null;
+            doSGMLFile2XML(sInputFile)) != null;
     }
 
     /*
@@ -749,8 +997,8 @@ public class OfxFileController
         // test validity of output file
         path = Paths.get(sOutputFile);
         try (OutputStream output = Files.newOutputStream(path,
-              StandardOpenOption.WRITE, StandardOpenOption.CREATE,
-              StandardOpenOption.TRUNCATE_EXISTING))
+            StandardOpenOption.WRITE, StandardOpenOption.CREATE,
+            StandardOpenOption.TRUNCATE_EXISTING))
         {
             output.close();
 
@@ -760,43 +1008,41 @@ public class OfxFileController
                 Files.delete(path);
                 return false;
             }
-        }
-        catch (IOException ex)
+        } catch (IOException ex)
         {
             // unable to create the output file
             s = String.format(CMLanguageController.
-                  getErrorProps().getProperty("Formatted10"),
-                  sOutputFile);
+                getErrorProps().getProperty("Formatted10"),
+                sOutputFile);
             CMHPIUtils.showDefaultMsg(CMLanguageController.getErrorProps().
-                        getProperty("Title"),
-                  errorPrefix,
-                  fErrorPrefix,
-                  s,
-                  JOptionPane.ERROR_MESSAGE);
+                getProperty("Title"),
+                errorPrefix,
+                fErrorPrefix,
+                s,
+                JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
         try (BufferedWriter output = Files.newBufferedWriter(path,
-              Charset.forName("US-ASCII"),
-              StandardOpenOption.WRITE, StandardOpenOption.CREATE,
-              StandardOpenOption.TRUNCATE_EXISTING))
+            Charset.forName("US-ASCII"),
+            StandardOpenOption.WRITE, StandardOpenOption.CREATE,
+            StandardOpenOption.TRUNCATE_EXISTING))
         {
             s = doc.toString();
             output.write(s, 0, s.length());
             output.close();
-        }
-        catch (IOException ex)
+        } catch (IOException ex)
         {
             // unable to create the output file
             s = String.format(CMLanguageController.
-                  getErrorProps().getProperty("Formatted10"),
-                  sOutputFile);
+                getErrorProps().getProperty("Formatted10"),
+                sOutputFile);
             CMHPIUtils.showDefaultMsg(CMLanguageController.getErrorProps().
-                        getProperty("Title"),
-                  errorPrefix,
-                  fErrorPrefix,
-                  s,
-                  JOptionPane.ERROR_MESSAGE);
+                getProperty("Title"),
+                errorPrefix,
+                fErrorPrefix,
+                s,
+                JOptionPane.ERROR_MESSAGE);
             return false;
         }
         return true;
