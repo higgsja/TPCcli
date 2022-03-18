@@ -26,7 +26,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-public class FinVizController2 {
+public class FinVizController2
+{
 
     private static int iRow;
     private static int iTotalRows;
@@ -34,12 +35,14 @@ public class FinVizController2 {
     private static final ArrayList<FinVizEquityInfoModel> EQUITY_INFO_MODELS;
     private static final CMProgressBarCLI BAR_CLI;
 
-    static {
+    static
+    {
         BAR_CLI = new CMProgressBarCLI(CmdLineController.getsCLIProgressBar());
         EQUITY_INFO_MODELS = new ArrayList<>();
     }
 
-    public static final void doEquityInfo() {
+    public static final void doEquityInfo()
+    {
         String s, sql, sql1;
         int rowCount;
 
@@ -52,14 +55,17 @@ public class FinVizController2 {
         BAR_CLI.barUpdate(0, iTotalRows * 2);
 
         iRow++;
-        while (iRow <= iTotalRows) {
+        while (iRow <= iTotalRows)
+        {
             //finViz tables have 20 rows; do 4 tables before wait
             //point is to not trigger the 'too many requests' fail
-            if (iRow > 1 && ((iRow - 1) / 80.0) == ((iRow - 1) / 80)) {
-                try {
+            if (iRow > 1 && ((iRow - 1) / 80.0) == ((iRow - 1) / 80))
+            {
+                try
+                {
                     Thread.sleep(3000);
-                }
-                catch (InterruptedException ex) {
+                } catch (InterruptedException ex)
+                {
                     //Logger.getLogger(FinVizController.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
@@ -71,16 +77,18 @@ public class FinVizController2 {
 
 //        sql = "";
         sql1
-                = "insert ignore into hlhtxc5_dmOfx.EquityInfo (Ticker, Company, Sector, Industry, Country, `MktCap(B)`, PE, FwdPE, PEG, `Div`, PayoutRatio, EPS, `EPS/CY`, `EPS/NY`, `EPS/P5Y`, `EPS/N5Y`, ATR, SMA20, SMA50, SMA200, `50dHi`, `50dLo`, `52wHi`, `52wLo`, RSI, AnRec, Price, Volume, EarnDate, TgtPrice, `Date`, Beta) VALUES ";
+            = "insert ignore into hlhtxc5_dmOfx.EquityInfo (Ticker, Company, Sector, Industry, Country, `MktCap(B)`, PE, FwdPE, PEG, `Div`, PayoutRatio, EPS, `EPS/CY`, `EPS/NY`, `EPS/P5Y`, `EPS/N5Y`, ATR, SMA20, SMA50, SMA200, `50dHi`, `50dLo`, `52wHi`, `52wLo`, RSI, AnRec, Price, Volume, EarnDate, TgtPrice, `Date`, Beta) VALUES ";
         sql1 += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         rowCount = 0;
         try (Connection con = CMDBController.getConnection();
-                //Statement stmt = con.createStatement();
-                PreparedStatement ps = con.prepareStatement(sql1);) {
+            //Statement stmt = con.createStatement();
+            PreparedStatement ps = con.prepareStatement(sql1);)
+        {
             con.setAutoCommit(false);
-            
-            for (FinVizEquityInfoModel eim : EQUITY_INFO_MODELS) {
+
+            for (FinVizEquityInfoModel eim : EQUITY_INFO_MODELS)
+            {
                 iRow++;
                 rowCount++;
                 BAR_CLI.barUpdate(iRow, iTotalRows * 2);
@@ -134,21 +142,21 @@ public class FinVizController2 {
             }
 
             ps.executeBatch();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e)
+        {
             s = String.format(CMLanguageController.
-                    getErrorProps().getProperty("GeneralError"),
-                    e.toString());
+                getErrorProps().getProperty("GeneralError"),
+                e.toString());
 
             CMHPIUtils.showDefaultMsg(
-                    CMLanguageController.getErrorProps().
-                            getProperty("Title"),
-                    Thread.currentThread().getStackTrace()[1].
-                            getClassName(),
-                    Thread.currentThread().getStackTrace()[1].
-                            getMethodName(),
-                    s,
-                    JOptionPane.ERROR_MESSAGE);
+                CMLanguageController.getErrorProps().
+                    getProperty("Title"),
+                Thread.currentThread().getStackTrace()[1].
+                    getClassName(),
+                Thread.currentThread().getStackTrace()[1].
+                    getMethodName(),
+                s,
+                JOptionPane.ERROR_MESSAGE);
         }
 
 //        if (rowCount > 0) {
@@ -175,21 +183,21 @@ public class FinVizController2 {
 //                        JOptionPane.ERROR_MESSAGE);
 //            }
 //        }
-
         // report number of rows added
         s = String.format(CMLanguageController.
-                getAppProp("EquityInfoReturn"),
-                Integer.toString(iTotalRows));
+            getAppProp("EquityInfoReturn"),
+            Integer.toString(iTotalRows));
 
         CMHPIUtils.showDefaultMsg(
-                "\r\n" + CMLanguageController.getAppProp("Title"),
-                Thread.currentThread().getStackTrace()[1].getClassName(),
-                Thread.currentThread().getStackTrace()[1].getMethodName(),
-                s,
-                JOptionPane.INFORMATION_MESSAGE);
+            "\r\n" + CMLanguageController.getAppProp("Title"),
+            Thread.currentThread().getStackTrace()[1].getClassName(),
+            Thread.currentThread().getStackTrace()[1].getMethodName(),
+            s,
+            JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private static void getDataTable() {
+    private static void getDataTable()
+    {
         // &r= establishes first row to display; iterate through those at 20 each
         // read this from file
         //String sCustom = "http://finviz.com/screener.ashx?v=152&c=0,1,2,3,4,5,"
@@ -216,7 +224,7 @@ public class FinVizController2 {
 //        sCustom = "v=152&f=sh_opt_option";
 //        sCustom = "v=152&c=1,2,3,4,5,6,7,8,9,14,15,16,17,18,19,20,49,52,53,54,55,56,57,58,59,62,65,67,68,69&f=sh_opt_option";
         sCustom
-                = "v=152&c=1,2,3,4,5,6,7,8,9,14,15,16,17,18,19,20,49,52,53,54,55,56,57,58,59,62,65,67,68,69,48";
+            = "v=152&c=1,2,3,4,5,6,7,8,9,14,15,16,17,18,19,20,49,52,53,54,55,56,57,58,59,62,65,67,68,69,48";
         sCustom += "&r=";
 
         sUrlQuery = "https://finviz.com/screener.ashx";
@@ -225,36 +233,39 @@ public class FinVizController2 {
 //        MAX_REDIRECTS = 5;
         charset = "UTF-8";
 
-        try {
-            while (finVizError) {
+        try
+        {
+            while (finVizError)
+            {
                 sUrlQuery = sUrlQuery + Integer.toString(iRow);
                 url = new URL(sUrlQuery);
                 connection = (HttpsURLConnection) url.openConnection();
 
                 ((HttpsURLConnection) connection).
-                        setHostnameVerifier(new MyHostnameVerifier());
+                    setHostnameVerifier(new MyHostnameVerifier());
                 connection.setRequestProperty("Content-Type",
-                        "application/x-www-form-urlencoded;charset=" + charset);
+                    "application/x-www-form-urlencoded;charset=" + charset);
                 connection.setRequestMethod("GET");
                 connection.setRequestProperty("Accept-Charset", charset);
                 connection.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
                 connection.addRequestProperty("User-Agent",
-                        "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9"
-                        + ".2.3) Gecko/20100401");
+                    "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9"
+                    + ".2.3) Gecko/20100401");
                 connection.setDoOutput(false);
                 intStatus = connection.getResponseCode();
-                if (intStatus != HttpURLConnection.HTTP_OK) {
+                if (intStatus != HttpURLConnection.HTTP_OK)
+                {
                     s = String.format(CMLanguageController.
-                            getErrorProps().getProperty("GeneralError"),
-                            Integer.toString(intStatus));
+                        getErrorProps().getProperty("GeneralError"),
+                        Integer.toString(intStatus));
 
                     CMHPIUtils.showDefaultMsg(
-                            CMLanguageController.getErrorProps().
-                                    getProperty("Title"),
-                            Thread.currentThread().getStackTrace()[1].getClassName(),
-                            Thread.currentThread().getStackTrace()[1].getMethodName(),
-                            s,
-                            JOptionPane.ERROR_MESSAGE);
+                        CMLanguageController.getErrorProps().
+                            getProperty("Title"),
+                        Thread.currentThread().getStackTrace()[1].getClassName(),
+                        Thread.currentThread().getStackTrace()[1].getMethodName(),
+                        s,
+                        JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -298,52 +309,69 @@ public class FinVizController2 {
 
                 iteratorT = doc.select("table").iterator();
                 //finVizError = (Jsoup.parse(connection.getInputStream(), charset, "")).body().text();
-                if (doc.body().text().equalsIgnoreCase("Too many requests.")) {
-                    try {
+                if (doc.body().text().equalsIgnoreCase("Too many requests."))
+                {
+                    try
+                    {
                         Thread.sleep(15000);
                         System.out.println("Too many requests triggered; rows: " + iRow);
-                    }
-                    catch (InterruptedException ex) {
+                    } catch (InterruptedException ex)
+                    {
                         //Logger.getLogger(FinVizController.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                } else {
+                } else
+                {
                     finVizError = false;
                 }
 
             }
 
-            if (!iteratorT.hasNext()) {
+            if (!iteratorT.hasNext())
+            {
                 s = String.format(CMLanguageController.
-                        getErrorProps().getProperty("Formatted16"),
-                        sUrlQuery);
+                    getErrorProps().getProperty("Formatted16"),
+                    sUrlQuery);
 
                 CMHPIUtils.showDefaultMsg(
-                        CMLanguageController.getErrorProps().
-                                getProperty("Title"),
-                        Thread.currentThread().getStackTrace()[1].getClassName(),
-                        Thread.currentThread().getStackTrace()[1].getMethodName(),
-                        s,
-                        JOptionPane.ERROR_MESSAGE);
+                    CMLanguageController.getErrorProps().
+                        getProperty("Title"),
+                    Thread.currentThread().getStackTrace()[1].getClassName(),
+                    Thread.currentThread().getStackTrace()[1].getMethodName(),
+                    s,
+                    JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
             i = 0;
             sTxt = "";
-            while (iteratorT.hasNext()) {
-                if (++i > 9) {
-                    //get past the header info
+            while (iteratorT.hasNext())
+            {
+                //there were 9 before, now there are 10
+                //to stop the breakage, look for the text 'Total: '
+                //if (++i > 9) {
+//                if (++i > 10) {
+//                
+//                    //get past the header info
+//                    break;
+//                }
+                sTxt = iteratorT.next().text();
+
+                if (sTxt.length() > 7 && sTxt.substring(0, 7).equalsIgnoreCase("Total: "))
+                {
                     break;
                 }
-                sTxt = iteratorT.next().text();
+
             }
 
             // At table with total row count
             // sTxt: Total: 7031 #1 save as portfolio
-            if (iRow == 0) {
+            if (iRow == 0)
+            {
                 sTxt = sTxt.substring(sTxt.indexOf(' ') + 1);
                 sTxt = sTxt.substring(0, sTxt.indexOf(' '));
                 iTotalRows = Integer.parseInt(sTxt);
-            } else {
+            } else
+            {
                 // each page call will give a new total row number.
                 // so long as it is the same as the original, fine.
                 // otherwise, it's an error as the data changed.
@@ -351,56 +379,58 @@ public class FinVizController2 {
                 sTxt = sTxt.substring(sTxt.indexOf(' ') + 1);
                 sTxt = sTxt.substring(0, sTxt.indexOf(' '));
                 iTotalRows2 = Integer.parseInt(sTxt);
-                if (iTotalRows2 != iTotalRows) {
+                if (iTotalRows2 != iTotalRows)
+                {
                     s = String.format(CMLanguageController.
-                            getErrorProps().getProperty("Formatted17"),
-                            sUrlQuery);
+                        getErrorProps().getProperty("Formatted17"),
+                        sUrlQuery);
 
                     CMHPIUtils.showDefaultMsg(
-                            CMLanguageController.getErrorProps().
-                                    getProperty("Title"),
-                            Thread.currentThread().getStackTrace()[1].
-                                    getClassName(),
-                            Thread.currentThread().getStackTrace()[1].
-                                    getMethodName(),
-                            s,
-                            JOptionPane.ERROR_MESSAGE);
+                        CMLanguageController.getErrorProps().
+                            getProperty("Title"),
+                        Thread.currentThread().getStackTrace()[1].
+                            getClassName(),
+                        Thread.currentThread().getStackTrace()[1].
+                            getMethodName(),
+                        s,
+                        JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             }
 
             // next table has data
             dataTable = iteratorT.next();
-        }
-        catch (UnknownHostException e) {
+        } catch (UnknownHostException e)
+        {
             s = String.format(CMLanguageController.
-                    getErrorProps().getProperty("Formatted18"),
-                    sUrlQuery);
+                getErrorProps().getProperty("Formatted18"),
+                sUrlQuery);
 
             CMHPIUtils.showDefaultMsg(
-                    CMLanguageController.getErrorProps().
-                            getProperty("Title"),
-                    Thread.currentThread().getStackTrace()[1].getClassName(),
-                    Thread.currentThread().getStackTrace()[1].getMethodName(),
-                    s,
-                    JOptionPane.ERROR_MESSAGE);
-        }
-        catch (IOException e) {
+                CMLanguageController.getErrorProps().
+                    getProperty("Title"),
+                Thread.currentThread().getStackTrace()[1].getClassName(),
+                Thread.currentThread().getStackTrace()[1].getMethodName(),
+                s,
+                JOptionPane.ERROR_MESSAGE);
+        } catch (IOException e)
+        {
             s = String.format(CMLanguageController.
-                    getErrorProps().getProperty("General"),
-                    e.getMessage());
+                getErrorProps().getProperty("General"),
+                e.getMessage());
 
             CMHPIUtils.showDefaultMsg(
-                    CMLanguageController.getErrorProps().
-                            getProperty("Title"),
-                    Thread.currentThread().getStackTrace()[1].getClassName(),
-                    Thread.currentThread().getStackTrace()[1].getMethodName(),
-                    s,
-                    JOptionPane.ERROR_MESSAGE);
+                CMLanguageController.getErrorProps().
+                    getProperty("Title"),
+                Thread.currentThread().getStackTrace()[1].getClassName(),
+                Thread.currentThread().getStackTrace()[1].getMethodName(),
+                s,
+                JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private static void doEquity() {
+    private static void doEquity()
+    {
         String sCell;
         Iterator<Element> iteratorR;
         Element aElement;
@@ -410,10 +440,12 @@ public class FinVizController2 {
         iteratorR = dataTable.select("tr").iterator();
         int intR = 0;
 
-        while (iteratorR.hasNext()) {
+        while (iteratorR.hasNext())
+        {
             // iterate through rows, keep No. to use on next request
             intR++;
-            if (intR == 1) {
+            if (intR == 1)
+            {
                 // first row is headers
                 iteratorR.next();
                 continue;
@@ -427,20 +459,23 @@ public class FinVizController2 {
 
             aElement = iteratorR.next();
             Iterator<Element> iteratorC
-                    = aElement.select("td").iterator();
+                = aElement.select("td").iterator();
 
             intC = 0;
 
-            while (iteratorC.hasNext()) {
+            while (iteratorC.hasNext())
+            {
                 intC++;
                 // iterate through cells of row
                 sCell = iteratorC.next().text();
 
-                if (sCell.contains("<")) {
+                if (sCell.contains("<"))
+                {
                     sCell = sCell.substring(0, sCell.indexOf('<'));
                 }
 
-                switch (intC) {
+                switch (intC)
+                {
                     case 1: // Ticker
                         sCell = sCell.replaceAll(" ", "");
                         equityInfoModel.setTkr(sCell);
@@ -464,21 +499,24 @@ public class FinVizController2 {
                         break;
                     case 7: // PE
                         sCell = sCell.replaceAll(" ", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setPE(sCell);
                         break;
                     case 8: // FwdPE
                         sCell = sCell.replaceAll(" ", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setFwdPE(sCell);
                         break;
                     case 9: // PEG
                         sCell = sCell.replaceAll(" ", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setPEG(sCell);
@@ -486,7 +524,8 @@ public class FinVizController2 {
                     case 10: // Div
                         sCell = sCell.replaceAll(" ", "");
                         sCell = sCell.replaceAll("%", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setDiv(sCell);
@@ -494,14 +533,16 @@ public class FinVizController2 {
                     case 11: // Payout Ratio
                         sCell = sCell.replaceAll(" ", "");
                         sCell = sCell.replaceAll("%", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setPayoutRatio(sCell);
                         break;
                     case 12: // EPS
                         sCell = sCell.replaceAll(" ", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setEPS(sCell);
@@ -509,7 +550,8 @@ public class FinVizController2 {
                     case 13: // EPS this year
                         sCell = sCell.replaceAll(" ", "");
                         sCell = sCell.replaceAll("%", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setEPSCY(sCell);
@@ -517,7 +559,8 @@ public class FinVizController2 {
                     case 14: // EPS next year
                         sCell = sCell.replaceAll(" ", "");
                         sCell = sCell.replaceAll("%", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setEPSNY(sCell);
@@ -525,7 +568,8 @@ public class FinVizController2 {
                     case 15: // EPS past 5
                         sCell = sCell.replaceAll(" ", "");
                         sCell = sCell.replaceAll("%", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setEPSP5Y(sCell);
@@ -533,14 +577,16 @@ public class FinVizController2 {
                     case 16: // EPS next 5
                         sCell = sCell.replaceAll(" ", "");
                         sCell = sCell.replaceAll("%", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setEPSN5Y(sCell);
                         break;
                     case 17: // ATR
                         sCell = sCell.replaceAll(" ", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setATR(sCell);
@@ -548,7 +594,8 @@ public class FinVizController2 {
                     case 18: // sma20
                         sCell = sCell.replaceAll(" ", "");
                         sCell = sCell.replaceAll("%", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setSMA20(sCell);
@@ -556,7 +603,8 @@ public class FinVizController2 {
                     case 19: // sma50
                         sCell = sCell.replaceAll(" ", "");
                         sCell = sCell.replaceAll("%", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setSMA50(sCell);
@@ -564,7 +612,8 @@ public class FinVizController2 {
                     case 20: // sma200
                         sCell = sCell.replaceAll(" ", "");
                         sCell = sCell.replaceAll("%", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setSMA200(sCell);
@@ -572,7 +621,8 @@ public class FinVizController2 {
                     case 21: // 50d hi
                         sCell = sCell.replaceAll(" ", "");
                         sCell = sCell.replaceAll("%", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setHi50d(sCell);
@@ -580,7 +630,8 @@ public class FinVizController2 {
                     case 22: // 50d lo
                         sCell = sCell.replaceAll(" ", "");
                         sCell = sCell.replaceAll("%", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setLo50d(sCell);
@@ -588,7 +639,8 @@ public class FinVizController2 {
                     case 23: // 52w hi
                         sCell = sCell.replaceAll(" ", "");
                         sCell = sCell.replaceAll("%", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setHi52w(sCell);
@@ -596,28 +648,32 @@ public class FinVizController2 {
                     case 24: // 52w lo
                         sCell = sCell.replaceAll(" ", "");
                         sCell = sCell.replaceAll("%", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setLo52w(sCell);
                         break;
                     case 25: // RSI
                         sCell = sCell.replaceAll(" ", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setRSI(sCell);
                         break;
                     case 26: // Analyst recommendation
                         sCell = sCell.replaceAll(" ", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setAnRec(sCell);
                         break;
                     case 27: // Price
                         sCell = sCell.replaceAll(",", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setPrice(sCell);
@@ -625,25 +681,29 @@ public class FinVizController2 {
                     case 28: // Volume
                         sCell = sCell.replaceAll(" ", "");
                         sCell = sCell.replaceAll(",", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setVolume(sCell);
                         break;
                     case 29: // earnings: Aug 17, Aug 17/a, Aug 17/b
-                        if (sCell.endsWith("a")) {
+                        if (sCell.endsWith("a"))
+                        {
                             sCell = sCell.replace("/a", "");
                             sCell = earningsDate(sCell);
                             sCell += " ";
                             sCell += "16:16:16";
                             equityInfoModel.setEarnDt(sCell);
-                        } else if (sCell.endsWith("b")) {
+                        } else if (sCell.endsWith("b"))
+                        {
                             sCell = sCell.replace("/b", "");
                             sCell = earningsDate(sCell);
                             sCell += " ";
                             sCell += "05:05:05";
                             equityInfoModel.setEarnDt(sCell);
-                        } else {
+                        } else
+                        {
                             sCell = earningsDate(sCell);
                             sCell += " ";
                             sCell += "12:12:12";
@@ -653,7 +713,8 @@ public class FinVizController2 {
                     case 30: // Target Price
                         sCell = sCell.replaceAll(" ", "");
                         sCell = sCell.replaceAll(",", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setTgtPrice(sCell);
@@ -661,7 +722,8 @@ public class FinVizController2 {
                     case 31: // Beta
                         sCell = sCell.replaceAll(" ", "");
                         sCell = sCell.replaceAll(",", "");
-                        if (sCell.equalsIgnoreCase("-")) {
+                        if (sCell.equalsIgnoreCase("-"))
+                        {
                             sCell = "-999.999";
                         }
                         equityInfoModel.setBeta(sCell);
@@ -675,18 +737,22 @@ public class FinVizController2 {
         }
     }
 
-    private static String toBillion(String sString) {
+    private static String toBillion(String sString)
+    {
         Double dDouble;
-        if (sString.equalsIgnoreCase("-")) {
+        if (sString.equalsIgnoreCase("-"))
+        {
             return "-999.999";
         }
         // can have M, B. Make all be in billions
-        if (sString.endsWith("B")) {
+        if (sString.endsWith("B"))
+        {
             sString = sString.replace("B", "");
             return sString;
         }
 
-        if (sString.endsWith("M")) {
+        if (sString.endsWith("M"))
+        {
             sString = sString.replace("M", "");
             dDouble = Double.parseDouble(sString) / 1000.00;
             sString = dDouble.toString();
@@ -696,18 +762,22 @@ public class FinVizController2 {
         return sString;
     }
 
-    private String toMillion(String sString) {
+    private String toMillion(String sString)
+    {
         Double dDouble;
-        if (sString.equalsIgnoreCase("-")) {
+        if (sString.equalsIgnoreCase("-"))
+        {
             return "-999.999";
         }
         // can have M, K. Make all M
-        if (sString.endsWith("M")) {
+        if (sString.endsWith("M"))
+        {
             sString = sString.replace("M", "");
             return sString;
         }
 
-        if (sString.endsWith("K")) {
+        if (sString.endsWith("K"))
+        {
             sString = sString.replace("K", "");
             dDouble = Double.parseDouble(sString) / 1000.00;
             sString = dDouble.toString();
@@ -717,7 +787,8 @@ public class FinVizController2 {
         return sString;
     }
 
-    private static String earningsDate(String sString) {
+    private static String earningsDate(String sString)
+    {
         Calendar calNow;
         Calendar calEarnings;
         Date dateNow;
@@ -726,7 +797,8 @@ public class FinVizController2 {
         // Given Aug 16
         // get current year
 
-        if (sString.equalsIgnoreCase("-")) {
+        if (sString.equalsIgnoreCase("-"))
+        {
             dateConvert = new Date();
             dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
@@ -747,13 +819,15 @@ public class FinVizController2 {
         // Turn date object assuming this year
         sString += " " + sYear;
         dateFormat = new SimpleDateFormat("MMM dd yyyy HH:mm:ss",
-                Locale.ENGLISH);
-        try {
+            Locale.ENGLISH);
+        try
+        {
             dateNow = new Date();
             dateConvert = dateFormat.parse(sString + " 23:59:59");
 
             // Check if that put the earnings before today
-            if (dateNow.after(dateConvert)) {
+            if (dateNow.after(dateConvert))
+            {
                 // earnings are actually in the following year
                 //  or, still referring to the last one
                 //  either way, add a year
@@ -766,8 +840,8 @@ public class FinVizController2 {
             // Convert to string MM/dd/yyyy
             dateFormat = new SimpleDateFormat("MM/dd/yyyy");
             sString = dateFormat.format(dateConvert);
-        }
-        catch (ParseException ex) {
+        } catch (ParseException ex)
+        {
             //todo: is this an issue
 //            ex.printStackTrace();
         }
@@ -776,7 +850,8 @@ public class FinVizController2 {
     }
 
     public static class MyHostnameVerifier
-            implements HostnameVerifier {
+        implements HostnameVerifier
+    {
 
         /**
          *
@@ -786,7 +861,8 @@ public class FinVizController2 {
          * @return
          */
         @Override
-        public boolean verify(String hostname, SSLSession session) {
+        public boolean verify(String hostname, SSLSession session)
+        {
             // verification off
             return true;
         }

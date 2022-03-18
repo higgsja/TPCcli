@@ -68,5 +68,5 @@ dist/lib/spring-tx-5.3.8.jar = 9c074b87ac9c1425d0c959218ca96c66
 dist/lib/td-ameritrade-client-2.4.1.jar = d29175ea93f5fe7b4cf7611622096b87
 dist/lib/TPCCM-1.0.jar = 92d384046020bdf742a22408a3b7cb98
 dist/lib/validation-api-2.0.1.Final.jar = aaa3b847daf97862f1fafc83b4cbc0f9
-dist/TPCcli-1.0.jar = 82f343fa04319bcdf7834c5387d4fb4b
-digest.txt = 62165b76da118f056a2d55e0e94c0366
+dist/TPCcli-1.0.jar = 4e579d5cd2d8274ee5833971a17cc63b
+digest.txt = 49ddfd096b7bd50355a6466a9188e4b7
