@@ -7,26 +7,20 @@ import com.hpi.hpiUtils.CMHPIUtils;
 import com.hpi.TPCCMcontrollers.*;
 import com.hpi.TPCCMprefs.*;
 import com.hpi.TPCCMsql.*;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.URL;
+import java.io.*;
+import java.net.*;
+import java.net.http.*;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.text.*;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.*;
-import javax.net.ssl.HttpsURLConnection;
 import javax.swing.JOptionPane;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
 public class OfxDirectDLController
 //      extends DBCore
@@ -40,7 +34,8 @@ public class OfxDirectDLController
      */
     private static OfxDirectDLController instance;
 
-    static {
+    static
+    {
         OfxDirectDLController.instance = null;
         PROGRESS_BAR_CLI = new CMProgressBarCLI(CmdLineController.
             getsCLIProgressBar());
@@ -53,7 +48,8 @@ public class OfxDirectDLController
 
     public synchronized static OfxDirectDLController getInstance()
     {
-        if (OfxDirectDLController.instance == null) {
+        if (OfxDirectDLController.instance == null)
+        {
             OfxDirectDLController.instance = new OfxDirectDLController();
         }
         return OfxDirectDLController.instance;
@@ -64,11 +60,14 @@ public class OfxDirectDLController
     {
         PROGRESS_BAR_CLI.barLabel("Processing Financial Institutions:");
         // loop through financial institutions
-        for (CMOfxDLFIModel fi : CMOfxDirectModel.getFIMODELS()) {
-            if (fi.getActive().equalsIgnoreCase("Yes")) {
+        for (CMOfxDLFIModel fi : CMOfxDirectModel.getFIMODELS())
+        {
+            if (fi.getActive().equalsIgnoreCase("Yes"))
+            {
                 PROGRESS_BAR_CLI.barLabel(
                     "  Processing Financial Institution: " + fi.getFiName());
-            } else {
+            } else
+            {
                 PROGRESS_BAR_CLI.barLabel("  Skipping Financial Institution: " + fi.getFiName());
                 continue;
             }
@@ -76,12 +75,15 @@ public class OfxDirectDLController
             PROGRESS_BAR_CLI.barLabel("    Processing Accounts:");
 
             // loop through accounts
-            for (CMOfxDLAccountModel acct : fi.getAccountModels()) {
-                if (acct.getAcctActive().equalsIgnoreCase("Yes")) {
+            for (CMOfxDLAccountModel acct : fi.getAccountModels())
+            {
+                if (acct.getAcctActive().equalsIgnoreCase("Yes"))
+                {
                     PROGRESS_BAR_CLI.barLabel("      Processing Account: " + acct.getAcctName());
                     // get response from the server into doc
                     this.getInvStmtResponse(fi, acct);
-                } else {
+                } else
+                {
                     PROGRESS_BAR_CLI.barLabel("      Skipping Account: " + acct.getAcctName());
                 }
             }
@@ -95,9 +97,11 @@ public class OfxDirectDLController
 
         formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-        if (CmdLineController.sDate.isEmpty()) {
+        if (CmdLineController.sDate.isEmpty())
+        {
             startDate = getMaxAcctDate(acct);
-        } else {
+        } else
+        {
             startDate = LocalDate.parse(CmdLineController.sDate, formatter);
 
         }
@@ -120,21 +124,25 @@ public class OfxDirectDLController
         sql = "select max(DtTrade) as MaxDate from hlhtxc5_dbOfx.InvTran, Accounts where Accounts.InvAcctIdFi = '"
             + acct.getAcctNumber() + "' " + "and JoomlaId = '" + userId + "' limit 1;";
 
-        try (Connection con = CMDBController.getConnection();
-            PreparedStatement pStmt = con.prepareStatement(sql)) {
+        try ( Connection con = CMDBController.getConnection();
+             PreparedStatement pStmt = con.prepareStatement(sql))
+        {
             pStmt.clearWarnings();
             rs = pStmt.executeQuery();
 
             sql = "";
-            while (rs.next()) {
+            while (rs.next())
+            {
                 // yyyymmdd
-                if (rs.getString("MaxDate") != null) {
+                if (rs.getString("MaxDate") != null)
+                {
                     sql = rs.getString("MaxDate").substring(0, 8);
                 }
             }
             pStmt.close();
             con.close();
-        } catch (SQLException ex) {
+        } catch (SQLException ex)
+        {
             sql = String.format(
                 CMLanguageController.getErrorProp("Formatted14"),
                 ex.getMessage());
@@ -153,32 +161,33 @@ public class OfxDirectDLController
                 ex.getMessage(), JOptionPane.ERROR_MESSAGE);
         }
 
-        if (!sql.isEmpty()) {
+        if (!sql.isEmpty())
+        {
             startDate = LocalDate.of(
                 Integer.parseInt(sql.substring(0, 4)),
                 Integer.parseInt(sql.substring(4, 6)),
                 Integer.parseInt(sql.substring(6, 8)));
-        } else {
+        } else
+        {
             startDate = LocalDate.of(1970, Month.JANUARY, 1);
         }
 
         return startDate;
     }
 
-    private void getInvStmtData(CMOfxDLFIModel fi,
-        CMOfxDLAccountModel acct,
-        LocalDate startDate)
+    private StringBuilder buildRequest(CMOfxDLFIModel fi, CMOfxDLAccountModel acct, LocalDate startDate)
     {
-        StringBuilder sb;
+
+        StringBuilder sbRequest;
         String s;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
 
         // build the request
-        sb = new StringBuilder(5000);
-        sb.append(OfxDirectDLController.OFX_REQUEST_HEADER);
+        sbRequest = new StringBuilder();
+        sbRequest.append(OfxDirectDLController.OFX_REQUEST_HEADER);
 
-        sb.append("<OFX>");
-        sb.append(System.lineSeparator());
+        sbRequest.append("<OFX>");
+        sbRequest.append(System.lineSeparator());
 
         // these need some string work to replace variables
         s = String.format(OfxDirectDLController.OFX_SIGNON,
@@ -188,241 +197,105 @@ public class OfxDirectDLController
             fi.getFiOrg(), // financial institution organization
             fi.getFiId() // financial institution ID
         );
-        sb.append(s);
+        sbRequest.append(s);
 
         s = String.format(OfxDirectDLController.OFX_INVSTMT_REQUEST,
             CMHPIUtils.getLongDate(), //   transaction number
-            fi.getBrokerId(), //                    broker id
-            acct.getAcctNumber(), //                account number
+            fi.getBrokerId(), //           broker id
+            acct.getAcctNumber(), //       account number
             simpleDateFormat.format(Date.valueOf(startDate.toString())),
-            "Y", //                                 include transactions
-            "N", //                                 include open orders
-            "Y", //                                 include positions
-            "Y" //                                  include balances
+            "Y", //                        include transactions
+            "N", //                        include open orders
+            "Y", //                        include positions
+            "Y" //                         include balances
         );
-        sb.append(s);
+        sbRequest.append(s);
 
-        sb.append("</OFX>");
-        sb.append(System.lineSeparator());
+        sbRequest.append("</OFX>");
+        sbRequest.append(System.lineSeparator());
 
-        // request complete
-        // execute it
-        this.getFiResponse(fi, acct, sb);
+        return sbRequest;
     }
 
-    private void getFiResponse(CMOfxDLFIModel fi,
-        CMOfxDLAccountModel acct, StringBuilder sbQuery)
+    private void getInvStmtData(CMOfxDLFIModel fi, CMOfxDLAccountModel acct, LocalDate startDate)
     {
-        String ofxQuery;
-        URL ofxUrl;
-        HttpsURLConnection connection;
-        connection = null;
-        String line, s;
-        int intStatus;
-        StringBuilder sb;
-        FixSGML2XML fixSGML;
-        OfxFileController ofxFileController;
-        //Element e1;
+        StringBuilder sbRequest;
+        StringBuilder sbResponse;
 
-        line = null;
-        intStatus = -10;
-        sb = new StringBuilder();
+        sbRequest = buildRequest(fi, acct, startDate);
 
-        // some financial institutions don't like additional white space
-        ofxQuery = sbQuery.toString().replace("\t", "");
+        sbResponse = getResponse(fi, sbRequest);
 
-        try {
-            ofxUrl = new URL(fi.getFiUrl());
-            connection = (HttpsURLConnection) ofxUrl.openConnection();
-            connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/x-oFX");
-            connection.addRequestProperty("Content-length",
-                Integer.toString(ofxQuery.length()));
-            connection.setDoOutput(true);   // post
-            connection.connect();
+        this.handleFiResponse(acct, sbResponse);
+    }
 
-            PROGRESS_BAR_CLI.barLabel(
-                "        Retrieving data ...");
+    private StringBuilder getResponse(CMOfxDLFIModel fi, StringBuilder sbRequest)
+    {
+        HttpClient client = HttpClient.newBuilder()
+            .version(HttpClient.Version.HTTP_1_1)
+            .build();
+        StringBuilder sbResponse = new StringBuilder();
 
-            // send the query to the connection
-            try (Writer writerOfx = new OutputStreamWriter(
-                connection.getOutputStream(), "US-ASCII")) {
-                writerOfx.write(ofxQuery);
-                writerOfx.flush();
+        
+        try
+        {
+            HttpRequest request = HttpRequest.newBuilder(new URI(fi.getFiUrl()))
+                .version(HttpClient.Version.HTTP_2)
+                .headers("Content-Type", "text/plain;charset=UTF-8")
+                .POST(BodyPublishers.ofString(sbRequest.toString()))
+                .build();
+            HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
 
-                intStatus = connection.getResponseCode();
-                line = connection.getResponseMessage();
+            // either gets data or error response
+            // does not get here if url is wrong; exception instead
+            sbResponse.append(response.body());
+            
+            //todo: check response for error code
 
-                if (connection.getResponseCode() >= 400) {
-                    if (connection.getErrorStream() != null) {
-                        try (BufferedReader readerOfx = new BufferedReader(
-                            new InputStreamReader(connection.getErrorStream(),
-                                "US-ASCII"))) {
-                            while ((line = readerOfx.readLine()) != null) {
-                                sb.append(line);
-                            }
-                        } catch (IOException ex) {
-                            throw ex;
-                        }
+            if (response.statusCode() != 200)
+            {
 
-                        doc = Jsoup.parse(sb.toString());
-                        // find the body and put it in the error message for display
-                        Element element;
-                        element = doc.select("body").first();
-                        if (element == null) {
-                            /*
-                             * line = "HTTPS error code: " +
-                             * Integer.toString(intStatus)
-                             * + "\n"
-                             * + "HTTPS message: "
-                             * + "HTTPS error stream: "
-                             * + doc.body().ownText();
-                             * throw new IOException(line);
-                             */
-                            s = String.format(CMLanguageController.
-                                getErrorProp("GeneralError"),
-                                "No text returned.");
+                String line = "HTTPS error code: " + Integer.toString(response.statusCode())
+                    + "\n" + "HTTPS Message: " + sbResponse.toString() + "\n";
 
-                            CMHPIUtils.showDefaultMsg(
-                                CMLanguageController.getAppProp("Title") + CMLanguageController.getErrorProp("Title"),
-                                Thread.currentThread().getStackTrace()[1].
-                                    getClassName(),
-                                Thread.currentThread().getStackTrace()[1].
-                                    getMethodName(),
-                                s,
-                                JOptionPane.ERROR_MESSAGE);
-                            //do not throw, continue to execute
-//                            throw new UnsupportedOperationException(s);
-                        }
-
-                        //in >=400 response code just return
-                        if (connection.getResponseCode() >= 400) {
-                            return;
-                        }
-
-                        // so, reset doc to the <body> element
-                        String aString = doc.select("body").first().toString();
-                        doc = Jsoup.parse(aString);
-
-                        s = String.format(CMLanguageController.
-                            getErrorProp("GeneralError"), doc.toString());
-
-                        CMHPIUtils.showDefaultMsg(
-                            CMLanguageController.getAppProp("Title") + CMLanguageController.getErrorProp("Title"),
-                            Thread.currentThread().getStackTrace()[1].
-                                getClassName(),
-                            Thread.currentThread().getStackTrace()[1].
-                                getMethodName(),
-                            s,
-                            JOptionPane.ERROR_MESSAGE);
-
-                        //do not stop
-//                        throw new UnsupportedOperationException(s);
-                    } else {
-                        s = String.format(CMLanguageController.
-                            getErrorProp("GeneralError"), line);
-
-                        CMHPIUtils.showDefaultMsg(
-                            CMLanguageController.getAppProp("Title") + CMLanguageController.getErrorProp("Title"),
-                            Thread.currentThread().getStackTrace()[1].
-                                getClassName(),
-                            Thread.currentThread().getStackTrace()[1].
-                                getMethodName(),
-                            s + "; Code: " + intStatus,
-                            JOptionPane.ERROR_MESSAGE);
-
-                        //in >=400 response code just return
-                        if (connection.getResponseCode() >= 400) {
-                            return;
-                        }
-
-                        //do not stop
-//                        throw new UnsupportedOperationException(s);
-                    }
-                }
-            } catch (IOException ex) {
-                s = String.format(CMLanguageController.
-                    getErrorProp("GeneralError"),
-                    ex.toString());
+                String s = String.format(CMLanguageController.
+                    getErrorProp("HttpError"),
+                    Integer.toString(response.statusCode()),
+                    line + System.lineSeparator());
 
                 CMHPIUtils.showDefaultMsg(
                     CMLanguageController.getAppProp("Title") + CMLanguageController.getErrorProp("Title"),
-                    Thread.currentThread().getStackTrace()[1].getClassName(),
-                    Thread.currentThread().getStackTrace()[1].getMethodName(),
+                    Thread.currentThread().getStackTrace()[1].
+                        getClassName(),
+                    Thread.currentThread().getStackTrace()[1].
+                        getMethodName(),
                     s,
                     JOptionPane.ERROR_MESSAGE);
-
-                throw new UnsupportedOperationException(ex.toString());
             }
-        } catch (IOException e) {
-            s = String.format(CMLanguageController.
-                getErrorProp("GeneralError"),
-                e.toString());
-
-            CMHPIUtils.showDefaultMsg(
-                CMLanguageController.getAppProp("Title") + CMLanguageController.getErrorProp("Title"),
-                Thread.currentThread().getStackTrace()[1].getClassName(),
-                Thread.currentThread().getStackTrace()[1].getMethodName(),
-                s,
-                JOptionPane.ERROR_MESSAGE);
-
-            throw new UnsupportedOperationException(s);
+        } catch (URISyntaxException | IOException | InterruptedException e)
+        {
+            sbResponse.append(e.getMessage());
         }
 
-        if (intStatus != HttpsURLConnection.HTTP_OK) {
-            // todo: z low deal with redirects 3xx
-            line = "HTTPS error code: " + Integer.toString(intStatus) + "\n" + "HTTPS Message: " + line + "\n";
+        return sbResponse;
+    }
 
-            s = String.format(CMLanguageController.
-                getErrorProp("HttpError"),
-                Integer.toString(intStatus),
-                line + System.lineSeparator());
-
-            CMHPIUtils.showDefaultMsg(
-                CMLanguageController.getAppProp("Title") + CMLanguageController.getErrorProp("Title"),
-                Thread.currentThread().getStackTrace()[1].
-                    getClassName(),
-                Thread.currentThread().getStackTrace()[1].
-                    getMethodName(),
-                s,
-                JOptionPane.ERROR_MESSAGE);
-
-            //do not stop
-//            throw new UnsupportedOperationException(s);
-        }
+    private void handleFiResponse(CMOfxDLAccountModel acct, StringBuilder sbResponse)
+    {
+        FixSGML2XML fixSGML;
+        String s;
+        OfxFileController ofxFileController;
 
 //        PROGRESS_BAR_CLI.barLabel(
 //            "        Processing response from financial institution ...");
-        try (BufferedReader readerOfx = new BufferedReader(
-            new InputStreamReader(connection.getInputStream(),
-                "US-ASCII"))) {
-            while ((line = readerOfx.readLine()) != null) {
-                sb.append(line);
-            }
-        } catch (IOException e) {
-            s = String.format(CMLanguageController.
-                getErrorProp("GeneralError"),
-                e.toString());
-
-            CMHPIUtils.showDefaultMsg(
-                CMLanguageController.getAppProp("Title") + CMLanguageController.getErrorProp("Title"),
-                Thread.currentThread().getStackTrace()[1].getClassName(),
-                Thread.currentThread().getStackTrace()[1].getMethodName(),
-                s,
-                JOptionPane.ERROR_MESSAGE);
-
-//            throw new UnsupportedOperationException(s);
-        } finally {
-            connection.disconnect();
-        }
-
         // Write raw return to file
 //        PROGRESS_BAR_CLI.barLabel("        Writing raw return file ...");
-        writeRaw(sb.toString(), acct.getAcctName());
+        writeRaw(sbResponse.toString(), acct.getAcctName());
 
         fixSGML = FixSGML2XML.getInstance();
-        doc = fixSGML.doSGMLDoc2XML(Jsoup.parse(sb.toString()));
-        if (doc == null || (doc.select("ofx").first()) == null) {
+        doc = fixSGML.doSGMLDoc2XML(Jsoup.parse(sbResponse.toString()));
+        if (doc == null || (doc.select("ofx").first()) == null)
+        {
             s = String.format(CMLanguageController.
                 getErrorProp("OfxResponseEmpty"));
 
@@ -442,7 +315,8 @@ public class OfxDirectDLController
 
         ofxFileController = OfxFileController.getInstance();
 
-        if (this.doc != null) {
+        if (this.doc != null)
+        {
             ofxFileController.processOfxDoc2SQLSetup(this.doc, PROGRESS_BAR_CLI);
         }
     }
@@ -454,12 +328,14 @@ public class OfxDirectDLController
 
         fileWrite = new File(CMDirectoriesModel.getInstance().
             getModelProp("Reports") + java.io.File.separator + sAcct + ".OFX");
-        try (BufferedWriter writerRaw = new BufferedWriter(
+        try ( BufferedWriter writerRaw = new BufferedWriter(
             new OutputStreamWriter(new FileOutputStream(fileWrite),
-                StandardCharsets.UTF_8))) {
+                StandardCharsets.UTF_8)))
+        {
             writerRaw.write(aString);
             writerRaw.flush();
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             s = String.format(CMLanguageController.
                 getErrorProp("GeneralError"),
                 e.toString());
@@ -480,18 +356,21 @@ public class OfxDirectDLController
         File fileWrite;
         String s;
 
-        if (doc == null) {
+        if (doc == null)
+        {
             return;
         }
         fileWrite = new File(CMDirectoriesModel.getInstance().
             getModelProp("Reports") + java.io.File.separator + sAcct + ".txt");
 
-        try (BufferedWriter writerRaw = new BufferedWriter(
+        try ( BufferedWriter writerRaw = new BufferedWriter(
             new OutputStreamWriter(new FileOutputStream(fileWrite),
-                StandardCharsets.UTF_8))) {
+                StandardCharsets.UTF_8)))
+        {
             writerRaw.write(doc.body().toString());
             writerRaw.flush();
-        } catch (IOException e) {
+        } catch (IOException e)
+        {
             s = String.format(CMLanguageController.
                 getErrorProp("GeneralError"),
                 e.toString());
