@@ -1,6 +1,3 @@
-/*
- * last edit: Jun 2020
- */
 package com.hpi.appcontrollers;
 
 import com.hpi.entities.OFXInstitutionModel;
@@ -8,9 +5,12 @@ import com.hpi.hpiUtils.CMHPIUtils;
 import com.hpi.TPCCMcontrollers.*;
 import java.io.*;
 import java.net.*;
+import java.net.http.*;
+import java.net.http.HttpResponse.BodyHandlers;
 // import java.util.*;
 import javax.swing.JOptionPane;
 import javax.xml.parsers.*;
+import org.jsoup.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 
@@ -28,23 +28,28 @@ public class OFXHomeController //      extends DBCore
     private static OFXHomeController instance;
     // private final ArrayList<String> ofxList;
 
-    protected OFXHomeController() {
+    protected OFXHomeController()
+    {
         // protected prevents instantiation outside of package
         // this.ofxList = new ArrayList<>();
     }
 
-    public synchronized static OFXHomeController getInstance() {
-        if (OFXHomeController.instance == null) {
+    public synchronized static OFXHomeController getInstance()
+    {
+        if (OFXHomeController.instance == null)
+        {
             OFXHomeController.instance = new OFXHomeController();
         }
         return OFXHomeController.instance;
     }
 
-    void getOfxList() {
+    void getOfxList()
+    {
         String httpString, charsetString, s;
-        int intStatus;
-        URL url;
-        HttpURLConnection httpConnection;
+        URI uri;
+        HttpRequest request;
+        HttpClient client;
+        HttpResponse<String> response;
         Document doc;
         DocumentBuilderFactory factory;
         DocumentBuilder builder;
@@ -53,26 +58,50 @@ public class OFXHomeController //      extends DBCore
         charsetString = "UTF-8";
         // sXmlString = "";
 
-        try {
-            url = new URL(httpString);
+        try
+        {
+            uri = new URI(httpString);
+            request = HttpRequest.newBuilder()
+                .uri(uri)
+                .version(HttpClient.Version.HTTP_2)
+                .header("Content-Type", "application/x-www-form-urlencoded;charset=" + charsetString)
+                .header("Accept-Charset", charsetString)
+                .header("Accept-Language", "en-US,en;q=0.8")
+                .header("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9"
+                    + ".2.3) Gecko/20100401")
+                .GET()
+                .build();
 
-            httpConnection = (HttpURLConnection) url.openConnection();
-            httpConnection.setRequestProperty("Content-Type",
-                "application/x-www-form-urlencoded;charset=" + charsetString);
-            httpConnection.setRequestMethod("GET");
-            httpConnection.setRequestProperty("Accept-Charset", charsetString);
-            httpConnection.addRequestProperty("Accept-Language",
-                "en-US,en;q=0.8");
-            httpConnection.addRequestProperty("User-Agent",
-                "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9" +
-                ".2.3) Gecko/20100401");
-            httpConnection.setDoOutput(false);
+//            url = new URL(httpString);
+//            httpConnection = (HttpURLConnection) url.openConnection();
+//            httpConnection.setRequestProperty("Content-Type",
+//                "application/x-www-form-urlencoded;charset=" + charsetString);
+//            httpConnection.setRequestMethod("GET");
+//            httpConnection.setRequestProperty("Accept-Charset", charsetString);
+//            httpConnection.addRequestProperty("Accept-Language",
+//                "en-US,en;q=0.8");
+//            httpConnection.addRequestProperty("User-Agent",
+//                "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9"
+//                + ".2.3) Gecko/20100401");
 
-            intStatus = httpConnection.getResponseCode();
-            if (intStatus != HttpURLConnection.HTTP_OK) {
+//httpConnection.setDoOutput(false);
+
+            client = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.ALWAYS)
+                .build();
+            
+            response = client
+                .send(request, BodyHandlers.ofString());
+            
+            if(response.statusCode() !=  HttpURLConnection.HTTP_OK)
+                
+
+//            intStatus = httpConnection.getResponseCode();
+//            if (intStatus != HttpURLConnection.HTTP_OK)
+            {
                 s = String.format(CMLanguageController.
                     getErrorProps().getProperty("GeneralError"),
-                    Integer.toString(intStatus));
+                    Integer.toString(response.statusCode()));
 
                 CMHPIUtils.showDefaultMsg(CMLanguageController.
                     getErrorProps().
@@ -87,14 +116,19 @@ public class OFXHomeController //      extends DBCore
             }
 
             factory = DocumentBuilderFactory.newInstance();
-            try {
+            try
+            {
+//                doc = Jsoup.parse(response.body(), "");
+//                Jsoup.parse(in, charsetString, s)
+//                    Jsoup.parse
                 builder = factory.newDocumentBuilder();
-
-                doc = builder.parse(httpConnection.getInputStream());
+//
+////                doc = builder.parse(httpConnection.getInputStream());
+                doc = builder.parse(response.body());
 
                 doc.getDocumentElement().normalize();
-            }
-            catch (ParserConfigurationException | IOException | SAXException e) {
+            } catch (ParserConfigurationException | IOException | SAXException e)
+            {
                 s = String.format(CMLanguageController.
                     getErrorProps().getProperty("GeneralError"),
                     e.toString());
@@ -110,9 +144,8 @@ public class OFXHomeController //      extends DBCore
                     JOptionPane.ERROR_MESSAGE);
                 return;
             }
-        }
-
-        catch (IOException e) {
+        } catch (InterruptedException | URISyntaxException | IOException e)
+        {
             s = String.format(CMLanguageController.
                 getErrorProps().getProperty("GeneralError"),
                 e.toString());
@@ -142,7 +175,8 @@ public class OFXHomeController //      extends DBCore
         System.out.println("--ofxHome Finished--");
     }
 
-    void processOfxList(Document doc) {
+    void processOfxList(Document doc)
+    {
         OFXInstitutionModel tmpOFXInstitutionModel;
         NodeList nodeList;
         Node node;
@@ -150,10 +184,12 @@ public class OFXHomeController //      extends DBCore
         OFXInstitutionModel.OFXINSTITUTION_MODELS.clear();
         nodeList = doc.getElementsByTagName("institutionid");
 
-        for (int i = 0; i < nodeList.getLength(); i++) {
+        for (int i = 0; i < nodeList.getLength(); i++)
+        {
             node = nodeList.item(i);
 
-            if (node.getNodeType() == Node.ELEMENT_NODE) {
+            if (node.getNodeType() == Node.ELEMENT_NODE)
+            {
 
                 tmpOFXInstitutionModel = new OFXInstitutionModel(
                     node.getAttributes().getNamedItem("name").getNodeValue(),
@@ -164,7 +200,8 @@ public class OFXHomeController //      extends DBCore
         }
     }
 
-    void processOfxInstitution() {
+    void processOfxInstitution()
+    {
         String httpString, s, charsetString;
         URL url;
         StringBuilder sb;
@@ -179,13 +216,15 @@ public class OFXHomeController //      extends DBCore
         sb = new StringBuilder();
 
         // use array to get detail from web site
-        for (OFXInstitutionModel model : OFXInstitutionModel.getDataList()) {
-            httpString = "http://www.ofxhome.com/api.php?lookup=" +
-                         model.getfIdString();
+        for (OFXInstitutionModel model : OFXInstitutionModel.getDataList())
+        {
+            httpString = "http://www.ofxhome.com/api.php?lookup="
+                + model.getfIdString();
             // sXmlString = "";
             sb.setLength(0);
 
-            try {
+            try
+            {
                 url = new URL(httpString);
 
                 httpConnection = (HttpURLConnection) url.openConnection();
@@ -197,12 +236,13 @@ public class OFXHomeController //      extends DBCore
                 httpConnection.addRequestProperty("Accept-Language",
                     "en-US,en;q=0.8");
                 httpConnection.addRequestProperty("User-Agent",
-                    "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9" +
-                    ".2.3) Gecko/20100401");
+                    "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9"
+                    + ".2.3) Gecko/20100401");
                 httpConnection.setDoOutput(false);
 
                 intStatus = httpConnection.getResponseCode();
-                if (intStatus != HttpURLConnection.HTTP_OK) {
+                if (intStatus != HttpURLConnection.HTTP_OK)
+                {
                     s = String.format(CMLanguageController.
                         getErrorProps().getProperty("GeneralError"),
                         Integer.toString(intStatus));
@@ -220,12 +260,13 @@ public class OFXHomeController //      extends DBCore
                 }
 
                 factory = DocumentBuilderFactory.newInstance();
-                try {
+                try
+                {
                     builder = factory.newDocumentBuilder();
                     doc = builder.parse(httpConnection.getInputStream());
                     doc.getDocumentElement().normalize();
-                }
-                catch (ParserConfigurationException | IOException | SAXException e) {
+                } catch (ParserConfigurationException | IOException | SAXException e)
+                {
                     // bb&t does not escape the & so fails
                     s = String.format(CMLanguageController.
                         getErrorProps().getProperty("GeneralError"),
@@ -243,8 +284,8 @@ public class OFXHomeController //      extends DBCore
                     // ignore errors; there are weird ones
                     continue;
                 }
-            }
-            catch (IOException e) {
+            } catch (IOException e)
+            {
                 s = String.format(CMLanguageController.
                     getErrorProps().getProperty("GeneralError"),
                     e.toString());
@@ -266,19 +307,23 @@ public class OFXHomeController //      extends DBCore
         }
     }
 
-    void processOfxInstitutionXml(OFXInstitutionModel model, Document doc) {
+    void processOfxInstitutionXml(OFXInstitutionModel model, Document doc)
+    {
         NodeList nodeList;
         Node node;
         String s;
 
         nodeList = doc.getElementsByTagName("*");
 
-        for (int i = 0; i < nodeList.getLength(); i++) {
+        for (int i = 0; i < nodeList.getLength(); i++)
+        {
             node = nodeList.item(i);
 
-            if (node.getNodeType() == Node.ELEMENT_NODE) {
+            if (node.getNodeType() == Node.ELEMENT_NODE)
+            {
 
-                switch (node.getNodeName().toLowerCase()) {
+                switch (node.getNodeName().toLowerCase())
+                {
                     case "institution":
                         break;
                     case "name":
@@ -314,12 +359,12 @@ public class OFXHomeController //      extends DBCore
                     default:
                         s = String.format(CMLanguageController.
                             getErrorProp(
-                                "Formatted3"), node.getNodeType() ==
-                                               Node.ELEMENT_NODE);
+                                "Formatted3"), node.getNodeType()
+                            == Node.ELEMENT_NODE);
 
                         CMHPIUtils.showDefaultMsg(
-                            CMLanguageController.getAppProp("Title") +
-                            CMLanguageController.getErrorProp("Title"),
+                            CMLanguageController.getAppProp("Title")
+                            + CMLanguageController.getErrorProp("Title"),
                             this.getClass().getName(),
                             Thread.currentThread().
                                 getStackTrace()[1].getMethodName(),
@@ -332,35 +377,37 @@ public class OFXHomeController //      extends DBCore
         }
     }
 
-    void processSQL() {
+    void processSQL()
+    {
         String sUpdateSQL, sInsertSQL;
 
         // OFXInstitutionModel.getDataList() has the array of data
-        for (OFXInstitutionModel model : OFXInstitutionModel.getDataList()) {
+        for (OFXInstitutionModel model : OFXInstitutionModel.getDataList())
+        {
             sUpdateSQL = OFXInstitutionModel.SQLUPDATE + "Name = \"";
             sUpdateSQL += model.getNameString().replace("'", "''");
             sUpdateSQL += "\", ";
             sUpdateSQL += "Org = \"";
-            sUpdateSQL += model.getOrgString() == null ?
-                          "\", " : model.getOrgString() + "\", ";
+            sUpdateSQL += model.getOrgString() == null
+                ? "\", " : model.getOrgString() + "\", ";
             sUpdateSQL += "BrokerId = \"";
-            sUpdateSQL += model.getBrokerIdString() == null ?
-                          "\", " : model.getBrokerIdString() + "\", ";
+            sUpdateSQL += model.getBrokerIdString() == null
+                ? "\", " : model.getBrokerIdString() + "\", ";
             sUpdateSQL += "Url = \"";
-            sUpdateSQL += model.getUrlString() == null ?
-                          "\", " : model.getUrlString() + "\", ";
+            sUpdateSQL += model.getUrlString() == null
+                ? "\", " : model.getUrlString() + "\", ";
             sUpdateSQL += "OfxFail = \"";
-            sUpdateSQL += model.getOfxFailString() == null ?
-                          "\", " : model.getOfxFailString() + "\", ";
+            sUpdateSQL += model.getOfxFailString() == null
+                ? "\", " : model.getOfxFailString() + "\", ";
             sUpdateSQL += "SslFail = \"";
-            sUpdateSQL += model.getSslFailString() == null ?
-                          "\", " : model.getSslFailString() + "\", ";
+            sUpdateSQL += model.getSslFailString() == null
+                ? "\", " : model.getSslFailString() + "\", ";
             sUpdateSQL += "LastOfxValidation = \"";
-            sUpdateSQL += model.getLastOfxValidationString() == null ?
-                          "\", " : model.getLastOfxValidationString() + "\", ";
+            sUpdateSQL += model.getLastOfxValidationString() == null
+                ? "\", " : model.getLastOfxValidationString() + "\", ";
             sUpdateSQL += "LastSslValidation = \"";
-            sUpdateSQL += model.getLastSslValidationString() == null ?
-                          "\" " : model.getLastSslValidationString() + "\" ";
+            sUpdateSQL += model.getLastSslValidationString() == null
+                ? "\" " : model.getLastSslValidationString() + "\" ";
             sUpdateSQL += "where FId = \"" + model.getfIdString() + "\";";
 
             sInsertSQL = OFXInstitutionModel.SQLINSERT;
@@ -368,21 +415,21 @@ public class OFXHomeController //      extends DBCore
             sInsertSQL += model.getNameString().replace("'", "''");
             sInsertSQL += "\", \"";
             sInsertSQL += model.getfIdString() + "\", \"";
-            sInsertSQL += model.getOrgString() == null ?
-                          "\", \"" : model.getOrgString() + "\", \"";
-            sInsertSQL += model.getBrokerIdString() == null ?
-                          "\", \"" : model.getBrokerIdString() + "\", \"";
-            sInsertSQL += model.getUrlString() == null ?
-                          "\", \"" : model.getUrlString() + "\", \"";
-            sInsertSQL += model.getOfxFailString() == null ?
-                          "\", \"" : model.getOfxFailString() + "\", \"";
-            sInsertSQL += model.getSslFailString() == null ?
-                          "\", \"" : model.getSslFailString() + "\", \"";
-            sInsertSQL += model.getLastOfxValidationString() == null ?
-                          "\", \"" : model.getLastOfxValidationString() +
-                                     "\", \"";
-            sInsertSQL += model.getLastSslValidationString() == null ?
-                          "\");" : model.getLastSslValidationString() + "\");";
+            sInsertSQL += model.getOrgString() == null
+                ? "\", \"" : model.getOrgString() + "\", \"";
+            sInsertSQL += model.getBrokerIdString() == null
+                ? "\", \"" : model.getBrokerIdString() + "\", \"";
+            sInsertSQL += model.getUrlString() == null
+                ? "\", \"" : model.getUrlString() + "\", \"";
+            sInsertSQL += model.getOfxFailString() == null
+                ? "\", \"" : model.getOfxFailString() + "\", \"";
+            sInsertSQL += model.getSslFailString() == null
+                ? "\", \"" : model.getSslFailString() + "\", \"";
+            sInsertSQL += model.getLastOfxValidationString() == null
+                ? "\", \"" : model.getLastOfxValidationString()
+                + "\", \"";
+            sInsertSQL += model.getLastSslValidationString() == null
+                ? "\");" : model.getLastSslValidationString() + "\");";
 
             CMDBController.upsertRow(sUpdateSQL, sInsertSQL);
         }
@@ -392,11 +439,11 @@ public class OFXHomeController //      extends DBCore
      * Use equityInfo table for tickers; update price data in equityHistory
      * Both tables are global tables
      */
-    public void doOfxData() {
+    public void doOfxData()
+    {
         System.out.println("--ofxHome Started--");
 
         // this.ofxList = new ArrayList<>();
-
         // todo: seems like some do not get through other than bb&T
         this.getOfxList();
     }

@@ -203,7 +203,8 @@ public class OfxDirectDLController
             CMHPIUtils.getLongDate(), //   transaction number
             fi.getBrokerId(), //           broker id
             acct.getAcctNumber(), //       account number
-            simpleDateFormat.format(Date.valueOf(startDate.toString())),
+            simpleDateFormat.format(Date.valueOf(startDate.toString())),    //dtStart
+//            simpleDateFormat.format(Date.valueOf("2023-04-30")),    //dtEnd
             "Y", //                        include transactions
             "N", //                        include open orders
             "Y", //                        include positions
@@ -251,7 +252,6 @@ public class OfxDirectDLController
             sbResponse.append(response.body());
             
             //todo: check response for error code
-
             if (response.statusCode() != 200)
             {
 
@@ -393,6 +393,8 @@ public class OfxDirectDLController
         + "<APPVER>1600\n" + "</SONRQ>\n" + "</SIGNONMSGSRQV1>\n\n";
     private final static String OFX_INVSTMT_REQUEST = "<INVSTMTMSGSRQV1>\n" + "<INVSTMTTRNRQ>\n" + "<TRNUID>%s-01\n"
         + "<INVSTMTRQ>\n" + "<INVACCTFROM>\n" + "<BROKERID>%s\n" + "<ACCTID>%s\n" + "</INVACCTFROM>\n" + "<INCTRAN>\n"
-        + "<DTSTART>%s\n" + "<INCLUDE>%s\n" + "</INCTRAN>\n" + "<INCOO>%s\n" + "<INCPOS>\n" + "<INCLUDE>%s\n"
+        + "<DTSTART>%s\n" 
+//        + "<DTEND>%s\n" 
+        + "<INCLUDE>%s\n" + "</INCTRAN>\n" + "<INCOO>%s\n" + "<INCPOS>\n" + "<INCLUDE>%s\n"
         + "</INCPOS>\n" + "<INCBAL>%s\n" + "</INVSTMTRQ>\n" + "</INVSTMTTRNRQ>\n" + "</INVSTMTMSGSRQV1>\n";
 }

@@ -43,7 +43,7 @@ public class AppController
 
         CMLanguageController.getInstance();
         CMPrefsController.getInstance().initConfigFiles();
-        CMDBController.initDBConnection();
+//        CMDBController.initDBConnection();
         CmdLineController.getInstance();
         CMPrefsController.getInstance();
         CMGlobalsModel.getInstance();

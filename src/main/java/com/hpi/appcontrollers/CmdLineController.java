@@ -48,15 +48,15 @@ public class CmdLineController
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bEquityInfo = false;
 
-    @Option(name = "--equityHistoryIEX", usage = "Retrieve history from last date")
-    @SuppressWarnings("FieldMayBeFinal")
-    static Boolean bequityHistoryIEX = false;
+//    @Option(name = "--equityHistoryIEX", usage = "Retrieve history from last date")
+//    @SuppressWarnings("FieldMayBeFinal")
+//    static Boolean bequityHistoryIEX = false;
 
-    @Option(name = "--equityHistoryIEXMin", usage
-        = "Retrieve history from last "
-        + "date on select tickers")
-    @SuppressWarnings("FieldMayBeFinal")
-    static Boolean bequityHistoryIEXMin = false;
+//    @Option(name = "--equityHistoryIEXMin", usage
+//        = "Retrieve history from last "
+//        + "date on select tickers")
+//    @SuppressWarnings("FieldMayBeFinal")
+//    static Boolean bequityHistoryIEXMin = false;
 
     @Option(name = "--file", usage = "Fully specified file name")
     static String sFilename;
@@ -76,30 +76,30 @@ public class CmdLineController
     static Boolean bOptionHistory = false;
 
     @Option(name = "--processOfxFiles", usage
-        = "process files in the directory")
+        = "process files in the directory, use --file")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bOfxFiles = false;
 
-    @Option(name = "--trdstnDl", usage = "Download .qfx file from Tradestation")
-    @SuppressWarnings("FieldMayBeFinal")
-    static Boolean bTrdStnDl = false;
+//    @Option(name = "--trdstnDl", usage = "Download .qfx file from Tradestation")
+//    @SuppressWarnings("FieldMayBeFinal")
+//    static Boolean bTrdStnDl = false;
     
-@Option(name = "--eTradeDlFF", usage = "Download .qfx file from eTrade, fireFox")
-    @SuppressWarnings("FieldMayBeFinal")
-    static Boolean bETradeDlFF = false;
+//@Option(name = "--eTradeDlFF", usage = "Download .qfx file from eTrade, fireFox")
+//    @SuppressWarnings("FieldMayBeFinal")
+//    static Boolean bETradeDlFF = false;
+//
+//@Option(name = "--eTradeDlCrm", usage = "Download .qfx file from eTrade, Chrome")
+//    @SuppressWarnings("FieldMayBeFinal")
+//    static Boolean bETradeDlCrm = false;
 
-@Option(name = "--eTradeDlCrm", usage = "Download .qfx file from eTrade, Chrome")
-    @SuppressWarnings("FieldMayBeFinal")
-    static Boolean bETradeDlCrm = false;
 
-
-    @Option(name = "--tdAmeritradeOptions2", usage
-        = "All Open options data pull against tdAmeritrade")
-    @SuppressWarnings("FieldMayBeFinal")
-    static Boolean bTdAmeritradeOptions2 = false;
+//    @Option(name = "--tdAmeritradeOptions2", usage
+//        = "Download option price data from tdAmneritrade for open positions")
+//    @SuppressWarnings("FieldMayBeFinal")
+//    static Boolean bTdAmeritradeOptions2 = false;
 
     @Option(name = "--tdAmeritradeOptions3", usage
-        = "All Active stock options data pull against tdAmeritrade")
+        = "Download option price data from tdAmneritrade for open positions")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bTdAmeritradeOptions3 = false;
 
@@ -109,7 +109,7 @@ public class CmdLineController
     static Boolean bTdAmeritradeStocks = false;
 
     @Option(name = "--clearDmOfxUserId", usage
-        = "Clears account dmOfx data for restart; dbOfx data not touched")
+        = "--clearDmOfxUserId [--userId [userId]]: Clears account dmOfx data for restart; dbOfx data not touched")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bClearDmOfxAcct = false;
 
@@ -119,23 +119,23 @@ public class CmdLineController
     }
 
     @Option(name = "--clearPositions", usage
-        = "Clears account dmOfx positions data for refresh; dbOfx data not touched")
+        = "Clears all position data for all users for refresh; dbOfx data not touched")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bClearPositions = false;
 
-    @Option(name = "--clearDbOfxUserId", usage = "Clears account dbOfx data for restart; "
+    @Option(name = "--clearDbOfxUserId [--userId [userId]]", usage = "Clears account dbOfx data for restart; "
         + "dmOfx data not touched: best to use --clearDmOfxUserId then --clearDbOfxUserId")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bClearDbOfxAcct = false;
 
-    @Option(name = "--userId", usage = "Numerical user Id")
+    @Option(name = "--userId", usage = "Joomla numerical user Id")
     static Integer userId;
 
     @Option(name = "--acctId", usage = "Numerical Account Id")
     static Integer acctId;
 
-    @Option(name = "--buildDemo", usage
-        = "Builds Demo Account, default userId of 1")
+    @Option(name = "--buildDemo [--userId [userId]]", usage
+        = "Builds demo user with given [userId]")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bBuildDemoAcct = false;
 
@@ -176,11 +176,11 @@ public class CmdLineController
     @SuppressWarnings("DM_EXIT")
     public void doCommandLine(String[] args)
     {
-        CMDBModel.getInstance().getJoomlaId();
+//        CMDBModel.getInstance().getJoomlaId();
 
         if (args.length == 0)
         {
-            CmdLineController.bAll = true;
+            CmdLineController.bhelp = true;
         }
         if (!this.doParseCmdLine(args))
         {
@@ -198,6 +198,10 @@ public class CmdLineController
 
             System.exit(0);
         }
+        
+        CMDBController.initDBConnection();
+        
+        CMDBModel.getInstance().getJoomlaId();
 
         if (CmdLineController.bClearDmOfxAcct)
         {
@@ -240,24 +244,24 @@ public class CmdLineController
             return;
         }
 
-        if (CmdLineController.bTrdStnDl)
-        {
-            OfxFileController.getInstance().
-                processTradeStationDownload(CmdLineController.sDirectory);
-            return;
-        }
-        
-        if (CmdLineController.bETradeDlFF)
-        {
-            OfxFileController.getInstance().processETradeDownloadFF(CmdLineController.sDirectory);
-            return;
-        }
-        
-        if (CmdLineController.bETradeDlCrm)
-        {
-            OfxFileController.getInstance().processETradeDownloadCrm(CmdLineController.sDirectory);
-            return;
-        }
+//        if (CmdLineController.bTrdStnDl)
+//        {
+//            OfxFileController.getInstance().
+//                processTradeStationDownload(CmdLineController.sDirectory);
+//            return;
+//        }
+//        
+//        if (CmdLineController.bETradeDlFF)
+//        {
+//            OfxFileController.getInstance().processETradeDownloadFF(CmdLineController.sDirectory);
+//            return;
+//        }
+//        
+//        if (CmdLineController.bETradeDlCrm)
+//        {
+//            OfxFileController.getInstance().processETradeDownloadCrm(CmdLineController.sDirectory);
+//            return;
+//        }
 
         if (CmdLineController.bEquityInfo)
         {
@@ -266,19 +270,19 @@ public class CmdLineController
             return;
         }
 
-        if (CmdLineController.bequityHistoryIEX)
-        {
-            IEXTradingController.doHistorical(CmdLineController.sDate, false);
-
-            return;
-        }
-
-        if (CmdLineController.bequityHistoryIEXMin)
-        {
-            IEXTradingController.doHistorical(CmdLineController.sDate, true);
-
-            return;
-        }
+//        if (CmdLineController.bequityHistoryIEX)
+//        {
+//            IEXTradingController.doHistorical(CmdLineController.sDate, false);
+//
+//            return;
+//        }
+//
+//        if (CmdLineController.bequityHistoryIEXMin)
+//        {
+//            IEXTradingController.doHistorical(CmdLineController.sDate, true);
+//
+//            return;
+//        }
 
         if (CmdLineController.bOptionHistory)
         {
@@ -287,12 +291,12 @@ public class CmdLineController
             return;
         }
 
-        if (CmdLineController.bTdAmeritradeOptions2)
-        {
-            TDAmeritradeFetchOptionsController2.doPrices("open");
-
-            return;
-        }
+//        if (CmdLineController.bTdAmeritradeOptions2)
+//        {
+//            TDAmeritradeFetchOptionsController2.doPrices("open");
+//
+//            return;
+//        }
 
         if (CmdLineController.bTdAmeritradeOptions3)
         {
