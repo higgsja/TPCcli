@@ -10,7 +10,6 @@ import java.net.http.HttpResponse.BodyHandlers;
 // import java.util.*;
 import javax.swing.JOptionPane;
 import javax.xml.parsers.*;
-import org.jsoup.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 
@@ -129,6 +128,9 @@ public class OFXHomeController //      extends DBCore
                 doc.getDocumentElement().normalize();
             } catch (ParserConfigurationException | IOException | SAXException e)
             {
+                //response has <!--?xml version="1.0" encoding="utf-8"?-->
+                //so, it is commented out and therefore no protocol found by the parser
+                //all you get is unreadable
                 s = String.format(CMLanguageController.
                     getErrorProps().getProperty("GeneralError"),
                     e.toString());

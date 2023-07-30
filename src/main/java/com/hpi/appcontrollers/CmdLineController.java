@@ -265,7 +265,7 @@ public class CmdLineController
 
         if (CmdLineController.bEquityInfo)
         {
-            FinVizController2.doEquityInfo();
+            FinVizController3.doEquityInfo();
 
             return;
         }

@@ -5,8 +5,6 @@ import com.hpi.hpiUtils.CMProgressBarCLI;
 import com.hpi.hpiUtils.CMHPIUtils;
 import com.hpi.TPCCMcontrollers.*;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.sql.*;
 import java.text.DateFormat;
@@ -19,14 +17,13 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 import javax.swing.JOptionPane;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-public class FinVizController2
+public class FinVizController3
 {
 
     private static int iRow;
@@ -43,9 +40,6 @@ public class FinVizController2
 
     public static final void doEquityInfo()
     {
-        String s, sql, sql1;
-        int rowCount;
-
         // first time through will get us the total row count
         iRow = 0;
         iTotalRows = 0;
@@ -59,7 +53,8 @@ public class FinVizController2
         {
             //finViz tables have 20 rows; do 4 tables before wait
             //point is to not trigger the 'too many requests' fail
-            if (iRow > 1 && ((iRow - 1) / 80.0) == ((iRow - 1) / 80))
+            if (iRow > 1 
+                && ((iRow - 1) / 80.0) == ((iRow - 1) / 80))
             {
                 try
                 {
@@ -75,15 +70,14 @@ public class FinVizController2
             doEquity();
         }
 
-//        sql = "";
-        sql1
+        String sql1
             = "insert ignore into hlhtxc5_dmOfx.EquityInfo (Ticker, Company, Sector, Industry, Country, `MktCap(B)`, PE, FwdPE, PEG, `Div`, PayoutRatio, EPS, `EPS/CY`, `EPS/NY`, `EPS/P5Y`, `EPS/N5Y`, ATR, SMA20, SMA50, SMA200, `50dHi`, `50dLo`, `52wHi`, `52wLo`, RSI, AnRec, Price, Volume, EarnDate, TgtPrice, `Date`, Beta) VALUES ";
         sql1 += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        rowCount = 0;
-        try (Connection con = CMDBController.getConnection();
-            //Statement stmt = con.createStatement();
-            PreparedStatement ps = con.prepareStatement(sql1);)
+        int rowCount = 0;
+        try ( Connection con = CMDBController.getConnection(); //Statement stmt = con.createStatement();
+            
+             PreparedStatement ps = con.prepareStatement(sql1);)
         {
             con.setAutoCommit(false);
 
@@ -138,13 +132,12 @@ public class FinVizController2
                 ps.addBatch();
 
                 rowCount = 0;
-//                sql = "";
             }
 
             ps.executeBatch();
         } catch (SQLException e)
         {
-            s = String.format(CMLanguageController.
+            String s = String.format(CMLanguageController.
                 getErrorProps().getProperty("GeneralError"),
                 e.toString());
 
@@ -159,32 +152,8 @@ public class FinVizController2
                 JOptionPane.ERROR_MESSAGE);
         }
 
-//        if (rowCount > 0) {
-//            try (Connection con = CMDBController.getConnection();
-//                    Statement stmt = con.createStatement();) {
-//                sql = sql.substring(0, (sql.length() - 2)) + ";";
-//                stmt.execute(sql1 + sql);
-//                stmt.close();
-//                con.close();
-//            }
-//            catch (SQLException e) {
-//                s = String.format(CMLanguageController.
-//                        getErrorProps().getProperty("GeneralError"),
-//                        e.toString());
-//
-//                CMHPIUtils.showDefaultMsg(
-//                        CMLanguageController.getErrorProps().
-//                                getProperty("Title"),
-//                        Thread.currentThread().getStackTrace()[1].
-//                                getClassName(),
-//                        Thread.currentThread().getStackTrace()[1].
-//                                getMethodName(),
-//                        s,
-//                        JOptionPane.ERROR_MESSAGE);
-//            }
-//        }
         // report number of rows added
-        s = String.format(CMLanguageController.
+        String s = String.format(CMLanguageController.
             getAppProp("EquityInfoReturn"),
             Integer.toString(iTotalRows));
 
@@ -199,118 +168,26 @@ public class FinVizController2
     private static void getDataTable()
     {
         // &r= establishes first row to display; iterate through those at 20 each
-        // read this from file
-        //String sCustom = "http://finviz.com/screener.ashx?v=152&c=0,1,2,3,4,5,"
-        //    + "6,7,8,9,11,14,15,16,17,18,19,20,22,26,28,29,31,35,36,39,40,41,"
-        //    + "42,43,44,45,46,47,48,50,51,52,53,54,55,56,57,58,59,61,62,63,64,"
-        //    + "65,66,67,68&r=";
         // append the row count
 
-        String sCustom, charset, sUrlQuery, sTxt, s;
-        Boolean finVizError;
-        // StringBuilder sb;
-//        int MAX_REDIRECTS;
-        int intStatus, i;
-        URL url;
-        HttpsURLConnection connection;
-        Document doc;
-        int iTotalRows2;
         Iterator<Element> iteratorT;
+        Boolean finVizError = true;
+        Document doc = null;
 
-        finVizError = true;
-        iteratorT = null;
-
-//        sCustom = "v=152&#038;c=0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70&#038;f=sh_opt_option";
-//        sCustom = "v=152&f=sh_opt_option";
-//        sCustom = "v=152&c=1,2,3,4,5,6,7,8,9,14,15,16,17,18,19,20,49,52,53,54,55,56,57,58,59,62,65,67,68,69&f=sh_opt_option";
-        sCustom
-            = "v=152&c=1,2,3,4,5,6,7,8,9,14,15,16,17,18,19,20,49,52,53,54,55,56,57,58,59,62,65,67,68,69,48";
+        String sCustom = "v=152&c=1,2,3,4,5,6,7,8,9,14,15,16,17,18,19,20,49,52,53,54,55,56,57,58,59,62,65,67,68,69,48";
         sCustom += "&r=";
 
-        sUrlQuery = "https://finviz.com/screener.ashx";
+        String sUrlQuery = "https://finviz.com/screener.ashx";
         sUrlQuery += "?" + sCustom;
-
-//        MAX_REDIRECTS = 5;
-        charset = "UTF-8";
 
         try
         {
             while (finVizError)
             {
+                //loop through all pages in FinViz, tracked by finVizError2
                 sUrlQuery = sUrlQuery + Integer.toString(iRow);
-                url = new URL(sUrlQuery);
-                connection = (HttpsURLConnection) url.openConnection();
+                doc = Jsoup.connect(sUrlQuery).get();
 
-                ((HttpsURLConnection) connection).
-                    setHostnameVerifier(new MyHostnameVerifier());
-                connection.setRequestProperty("Content-Type",
-                    "application/x-www-form-urlencoded;charset=" + charset);
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("Accept-Charset", charset);
-                connection.addRequestProperty("Accept-Language", "en-US,en;q=0.8");
-                connection.addRequestProperty("User-Agent",
-                    "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9"
-                    + ".2.3) Gecko/20100401");
-                connection.setDoOutput(false);
-                intStatus = connection.getResponseCode();
-                if (intStatus != HttpURLConnection.HTTP_OK)
-                {
-                    s = String.format(CMLanguageController.
-                        getErrorProps().getProperty("GeneralError"),
-                        Integer.toString(intStatus));
-
-                    CMHPIUtils.showDefaultMsg(
-                        CMLanguageController.getErrorProps().
-                            getProperty("Title"),
-                        Thread.currentThread().getStackTrace()[1].getClassName(),
-                        Thread.currentThread().getStackTrace()[1].getMethodName(),
-                        s,
-                        JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                /*
-             * If the HTTP response code is 4nn (Client Error) or 5nn (Server
-             * Error),
-             * then you may want to read the HttpURLConnection#getErrorStream()
-             * to see
-             * if the server has sent any useful error information.
-             *
-             * InputStream error = ((HttpURLConnection)
-             * connection).getErrorStream();
-             *
-             * If the HTTP response code is -1, then something went wrong with
-             * connection and response handling. The HttpURLConnection
-             * implementation
-             * is somewhat buggy with keeping connections alive. You may want to
-             * turn
-             * it off by setting the http.keepAlive system property to false.
-             * You can
-             * do this programmatically in the beginning of your application by:
-             * System.setProperty("http.keepAlive", "false");
-                 */
-                // we specified UTF-8, so byte sized characters
-//            sb = new StringBuilder();
-//
-//            try (BufferedReader reader = new BufferedReader(
-//                    new InputStreamReader(connection.getInputStream())))
-//            {
-//
-//                while ((s = reader.readLine()) != null)
-//                {
-//                    sb.append(s);
-//                }
-//            }
-//            catch (IOException e)
-//            {
-//
-//            }
-                
-//                String html = (Jsoup.parse(connection.getInputStream(), charset, "")).body().text();
-                doc = Jsoup.parse(connection.getInputStream(), charset, "");
-
-                iteratorT = doc.select("table").iterator();
-                
                 if (doc.body().text().equalsIgnoreCase("Too many requests."))
                 {
                     try
@@ -325,12 +202,21 @@ public class FinVizController2
                 {
                     finVizError = false;
                 }
+            }
 
+            if (doc != null)
+            {
+                //table elements iterator
+                iteratorT = doc.select("table").iterator();
+            } else
+            {
+                return;
             }
 
             if (!iteratorT.hasNext())
             {
-                s = String.format(CMLanguageController.
+                //no more table elements and did not get what we needed
+                String s = String.format(CMLanguageController.
                     getErrorProps().getProperty("Formatted16"),
                     sUrlQuery);
 
@@ -344,46 +230,50 @@ public class FinVizController2
                 return;
             }
 
-            i = 0;
-            sTxt = "";
+            String sTxt = "";
             while (iteratorT.hasNext())
             {
-                //there were 9 before, now there are 10
-                //to stop the breakage, look for the text 'Total: '
-                //if (++i > 9) {
-//                if (++i > 10) {
-//                
-//                    //get past the header info
-//                    break;
-//                }
+                //iterate the table elements
+                //look for 3 pieces of text that indicate we are in the right place
                 sTxt = iteratorT.next().text();
 
-                if (sTxt.length() > 7 && sTxt.substring(0, 7).equalsIgnoreCase("Total: "))
+                if (sTxt.contains("My Presets")
+                    || sTxt.contains("Overview"))
+                {
+                    continue;
+                }
+
+                if (sTxt.contains("Total")
+                    && sTxt.contains("save as portfolio")
+                    && sTxt.contains("create alert"))
                 {
                     break;
                 }
-
             }
 
             // At table with total row count
+            // sTxt: '#1 / 8535 Total '
             // sTxt: Total: 7031 #1 save as portfolio
             if (iRow == 0)
             {
-                sTxt = sTxt.substring(sTxt.indexOf(' ') + 1);
-                sTxt = sTxt.substring(0, sTxt.indexOf(' '));
+                //first page
+                //get the row count
+                sTxt = sTxt.substring(sTxt.indexOf('/') + 2);   //8535 ...
+                sTxt = sTxt.substring(0, sTxt.indexOf(' '));    //8535
                 iTotalRows = Integer.parseInt(sTxt);
             } else
             {
                 // each page call will give a new total row number.
                 // so long as it is the same as the original, fine.
-                // otherwise, it's an error as the data changed.
+                // otherwise, it's an error as the data changed between calls.
                 // easiest out is to show an error and stop.
-                sTxt = sTxt.substring(sTxt.indexOf(' ') + 1);
+                // todo: better to restart and try again. rarely get 2 in a row of changes
+                sTxt = sTxt.substring(sTxt.indexOf('/') + 2);
                 sTxt = sTxt.substring(0, sTxt.indexOf(' '));
-                iTotalRows2 = Integer.parseInt(sTxt);
+                int iTotalRows2 = Integer.parseInt(sTxt);
                 if (iTotalRows2 != iTotalRows)
                 {
-                    s = String.format(CMLanguageController.
+                    String s = String.format(CMLanguageController.
                         getErrorProps().getProperty("Formatted17"),
                         sUrlQuery);
 
@@ -404,7 +294,7 @@ public class FinVizController2
             dataTable = iteratorT.next();
         } catch (UnknownHostException e)
         {
-            s = String.format(CMLanguageController.
+            String s = String.format(CMLanguageController.
                 getErrorProps().getProperty("Formatted18"),
                 sUrlQuery);
 
@@ -417,7 +307,7 @@ public class FinVizController2
                 JOptionPane.ERROR_MESSAGE);
         } catch (IOException e)
         {
-            s = String.format(CMLanguageController.
+            String s = String.format(CMLanguageController.
                 getErrorProps().getProperty("General"),
                 e.getMessage());
 
