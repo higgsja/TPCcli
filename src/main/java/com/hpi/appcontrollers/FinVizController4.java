@@ -200,8 +200,8 @@ public class FinVizController4
                     .get();
 
 //  put the html to a file for evaluation
-                final File f = new File("/home/white/OneDrive/Documents/Dev/TPCcli/html/finVizScrape.html");
-                FileUtils.writeStringToFile(f, doc.outerHtml(), StandardCharsets.UTF_8);
+//                final File f = new File("/home/white/OneDrive/Documents/Dev/TPCcli/html/finVizScrape.html");
+//                FileUtils.writeStringToFile(f, doc.outerHtml(), StandardCharsets.UTF_8);
 //
 
                 if (doc.body().text().equalsIgnoreCase("Too many requests."))
