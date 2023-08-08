@@ -307,7 +307,7 @@ public class CmdLineController
 
         if (CmdLineController.bTdAmeritradeStocks)
         {
-            TDAmeritradeFetchStocksController.doHistorical();
+            TDAmeritradeFetchStocksController2.doHistorical();
 
             return;
         }
