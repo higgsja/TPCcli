@@ -36,6 +36,10 @@ public class CmdLineController
     @Option(name = "--dataMart", usage = "Rebuilds the data mart")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bAll = false;
+    
+    @Option(name = "--dataMartNoUpdate", usage = "Rebuilds the data mart without updating from brokers")
+    @SuppressWarnings("FieldMayBeFinal")
+    static Boolean bAllNoUpdate = false;
 
     @Option(name = "--positions", usage = "Translate Transactions to Positions")
     @SuppressWarnings("FieldMayBeFinal")
@@ -363,6 +367,66 @@ public class CmdLineController
             OfxDirectDLController.getInstance().doDirectOfx();
             // files
             OfxFileController.getInstance().processOfxFiles2SQLSetup();
+
+            //process dbOfx data to dataMart
+            DataMartController.getInstance().processOfxDBtoDataMart();
+
+            //process dmOfx stock to DataMart
+            DataMartController.getInstance().processFIFOStockLotsAccounts();
+
+            //process dmOfx options to dataMart
+            DataMartController.getInstance().processFIFOOptionLotsAccounts();
+
+            //main dataMart processing: ok to here
+            DataMartController.getInstance().processDataMart();
+
+            System.out.println("      start positions\n");
+
+            OpenPositionsStockController.getInstance().doPositions();
+            ClosedPositionsStockController.getInstance().doPositions();
+
+            OpenPositionsOptionController.getInstance().doOpenPositions();
+            ClosedPositionsOptionController.getInstance().doClosedPositions();
+
+            System.out.println("      finish positions\n");
+
+            System.out.println("        --- FINISHED ---\n");
+        }
+        
+        if (CmdLineController.bAllNoUpdate)
+        {
+            String sql;
+
+            try
+            {
+                this.updateAppTracking("TPCCL|dataMartNoBrokerUpdate");
+            } catch (SQLException ex)
+            {
+                ////Logger.getLogger(this.getClass().getName(), null);
+            }
+
+//            CmdLineController.userId = CMDBModel.getUserId();
+            if (userId != null)
+            {
+                CMDBModel.setUserId(userId);
+//                DbOfxController.getInstance().doClearDmOfxUserId(CmdLineController.userId);
+            }
+
+            if (CMDBModel.getUserId() == null)
+            {
+                // there are arguments but they do not match what we can handle
+                CMHPIUtils.showDefaultMsg(
+                    CMLanguageController.getDBErrorProp("Title"),
+                    Thread.currentThread().getStackTrace()[1].getClassName(),
+                    Thread.currentThread().getStackTrace()[2].getMethodName(),
+                    CMLanguageController.getDBErrorProp("LoginFailed"),
+                    JOptionPane.ERROR_MESSAGE);
+                System.exit(1);
+            }
+
+            // Clear transient tables
+            DbOfxController.getInstance().cleanDbOfx();
+            DataMartController.getInstance().cleanDataMart();
 
             //process dbOfx data to dataMart
             DataMartController.getInstance().processOfxDBtoDataMart();
