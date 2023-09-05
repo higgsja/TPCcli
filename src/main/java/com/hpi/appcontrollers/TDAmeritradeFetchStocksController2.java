@@ -136,7 +136,7 @@ public class TDAmeritradeFetchStocksController2
 
             //throttling
             i++;
-            if (i == 50)
+            if (i == 35)
             {
                 try
                 {

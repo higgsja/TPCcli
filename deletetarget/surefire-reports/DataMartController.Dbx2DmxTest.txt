@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: DataMartController.Dbx2DmxTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 5, Time elapsed: 0.001 s - in DataMartController.Dbx2DmxTest
