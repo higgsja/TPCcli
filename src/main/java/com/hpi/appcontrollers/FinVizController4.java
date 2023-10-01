@@ -6,7 +6,6 @@ import com.hpi.hpiUtils.CMHPIUtils;
 import com.hpi.TPCCMcontrollers.*;
 import java.io.*;
 import java.net.UnknownHostException;
-import java.nio.charset.*;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -20,7 +19,6 @@ import java.util.Locale;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
 import javax.swing.JOptionPane;
-import org.apache.commons.io.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -51,7 +49,6 @@ public class FinVizController4
         getDataTable();
 
 //        BAR_CLI.barUpdate(0, iTotalRows * 2);
-
         iRow++;
         while (iRow <= iTotalRows)
         {
@@ -71,105 +68,26 @@ public class FinVizController4
             }
             getDataTable();
 //            BAR_CLI.barUpdate(iRow, iTotalRows * 2);
+            if (FinVizController4.dataTable == null)
+            {
+                String s = "FinViz table appears empty, likely the table class name changed again";
+
+                CMHPIUtils.showDefaultMsg(
+                    CMLanguageController.getErrorProps().
+                        getProperty("Title"),
+                    Thread.currentThread().getStackTrace()[1].
+                        getClassName(),
+                    Thread.currentThread().getStackTrace()[1].
+                        getMethodName(),
+                    s,
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
             doEquities();
         }
-        
-        doSQL();
 
-//        String sql1
-//            = "insert ignore into hlhtxc5_dmOfx.EquityInfo (Ticker, Company, Sector, Industry, Country, `MktCap(B)`, PE, FwdPE, PEG, `Div`, PayoutRatio, EPS, `EPS/CY`, `EPS/NY`, `EPS/P5Y`, `EPS/N5Y`, ATR, SMA20, SMA50, SMA200, `50dHi`, `50dLo`, `52wHi`, `52wLo`, RSI, AnRec, Price, Volume, EarnDate, TgtPrice, `Date`, Beta) VALUES ";
-//        sql1 += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-//
-//        int rowCount = 0;
-//        try ( Connection con = CMDBController.getConnection(); //Statement stmt = con.createStatement();
-//            
-//             PreparedStatement ps = con.prepareStatement(sql1);)
-//        {
-//            con.setAutoCommit(false);
-//
-//            for (FinVizEquityInfoModel eim : EQUITY_INFO_MODELS)
-//            {
-//                iRow++;
-//                rowCount++;
-//                BAR_CLI.barUpdate(iRow, iTotalRows * 2, eim.getTkr());
-//
-//                ps.setString(1, eim.getTkr());
-//                ps.setString(2, eim.getCompany());
-//                ps.setString(3, eim.getSector());
-//                ps.setString(4, eim.getIndustry());
-//                ps.setString(5, eim.getCountry());
-//
-//                ps.setString(6, eim.getMktCap());
-//                ps.setString(7, eim.getPE());
-//                ps.setString(8, eim.getFwdPE());
-//                ps.setString(9, eim.getPEG());
-//                ps.setString(10, eim.getDiv());
-//
-//                ps.setString(11, eim.getPayoutRatio());
-//                ps.setString(12, eim.getEPS());
-//                ps.setString(13, eim.getEPSCY());
-//                ps.setString(14, eim.getEPSNY());
-//                ps.setString(15, eim.getEPSP5Y());
-//
-//                ps.setString(16, eim.getEPSN5Y());
-//                ps.setString(17, eim.getATR());
-//                ps.setString(18, eim.getSMA20());
-//                ps.setString(19, eim.getSMA50());
-//                ps.setString(20, eim.getSMA200());
-//
-//                ps.setString(21, eim.getHi50d());
-//                ps.setString(22, eim.getLo50d());
-//                ps.setString(23, eim.getHi52w());
-//                ps.setString(24, eim.getLo52w());
-//                ps.setString(25, eim.getRSI());
-//
-//                ps.setString(26, eim.getAnRec());
-//                ps.setString(27, eim.getPrice());
-//                ps.setString(28, eim.getVolume());
-//                ps.setString(29, eim.getEarnDt());
-//                ps.setString(30, eim.getTgtPrice());
-//
-//                String st = CMHPIUtils.getShortDateISO();
-//                LocalDate ld = LocalDate.parse(st);
-//                ps.setDate(31, java.sql.Date.valueOf(ld));
-//
-//                ps.setString(32, eim.getBeta());
-//
-//                ps.addBatch();
-//
-//                rowCount = 0;
-//            }
-//
-//            ps.executeBatch();
-//        } catch (SQLException e)
-//        {
-//            String s = String.format(CMLanguageController.
-//                getErrorProps().getProperty("GeneralError"),
-//                e.toString());
-//
-//            CMHPIUtils.showDefaultMsg(
-//                CMLanguageController.getErrorProps().
-//                    getProperty("Title"),
-//                Thread.currentThread().getStackTrace()[1].
-//                    getClassName(),
-//                Thread.currentThread().getStackTrace()[1].
-//                    getMethodName(),
-//                s,
-//                JOptionPane.ERROR_MESSAGE);
-//        }
-//
-//        // report number of rows added
-//        String s = String.format(CMLanguageController.
-//            getAppProp("EquityInfoReturn"),
-//            Integer.toString(iTotalRows));
-//
-//        CMHPIUtils.showDefaultMsg(
-//            "\r\n" + CMLanguageController.getAppProp("Title"),
-//            Thread.currentThread().getStackTrace()[1].getClassName(),
-//            Thread.currentThread().getStackTrace()[1].getMethodName(),
-//            s,
-//            JOptionPane.INFORMATION_MESSAGE);
+        doSQL();
     }
 
     private static void getDataTable()
@@ -203,7 +121,6 @@ public class FinVizController4
 //                final File f = new File("/home/white/OneDrive/Documents/Dev/TPCcli/html/finVizScrape.html");
 //                FileUtils.writeStringToFile(f, doc.outerHtml(), StandardCharsets.UTF_8);
 //
-
                 if (doc.body().text().equalsIgnoreCase("Too many requests."))
                 {
                     try
@@ -252,85 +169,7 @@ public class FinVizController4
             }
 
             //retrieve the element with the page data
-            dataTable = getPageData(doc);
-
-//            if (!iteratorT.hasNext())
-//            {
-//                //no more table elements and did not get what we needed
-//                String s = String.format(CMLanguageController.
-//                    getErrorProps().getProperty("Formatted16"),
-//                    sUrlQuery);
-//
-//                CMHPIUtils.showDefaultMsg(
-//                    CMLanguageController.getErrorProps().
-//                        getProperty("Title"),
-//                    Thread.currentThread().getStackTrace()[1].getClassName(),
-//                    Thread.currentThread().getStackTrace()[1].getMethodName(),
-//                    s,
-//                    JOptionPane.ERROR_MESSAGE);
-//                return;
-//            }
-//            String sTxt = "";
-//            while (iteratorT.hasNext())
-//            {
-//                //iterate the table elements
-//                //look for 3 pieces of text that indicate we are in the right place
-//                sTxt = iteratorT.next().text();
-//
-//                if (sTxt.contains("My Presets")
-//                    || sTxt.contains("Overview"))
-//                {
-//                    continue;
-//                }
-//
-//                if (sTxt.contains("Total")
-//                    && sTxt.contains("save as portfolio")
-//                    && sTxt.contains("create alert"))
-//                {
-//                    break;
-//                }
-//            }
-//
-//            // At table with total row count
-//            // sTxt: '#1 / 8535 Total '
-//            // sTxt: Total: 7031 #1 save as portfolio
-//            if (iRow == 0)
-//            {
-//                //first page
-//                //get the row count
-//                sTxt = sTxt.substring(sTxt.indexOf('/') + 2);   //8535 ...
-//                sTxt = sTxt.substring(0, sTxt.indexOf(' '));    //8535
-//                iTotalRows = Integer.parseInt(sTxt);
-//            } else
-//            {
-//                // each page call will give a new total row number.
-//                // so long as it is the same as the original, fine.
-//                // otherwise, it's an error as the data changed between calls.
-//                // easiest out is to show an error and stop.
-//                // todo: better to restart and try again. rarely get 2 in a row of changes
-//                sTxt = sTxt.substring(sTxt.indexOf('/') + 2);
-//                sTxt = sTxt.substring(0, sTxt.indexOf(' '));
-//                int iTotalRows2 = Integer.parseInt(sTxt);
-//                if (iTotalRows2 != iTotalRows)
-//                {
-//                    String s = String.format(CMLanguageController.
-//                        getErrorProps().getProperty("Formatted17"),
-//                        sUrlQuery);
-//
-//                    CMHPIUtils.showDefaultMsg(
-//                        CMLanguageController.getErrorProps().
-//                            getProperty("Title"),
-//                        Thread.currentThread().getStackTrace()[1].
-//                            getClassName(),
-//                        Thread.currentThread().getStackTrace()[1].
-//                            getMethodName(),
-//                        s,
-//                        JOptionPane.ERROR_MESSAGE);
-//                    return;
-//                }
-//            }
-            // next table has data
-//            dataTable = iteratorT.next();
+            FinVizController4.dataTable = getPageData(doc);
         } catch (UnknownHostException e)
         {
             String s = String.format(CMLanguageController.
@@ -402,46 +241,10 @@ public class FinVizController4
             return null;
         }
 
-        //find <table class="table-light is-new"> (table); there is only one
-        pageData = doc.getElementsByClass("table-light is-new").first();
+        //find <table class="styled-table-new"> (table); there is only one
+        //pageData = doc.getElementsByClass("table-light is-new").first();
+        pageData = doc.getElementsByClass("styled-table-new").first();
 
-//        doEquity();
-//        pageData = doc.getElementsByClass("table-light is-new").first();
-//        //then iterate the <tr> elements (rows)
-//        if (pageData == null)
-//        {
-//            return null;
-//        }
-//
-//        itr = pageData.getElementsByTag("tr").iterator();
-//
-//        // may be none
-//        if (!itr.hasNext())
-//        {
-//            return pageData;
-//        }
-//
-//        //first row has titles, skip
-//        itr.next();
-//
-//        while (itr.hasNext())
-//        {
-//            row = itr.next();
-//
-//            if (row == null)
-//            {
-//                return null;
-//            }
-//
-//            //then iterate the <td> elements (data) in the rows
-//            itd = row.getElementsByTag("td").iterator();
-//
-//            while (itd.hasNext())
-//            {
-//
-//            }
-//
-//        }
         return pageData;
     }
 
@@ -453,7 +256,7 @@ public class FinVizController4
         int intC;
         FinVizEquityInfoModel equityInfoModel;
 
-        iteratorR = dataTable.select("tr").iterator();
+        iteratorR = FinVizController4.dataTable.select("tr").iterator();
         int intR = 0;
 
         while (iteratorR.hasNext())
@@ -756,7 +559,7 @@ public class FinVizController4
             EQUITY_INFO_MODELS.add(equityInfoModel);
         }
     }
-    
+
     private static void doSQL()
     {
         String sql1

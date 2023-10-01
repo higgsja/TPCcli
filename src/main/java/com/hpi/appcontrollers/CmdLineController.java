@@ -52,15 +52,15 @@ public class CmdLineController
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bEquityInfo = false;
 
-//    @Option(name = "--equityHistoryIEX", usage = "Retrieve history from last date")
-//    @SuppressWarnings("FieldMayBeFinal")
-//    static Boolean bequityHistoryIEX = false;
+    @Option(name = "--equityHistoryIEX", usage = "Retrieve history from last date")
+    @SuppressWarnings("FieldMayBeFinal")
+    static Boolean bequityHistoryIEX = false;
 
-//    @Option(name = "--equityHistoryIEXMin", usage
-//        = "Retrieve history from last "
-//        + "date on select tickers")
-//    @SuppressWarnings("FieldMayBeFinal")
-//    static Boolean bequityHistoryIEXMin = false;
+    @Option(name = "--equityHistoryIEXMin", usage
+        = "Retrieve history from last "
+        + "date on select tickers")
+    @SuppressWarnings("FieldMayBeFinal")
+    static Boolean bequityHistoryIEXMin = false;
 
     @Option(name = "--file", usage = "Fully specified file name")
     static String sFilename;
@@ -274,19 +274,19 @@ public class CmdLineController
             return;
         }
 
-//        if (CmdLineController.bequityHistoryIEX)
-//        {
-//            IEXTradingController.doHistorical(CmdLineController.sDate, false);
-//
-//            return;
-//        }
-//
-//        if (CmdLineController.bequityHistoryIEXMin)
-//        {
-//            IEXTradingController.doHistorical(CmdLineController.sDate, true);
-//
-//            return;
-//        }
+        if (CmdLineController.bequityHistoryIEX)
+        {
+            IEXTradingController.doHistorical(CmdLineController.sDate, false);
+
+            return;
+        }
+
+        if (CmdLineController.bequityHistoryIEXMin)
+        {
+            IEXTradingController.doHistorical(CmdLineController.sDate, true);
+
+            return;
+        }
 
         if (CmdLineController.bOptionHistory)
         {
