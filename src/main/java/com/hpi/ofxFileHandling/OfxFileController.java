@@ -893,8 +893,8 @@ public class OfxFileController
                 Thread.currentThread().getStackTrace()[1].getMethodName(),
                 s,
                 JOptionPane.ERROR_MESSAGE);
-
-            throw new UnsupportedOperationException(s);
+return;
+//            throw new UnsupportedOperationException(s);
         }
 
         this.barLabel("        Updating database ...");
