@@ -180,13 +180,12 @@ public abstract class OfxAggregateBase
         checkSQL = checkSQL.replace("'null'", "null");
 
         try (Connection con = CMDBController.getConnection();
-             PreparedStatement pStatement
-             = con.prepareStatement(checkSQL))
+             PreparedStatement pStatement = con.prepareStatement(checkSQL))
         {
 
             pStatement.clearWarnings();
             rs = pStatement.executeQuery();
-
+//not getting the id here
             if (rs.first())
             {
                 iAutoId = rs.getInt(1);
