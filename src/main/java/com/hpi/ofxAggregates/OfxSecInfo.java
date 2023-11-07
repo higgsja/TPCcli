@@ -10,16 +10,13 @@ import static java.lang.Character.isLetter;
 import java.util.Iterator;
 import org.jsoup.nodes.Element;
 
-
-
-
 /**
  *
  * @author Joe@Higgs-Tx.com
  */
 public class OfxSecInfo
-      extends OfxAggregateBase
-      implements IOfxSQL
+    extends OfxAggregateBase
+    implements IOfxSQL
 {
 
     OfxSecId secId;
@@ -53,7 +50,6 @@ public class OfxSecInfo
         this.memo = null;
 
         // this.errorPrefix = this.getClass().getName();
-
     }
 
     /**
@@ -108,10 +104,10 @@ public class OfxSecInfo
                     // actually do not care that there are extra elements
                     //  but let's log them
                     s = String.format(CMLanguageController.
-                          getErrorProps().getProperty("Formatted3"),
-                          element.tagName());
+                        getErrorProps().getProperty("Formatted3"),
+                        element.tagName());
 
-                    //Logger.getLogger(this.getClass()).info(s);
+                //Logger.getLogger(this.getClass()).info(s);
             }
         }
         return true;
@@ -125,11 +121,14 @@ public class OfxSecInfo
 
     public Boolean doSQL(OfxInvAcctFrom invAcctFrom, boolean bIsOption)
     {
-        // String s;
+        String[] keys;
+        String sTable;
+        String[] values;
         int i;
 
         this.secId.doSQL(invAcctFrom);
         this.currency.doSQL(invAcctFrom);
+        sTable = "hlhtxc5_dbOfx.SecInfo";
 
         //todo: works for all now given some tweaking of SecName
         // to ensure it begins with the underlying ticker
@@ -145,8 +144,7 @@ public class OfxSecInfo
                     if (this.secName.substring(0, 3).equalsIgnoreCase("put"))
                     {
                         this.secName = this.secName.substring(4);
-                    }
-                    else
+                    } else
                     {
                         this.secName = this.secName.substring(5);
                     }
@@ -163,26 +161,50 @@ public class OfxSecInfo
                     break;
                 }
             }
+
+            keys = new String[]
+            {
+                "BrokerId", "SecId", "SecName", "Ticker", "FiId",
+                "Rating", "UnitPrice", "DtAsOf", "CurSym", "Memo"
+            };
+
+            //when an option cannot update secInfo.EquityId, not enough info here
+            values = new String[10];
+            values[0] = invAcctFrom.brokerId.toString();
+            values[1] = this.secId.uniqueId;
+            values[2] = this.secName;
+            values[3] = this.ticker;
+            values[4] = this.fiId;
+            values[5] = this.rating;
+            values[6] = String.valueOf(this.unitPrice);
+            values[7] = this.dtAsOf;
+            values[8] = this.currency.curSym;
+            values[9] = this.memo;
+
+            // only 1 primary designated so we can update the name
+            return this.doSQL(sTable, keys, values, 2);
         }
 
-        String sTable = "hlhtxc5_dbOfx.SecInfo";
-        String[] keys =
+        //not an option; use this opportunity to update secInfo.EquityId field
+        keys = new String[]
         {
-            "BrokerId", "SecId", "SecName", "Ticker", "FiId",
+            "BrokerId", "SecId", "EquityId", "SecName", "Ticker", "FiId",
             "Rating", "UnitPrice", "DtAsOf", "CurSym", "Memo"
         };
 
-        String[] values = new String[10];
+        //when an option cannot update secInfo.EquityId, not enough info here
+        values = new String[11];
         values[0] = invAcctFrom.brokerId.toString();
         values[1] = this.secId.uniqueId;
-        values[2] = this.secName;
-        values[3] = this.ticker;
-        values[4] = this.fiId;
-        values[5] = this.rating;
-        values[6] = String.valueOf(this.unitPrice);
-        values[7] = this.dtAsOf;
-        values[8] = this.currency.curSym;
-        values[9] = this.memo;
+        values[2] = this.ticker;
+        values[3] = this.secName;
+        values[4] = this.ticker;
+        values[5] = this.fiId;
+        values[6] = this.rating;
+        values[7] = String.valueOf(this.unitPrice);
+        values[8] = this.dtAsOf;
+        values[9] = this.currency.curSym;
+        values[10] = this.memo;
 
         // only 1 primary designated so we can update the name
         return this.doSQL(sTable, keys, values, 2);

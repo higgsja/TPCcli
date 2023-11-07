@@ -120,6 +120,7 @@ public class OfxInvAcctFrom
             "OfxSQLBrokersTableQueryBrokerId"), this.brokerIdFi);
 
         this.brokerId = this.doSQLAuto(sTable, keys, values, checkSQL);
+        //this is coming back null
         if (this.brokerId == null)
         {
             return false;

@@ -6,7 +6,10 @@
 package com.hpi.ofxAggregates;
 
 import com.hpi.TPCCMcontrollers.CMLanguageController;
-import java.util.Iterator;
+import com.hpi.hpiUtils.*;
+import java.text.*;
+import java.util.*;
+import java.util.logging.*;
 
 import org.jsoup.nodes.Element;
 
@@ -29,7 +32,6 @@ public class OfxOptInfo
     String fiAssetClass;
 
     // private final String errorPrefix;
-
     public OfxOptInfo()
     {
         this.secInfo = new OfxSecInfo();
@@ -42,7 +44,6 @@ public class OfxOptInfo
         this.fiAssetClass = null;
 
         // this.errorPrefix = this.getClass().getName();
-
     }
 
     /**
@@ -103,7 +104,7 @@ public class OfxOptInfo
                         getErrorProps().getProperty("Formatted3"),
                         element.tagName());
 
-                    //Logger.getLogger(this.getClass()).info(s);
+                //Logger.getLogger(this.getClass()).info(s);
             }
         }
         return true;
@@ -125,17 +126,25 @@ public class OfxOptInfo
          */
         if (invAcctFrom.getBrokerIdFi().equalsIgnoreCase("etrade.com"))
         {
+            //todo: change to remove magic number
             this.dtExpire = "20" + this.secInfo.secId.uniqueId.substring(0, 6);
         }
 
-        String sTable = "hlhtxc5_dbOfx.OptInfo";
+        String sTable1 = "hlhtxc5_dbOfx.OptInfo";
+        String sTable2 = "hlhtxc5_dbOfx.SecInfo";
 
-        String[] keys =
+        String[] keys1 =
         {
             "BrokerId", "SecId", "OptType", "StrikePrice", "DtExpire",
             "ShPerCtrct", "SecIdUnderlying", "AssetClass", "FiAssetClass"
         };
-        String[] values =
+
+        String[] keys2 =
+        {
+            "BrokerId", "SecId", "EquityId"
+        };
+
+        String[] values1 =
         {
             invAcctFrom.brokerId.toString(), this.secInfo.secId.uniqueId,
             this.optType, String.valueOf(this.strikePrice),
@@ -144,6 +153,25 @@ public class OfxOptInfo
             this.fiAssetClass
         };
 
-        return this.doSQL(sTable, keys, values, 2);
+        //get the underlying ticker
+        //convert date string to java.util Date
+        
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
+        Date date = null;
+        try
+        {
+            date = formatter.parse(this.dtExpire);
+        } catch (ParseException ex)
+        {
+            Logger.getLogger(OfxOptInfo.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        String[] values2 =
+        {
+            invAcctFrom.brokerId.toString(), this.secInfo.secId.uniqueId,
+            CMHPIUtils.getOCCTicker(this.secInfo.ticker, date, this.optType, this.strikePrice)
+        };
+
+        return ((this.doSQL(sTable1, keys1, values1, 2)) && (this.doSQL(sTable2, keys2, values2, 2)));
     }
 }

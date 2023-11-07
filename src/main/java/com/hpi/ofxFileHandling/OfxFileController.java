@@ -66,7 +66,6 @@ public class OfxFileController
      */
     public void processETradeDownloadCrm(String sDirectory)
     {
-        String s;
         WebDriver driver;
         ChromeOptions options;
 //        JavascriptExecutor js;
@@ -156,7 +155,6 @@ public class OfxFileController
      */
     public void processETradeDownloadFF(String sDirectory)
     {
-        String s;
         WebDriver driver;
         WebElement webElement;
         FirefoxOptions options;
@@ -889,11 +887,11 @@ public class OfxFileController
 
             CMHPIUtils.showDefaultMsg(CMLanguageController.getAppProp("Title")
                 + CMLanguageController.getErrorProp("Title"),
-                Thread.currentThread().getStackTrace()[1].getClassName(),
+                Thread.currentThread().getStackTrace()[1].getClassName() + "\n\t",
                 Thread.currentThread().getStackTrace()[1].getMethodName(),
                 s,
                 JOptionPane.ERROR_MESSAGE);
-return;
+            return;
 //            throw new UnsupportedOperationException(s);
         }
 
@@ -996,7 +994,7 @@ return;
 
         // test validity of output file
         path = Paths.get(sOutputFile);
-        try (OutputStream output = Files.newOutputStream(path,
+        try ( OutputStream output = Files.newOutputStream(path,
             StandardOpenOption.WRITE, StandardOpenOption.CREATE,
             StandardOpenOption.TRUNCATE_EXISTING))
         {
@@ -1023,7 +1021,7 @@ return;
             return false;
         }
 
-        try (BufferedWriter output = Files.newBufferedWriter(path,
+        try ( BufferedWriter output = Files.newBufferedWriter(path,
             Charset.forName("US-ASCII"),
             StandardOpenOption.WRITE, StandardOpenOption.CREATE,
             StandardOpenOption.TRUNCATE_EXISTING))
@@ -1074,10 +1072,18 @@ return;
 
     private void ofxBrokerAdjustments()
     {
-        CMDBController.callStored("hlhtxc5_dbOfx.setEquityId");
+        //none at this time
+//        int i = 0;
+        //we have created a unique EquityId field in SecInfo and must populate it
+        //stock: set to SecInfo.Ticker
+        //options: set to OCC id
+        //mutual funds: set to SecInfo.SecName
+        //had a stored procedure to handle this
+        //moved to ininital creation of the transaction
+//        CMDBController.callStored("hlhtxc5_dbOfx.setEquityId");
 
 //        String sql, db;
-//
+
 //        db = "hlhtxc5_dbOfx.";
 //
 //        // Need to guarantee common EquityId across all providers
@@ -1091,16 +1097,16 @@ return;
 //              + ";";
 //        CMDBController.executeSQLSingleIntegerList(sql);
 //
-//        // Set EquityId for Options
+        // Set EquityId for Options
 //        sql = "update " + db + "SecInfo "
 //              + "inner join hlhtxc5_dbOfx.OptInfo on (hlhtxc5_dbOfx.SecInfo.BrokerId = hlhtxc5_dbOfx.OptInfo.BrokerId "
-//              + "and hlhtxc5_dbOfx.SecInfo.SecId = hlhtxc5_dbOfx.OptInfo.SecId) "
+//            + "and hlhtxc5_dbOfx.SecInfo.SecId = hlhtxc5_dbOfx.OptInfo.SecId) "
 //              + "set EquityId = hlhtxc5_dbOfx.optionToOCC(hlhtxc5_dbOfx.SecInfo.Ticker, "
 //              + "left(hlhtxc5_dbOfx.OptInfo.DtExpire, 8), "
 //              + "hlhtxc5_dbOfx.OptInfo.OptType, hlhtxc5_dbOfx.OptInfo.StrikePrice) "
-//              + "where left(hlhtxc5_dbOfx.SecInfo.Ticker, 1) <> '#\';";
+//            + "where left(hlhtxc5_dbOfx.SecInfo.Ticker, 1) <> '#\';";
 //        CMDBController.executeSQL(sql);
-//
+
 //        // Set EquityId for Stock
 //        sql = "update " + db + "SecInfo "
 //              + "inner join hlhtxc5_dbOfx.StockInfo on hlhtxc5_dbOfx.SecInfo.BrokerId = hlhtxc5_dbOfx.StockInfo.BrokerId "
