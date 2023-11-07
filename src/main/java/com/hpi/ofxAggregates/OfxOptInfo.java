@@ -126,6 +126,7 @@ public class OfxOptInfo
          */
         if (invAcctFrom.getBrokerIdFi().equalsIgnoreCase("etrade.com"))
         {
+            //todo: change to remove magic number
             this.dtExpire = "20" + this.secInfo.secId.uniqueId.substring(0, 6);
         }
 
@@ -155,7 +156,7 @@ public class OfxOptInfo
         //get the underlying ticker
         //convert date string to java.util Date
         
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyymmdd", Locale.ENGLISH);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
         Date date = null;
         try
         {
