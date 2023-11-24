@@ -49,19 +49,9 @@ public class AppController
         CMGlobalsModel.getInstance();
         CMGlobalsModel.setGui(false);
     }
+    
     public void startApp(String[] args)
     {
-//        URL mySource = CmdLineController.class.getProtectionDomain().
-//              getCodeSource().getLocation();
-//        System.setProperty("app.root", mySource.getPath());
-//
-//        CMLanguageController.getInstance();
-//        CMPrefsController.getInstance().initConfigFiles();
-//        CMDBController.initDBConnection();
-//        CmdLineController.getInstance();
-//        CMPrefsController.getInstance();
-//        CMGlobalsModel.getInstance();
-//        CMGlobalsModel.setGui(false);
         CmdLineController.getInstance().doCommandLine(args);
     }
 

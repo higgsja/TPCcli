@@ -84,33 +84,10 @@ public class CmdLineController
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bOfxFiles = false;
 
-//    @Option(name = "--trdstnDl", usage = "Download .qfx file from Tradestation")
-//    @SuppressWarnings("FieldMayBeFinal")
-//    static Boolean bTrdStnDl = false;
-    
-//@Option(name = "--eTradeDlFF", usage = "Download .qfx file from eTrade, fireFox")
-//    @SuppressWarnings("FieldMayBeFinal")
-//    static Boolean bETradeDlFF = false;
-//
-//@Option(name = "--eTradeDlCrm", usage = "Download .qfx file from eTrade, Chrome")
-//    @SuppressWarnings("FieldMayBeFinal")
-//    static Boolean bETradeDlCrm = false;
-
-
-//    @Option(name = "--tdAmeritradeOptions2", usage
-//        = "Download option price data from tdAmneritrade for open positions")
-//    @SuppressWarnings("FieldMayBeFinal")
-//    static Boolean bTdAmeritradeOptions2 = false;
-
-    @Option(name = "--tdAmeritradeOptions3", usage
-        = "Download option price data from tdAmneritrade for open positions")
+    @Option(name = "--etradeStockQuote", usage
+        = "Download stock price data from etrade")
     @SuppressWarnings("FieldMayBeFinal")
-    static Boolean bTdAmeritradeOptions3 = false;
-
-    @Option(name = "--tdAmeritradeStocks", usage
-        = "Run routines against tdAmeritrade")
-    @SuppressWarnings("FieldMayBeFinal")
-    static Boolean bTdAmeritradeStocks = false;
+    static Boolean bEtradeStockQuote = false;
 
     @Option(name = "--clearDmOfxUserId", usage
         = "--clearDmOfxUserId [--userId [userId]]: Clears account dmOfx data for restart; dbOfx data not touched")
@@ -248,25 +225,6 @@ public class CmdLineController
             return;
         }
 
-//        if (CmdLineController.bTrdStnDl)
-//        {
-//            OfxFileController.getInstance().
-//                processTradeStationDownload(CmdLineController.sDirectory);
-//            return;
-//        }
-//        
-//        if (CmdLineController.bETradeDlFF)
-//        {
-//            OfxFileController.getInstance().processETradeDownloadFF(CmdLineController.sDirectory);
-//            return;
-//        }
-//        
-//        if (CmdLineController.bETradeDlCrm)
-//        {
-//            OfxFileController.getInstance().processETradeDownloadCrm(CmdLineController.sDirectory);
-//            return;
-//        }
-
         if (CmdLineController.bEquityInfo)
         {
             FinVizController4.doEquityInfo();
@@ -274,46 +232,9 @@ public class CmdLineController
             return;
         }
 
-        if (CmdLineController.bequityHistoryIEX)
+        if (CmdLineController.bEtradeStockQuote) 
         {
-            IEXTradingController.doHistorical(CmdLineController.sDate, false);
-
-            return;
-        }
-
-        if (CmdLineController.bequityHistoryIEXMin)
-        {
-            IEXTradingController.doHistorical(CmdLineController.sDate, true);
-
-            return;
-        }
-
-        if (CmdLineController.bOptionHistory)
-        {
-            OptionHistoryController.getInstance().doOptionHistory();
-
-            return;
-        }
-
-//        if (CmdLineController.bTdAmeritradeOptions2)
-//        {
-//            TDAmeritradeFetchOptionsController2.doPrices("open");
-//
-//            return;
-//        }
-
-        if (CmdLineController.bTdAmeritradeOptions3)
-        {
-            TDAmeritradeFetchOptionsController2.doPrices("active");
-
-            return;
-        }
-
-        if (CmdLineController.bTdAmeritradeStocks)
-        {
-            TDAmeritradeFetchStocksController2.doHistorical();
-
-            return;
+            StockDataEtradeController.doAllStocksOneDay();
         }
 
         if (CmdLineController.bOfxInstitutions)
