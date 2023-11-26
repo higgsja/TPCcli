@@ -1,6 +1,6 @@
 package com.hpi.appTPCcli;
 
-import com.hpi.appcontrollers.AppController;
+import com.hpi.appcontrollers.TPCcliAppController;
 import org.springframework.boot.autoconfigure.*;
 
 @SpringBootApplication
@@ -14,8 +14,8 @@ public class TPCcliEx
     public static void main(String[] args)
     {
 
-        AppController appController;
-        appController = AppController.getInstance();
+        TPCcliAppController appController;
+        appController = TPCcliAppController.getInstance();
         
         appController.initApp();
 
