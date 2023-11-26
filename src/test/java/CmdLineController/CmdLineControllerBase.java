@@ -6,7 +6,7 @@ import org.junit.*;
 public class CmdLineControllerBase
 {
 
-    public static AppController appController;
+    public static TPCcliAppController appController;
     public static CmdLineController cmdLineController;
 
     public static final Integer USER_ID = 5;
@@ -14,7 +14,7 @@ public class CmdLineControllerBase
     @BeforeClass
     public static void beforeClass()
     {
-        appController = AppController.getInstance();
+        appController = TPCcliAppController.getInstance();
         cmdLineController = CmdLineController.getInstance();
     }
 

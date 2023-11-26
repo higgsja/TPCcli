@@ -9,7 +9,7 @@ import java.util.concurrent.*;
  * Application core controller.
  * <p>
  */
-public class AppController
+public class TPCcliAppController
 {
     private static final ExecutorService TPCcli_EXECUTOR_SERVICE;
     
@@ -19,20 +19,20 @@ public class AppController
     }
 
     //*** Singleton
-    private static AppController instance;
+    private static TPCcliAppController instance;
 
-    protected AppController()
+    protected TPCcliAppController()
     {
         // protected prevents instantiation outside of package
     }
 
-    public synchronized static AppController getInstance()
+    public synchronized static TPCcliAppController getInstance()
     {
-        if (AppController.instance == null)
+        if (TPCcliAppController.instance == null)
         {
-            AppController.instance = new AppController();
+            TPCcliAppController.instance = new TPCcliAppController();
         }
-        return AppController.instance;
+        return TPCcliAppController.instance;
     }
     //***
 

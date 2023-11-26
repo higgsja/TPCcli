@@ -100,7 +100,7 @@ public class CmdLineControllerTest extends BaseTest {
         args[0] = "--equityInfo";
         args[1] = "--progressBar";
         args[2] = "true";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 
     @Ignore
@@ -117,7 +117,7 @@ public class CmdLineControllerTest extends BaseTest {
         args[0] = "--equityHistoryIEX";
         args[1] = "--progressBar";
         args[2] = "true";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 
     @Ignore
@@ -134,7 +134,7 @@ public class CmdLineControllerTest extends BaseTest {
         args[0] = "--equityHistoryIEXMin";
         args[1] = "--progressBar";
         args[2] = "true";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 
     @Ignore
@@ -153,7 +153,7 @@ public class CmdLineControllerTest extends BaseTest {
         args[2] = "true";
         args[3] = "--date";
         args[4] = "2019-12-31";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 
     @Ignore
@@ -170,7 +170,7 @@ public class CmdLineControllerTest extends BaseTest {
         args[0] = "--optionHistory";
         args[1] = "--progressBar";
         args[2] = "true";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 
     @Ignore
@@ -187,7 +187,7 @@ public class CmdLineControllerTest extends BaseTest {
         args[0] = "--trdstnDl";
         args[1] = "--directory";
         args[2] = "/home/white/Documents/Quicken";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 
     @Ignore
@@ -206,7 +206,7 @@ public class CmdLineControllerTest extends BaseTest {
         args[2] = "/home/white/Documents/Quicken";
         args[3] = "--headless";
         args[4] = "true";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 
     @Ignore
@@ -225,7 +225,7 @@ public class CmdLineControllerTest extends BaseTest {
         args[2] = "true";
         args[3] = "--date";
         args[4] = "2020-03-01";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 
     @Ignore
@@ -241,7 +241,7 @@ public class CmdLineControllerTest extends BaseTest {
         args[0] = "--dataMart";
         args[1] = "--progressBar";
         args[2] = "true";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 
     @Ignore
@@ -255,7 +255,7 @@ public class CmdLineControllerTest extends BaseTest {
 
         String[] args = new String[1];
         args[0] = "--mpt";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 
     @Ignore
@@ -270,7 +270,7 @@ public class CmdLineControllerTest extends BaseTest {
 
         String[] args = new String[1];
         args[0] = "--ofxInstitutions";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 
     @Ignore
@@ -286,7 +286,7 @@ public class CmdLineControllerTest extends BaseTest {
         args[0] = "--tdAmeritradeOptions";
         // args[1] = "--progressBar";
         // args[2] = "true";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 
     @Ignore
@@ -302,7 +302,7 @@ public class CmdLineControllerTest extends BaseTest {
         args[0] = "--tdAmeritradeStocks";
         // args[1] = "--progressBar";
         // args[2] = "true";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 
     @Ignore
@@ -318,7 +318,7 @@ public class CmdLineControllerTest extends BaseTest {
         args[0] = "--clearUserId";
         args[1] = "--userId";
         args[2] = "818";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 
     @Ignore
@@ -334,7 +334,7 @@ public class CmdLineControllerTest extends BaseTest {
         args[0] = "--buildDemo";
         args[1] = "--userId";
         args[2] = "1";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 
     @Ignore
@@ -353,7 +353,7 @@ public class CmdLineControllerTest extends BaseTest {
         args[2] = "200409_1124_1";
         args[3] = "--acctId";
         args[4] = "2";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 
     @Ignore
@@ -372,7 +372,7 @@ public class CmdLineControllerTest extends BaseTest {
         args[2] = "200409_1142_0";
         args[3] = "--acctId";
         args[4] = "2";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 
     @Ignore
@@ -386,6 +386,6 @@ public class CmdLineControllerTest extends BaseTest {
 
         String[] args = new String[1];
         args[0] = "--processOfxFiles";
-        AppController.getInstance().startApp(args);
+        TPCcliAppController.getInstance().startApp(args);
     }
 }
