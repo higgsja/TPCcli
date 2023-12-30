@@ -52,15 +52,15 @@ public class CmdLineController
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bEquityInfo = false;
 
-    @Option(name = "--equityHistoryIEX", usage = "Retrieve history from last date")
-    @SuppressWarnings("FieldMayBeFinal")
-    static Boolean bequityHistoryIEX = false;
+//    @Option(name = "--equityHistoryIEX", usage = "Retrieve history from last date")
+//    @SuppressWarnings("FieldMayBeFinal")
+//    static Boolean bequityHistoryIEX = false;
 
-    @Option(name = "--equityHistoryIEXMin", usage
-        = "Retrieve history from last "
-        + "date on select tickers")
-    @SuppressWarnings("FieldMayBeFinal")
-    static Boolean bequityHistoryIEXMin = false;
+//    @Option(name = "--equityHistoryIEXMin", usage
+//        = "Retrieve history from last "
+//        + "date on select tickers")
+//    @SuppressWarnings("FieldMayBeFinal")
+//    static Boolean bequityHistoryIEXMin = false;
 
     @Option(name = "--file", usage = "Fully specified file name")
     static String sFilename;
@@ -74,11 +74,6 @@ public class CmdLineController
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bOfxInstitutions = false;
 
-    @Option(name = "--optionHistory", usage
-        = "Updates database with option history")
-    @SuppressWarnings("FieldMayBeFinal")
-    static Boolean bOptionHistory = false;
-
     @Option(name = "--processOfxFiles", usage
         = "process files in the directory, use --file")
     @SuppressWarnings("FieldMayBeFinal")
@@ -88,6 +83,11 @@ public class CmdLineController
         = "Download stock price data from etrade")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bEtradeStockQuote = false;
+    
+    @Option(name = "--etradeOptionQuote", usage
+        = "Download stock price data from etrade")
+    @SuppressWarnings("FieldMayBeFinal")
+    static Boolean bEtradeOptionQuote = false;
 
     @Option(name = "--clearDmOfxUserId", usage
         = "--clearDmOfxUserId [--userId [userId]]: Clears account dmOfx data for restart; dbOfx data not touched")
@@ -234,7 +234,16 @@ public class CmdLineController
 
         if (CmdLineController.bEtradeStockQuote) 
         {
-            StockDataEtradeController.doAllStocksOneDay();
+            StockQuotesEtradeController x = new StockQuotesEtradeController();
+            x.doAllStocksOneDay();
+//            StockQuotesEtradeController.doAllStocksOneDay();
+        }
+        
+        if (CmdLineController.bEtradeOptionQuote) 
+        {
+            OptionQuotesEtradeController x = new OptionQuotesEtradeController();
+            x.doAllOptionsOneDay();
+//            OptionQuotesEtradeController.doAllOptionsOneDay();
         }
 
         if (CmdLineController.bOfxInstitutions)
