@@ -408,8 +408,8 @@ public class CmdLineController
                 System.exit(1);
             }
 
-            OpenPositionsStockController.getInstance().doPositions();
-            ClosedPositionsStockController.getInstance().doPositions();
+//            OpenPositionsStockController.getInstance().doPositions();
+//            ClosedPositionsStockController.getInstance().doPositions();
 
             OpenPositionsOptionController.getInstance().doOpenPositions();
             ClosedPositionsOptionController.getInstance().doClosedPositions();

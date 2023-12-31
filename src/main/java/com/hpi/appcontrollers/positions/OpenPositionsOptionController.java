@@ -18,7 +18,7 @@ import lombok.Getter;
 import org.apache.commons.lang3.math.NumberUtils;
 
 /**
- * Handle all closed option transactions, converting to positions
+ * Handle all open option transactions, converting to positions
  */
 public class OpenPositionsOptionController
 {

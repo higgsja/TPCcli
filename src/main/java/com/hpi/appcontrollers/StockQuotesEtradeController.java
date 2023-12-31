@@ -59,7 +59,7 @@ public class StockQuotesEtradeController
         getEquityInfoList();
         getEquityDataFromList();
         doHistoricalSQL();
-        doUtil_LastDailyOption();
+        doUtil_LastDailyStock();
     }
 
     /**
@@ -288,12 +288,12 @@ public class StockQuotesEtradeController
     /*
      * Refresh utility table with latest prices
      */
-    private void doUtil_LastDailyOption()
+    private void doUtil_LastDailyStock()
     {
         String sql;
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
-        System.out.println("doUtil_LastDailyOption start: "
+        System.out.println("doUtil_LastDailyStock start: "
             + dtf.format(LocalDateTime.now()));
 
         sql = "truncate hlhtxc5_dmOfx.Util_LastDailyStock;";
@@ -305,7 +305,7 @@ public class StockQuotesEtradeController
 
         CMDBController.executeSQL(sql);
 
-        System.out.println("doUtil_LastDailyOption end: "
+        System.out.println("doUtil_LastDailyStock end: "
             + dtf.format(LocalDateTime.now()));
     }
 }

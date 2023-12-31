@@ -68,7 +68,7 @@ public class OptionQuotesEtradeController
     }
 
     /**
-     * Query openOptionFIFO table for list of stock symbols
+     * Query openOptionFIFO table for list of symbols
      */
     private void getEquityIdList()
     {
@@ -222,6 +222,9 @@ public class OptionQuotesEtradeController
         dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
 
         System.out.println("\tdoHistoricalSQL start: " + dtf.format(LocalDateTime.now()));
+        
+        sql = "truncate hlhtxc5_dmOfx.Util_LastDailyOption;";
+        CMDBController.executeSQL(sql);
 
         if (this.optionModels.isEmpty())
         {
@@ -234,22 +237,22 @@ public class OptionQuotesEtradeController
             //open the sql
             sql = "insert ignore into hlhtxc5_dmOfx.OptionHistory (EquityId, `Date`, Ticker, `Open`, High, Low, `Close`) values (";
 
-            values.append("'");
+            values.append("\"");
             values.append(om.getOccString());
-            values.append("','");
+            values.append("\",\"");
             values.append(om.getLocalDate());
-            values.append("','");
+            values.append("\",\"");
             values.append(om.getUnderlyingString());
-            values.append("','");
+            values.append("\",");
             values.append((om.getOpen()));
-            values.append("','");
+            values.append(",");
             values.append((om.getHigh()));
-            values.append("','");
+            values.append(",");
             values.append((om.getLow()));
-            values.append("','");
+            values.append(",");
             values.append((om.getClose()));
             //close the sql
-            values.append("');");
+            values.append(");");
 
             sql = sql + values;
             CMDBController.executeSQL(sql);
@@ -277,7 +280,7 @@ public class OptionQuotesEtradeController
 
         //set Price to average of bid and ask
         sql
-            = "insert ignore into hlhtxc5_dmOfx.Util_LastDailyOption (EquityId, `DataDate`, BidPrice, AskPrice, LastPrice, Price, PutCall, StrikePrice) select EquityId, `Date`, '', '', '', `Close`, '', '' from hlhtxc5_dmOfx.OptionHistory oh where oh.`Date` = ((select max(oh2.`Date`) from hlhtxc5_dmOfx.OptionHistory oh2 where oh.EquityId = oh2.EquityId)) order by Ticker, `Date`;";
+            = "insert ignore into hlhtxc5_dmOfx.Util_LastDailyOption (EquityId, `DataDate`, BidPrice, AskPrice, LastPrice, Price, PutCall, StrikePrice) select EquityId, `Date`, 0, 0, `Close`, 0, '', 0 from hlhtxc5_dmOfx.OptionHistory oh where oh.`Date` = ((select max(oh2.`Date`) from hlhtxc5_dmOfx.OptionHistory oh2 where oh.EquityId = oh2.EquityId)) order by Ticker, `Date`;";
 
         CMDBController.executeSQL(sql);
 
