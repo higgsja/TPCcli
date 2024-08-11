@@ -1,0 +1,1042 @@
+-- MySQL dump 10.13  Distrib 5.7.23, for Linux (x86_64)
+--
+-- Host: localhost    Database: dbOfx
+-- ------------------------------------------------------
+-- Server version	5.7.23-0ubuntu0.16.04.1
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Current Database: `dbOfx`
+--
+
+CREATE DATABASE IF NOT EXISTS `dbOfx` 
+DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;
+
+USE `dbOfx`;
+
+--
+-- Table structure for table `Accounts`
+--
+
+DROP TABLE IF EXISTS `Accounts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Accounts` (
+  `AcctId` int(11) NOT NULL AUTO_INCREMENT,
+  `BrokerId` int(11) NOT NULL,
+  `InvAcctIdFi` char(22) NOT NULL,
+  PRIMARY KEY (`AcctId`),
+  UNIQUE KEY `con_BrokerIdInvAcctIdFi` (`BrokerId`,`InvAcctIdFi`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Bal`
+--
+
+DROP TABLE IF EXISTS `Bal`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Bal` (
+  `AcctId` int(11) NOT NULL,
+  `Name` char(32) NOT NULL,
+  `Descr` char(80) NOT NULL,
+  `BalType` char(15) NOT NULL,
+  `Value` decimal(19,4) NOT NULL,
+  `DtAsOf` char(255) DEFAULT NULL,
+  `CurSym` char(3) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`Name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `BankAcctToFrom`
+--
+
+DROP TABLE IF EXISTS `BankAcctToFrom`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `BankAcctToFrom` (
+  `AcctId` int(11) NOT NULL,
+  `BankId` char(9) NOT NULL,
+  `BranchId` char(9) DEFAULT NULL,
+  `AcctId2` char(22) NOT NULL,
+  `AcctType` char(15) NOT NULL,
+  `AcctKey` char(222) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`BankId`,`AcctId2`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Brokers`
+--
+
+DROP TABLE IF EXISTS `Brokers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Brokers` (
+  `BrokerId` int(11) NOT NULL AUTO_INCREMENT,
+  `Org` char(32) DEFAULT NULL,
+  `FId` char(32) DEFAULT NULL,
+  `BrokerIdFi` char(22) NOT NULL,
+  PRIMARY KEY (`BrokerId`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `BuyDebt`
+--
+
+DROP TABLE IF EXISTS `BuyDebt`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `BuyDebt` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `AccrdInt` decimal(19,4) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`),
+  UNIQUE KEY `con_AcctIdFITId` (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `BuyMF`
+--
+
+DROP TABLE IF EXISTS `BuyMF`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `BuyMF` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `BuyType` char(15) NOT NULL,
+  `RelFiTId` char(255) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `BuyOpt`
+--
+
+DROP TABLE IF EXISTS `BuyOpt`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `BuyOpt` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `OptBuyType` char(15) NOT NULL,
+  `ShPerCtrct` int(11) NOT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`),
+  UNIQUE KEY `idx_AcctIdFiTIdOptByType` (`OptBuyType`,`FiTId`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `BuyOther`
+--
+
+DROP TABLE IF EXISTS `BuyOther`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `BuyOther` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `BuyStock`
+--
+
+DROP TABLE IF EXISTS `BuyStock`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `BuyStock` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `BuyType` char(15) NOT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `CCAcctToFrom`
+--
+
+DROP TABLE IF EXISTS `CCAcctToFrom`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `CCAcctToFrom` (
+  `AcctId` int(11) NOT NULL,
+  `AcctId2` char(22) NOT NULL,
+  `AcctKey` char(222) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`AcctId2`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ClientData`
+--
+
+DROP TABLE IF EXISTS `ClientData`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ClientData` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `AvgCostBasis` decimal(19,4) NOT NULL,
+  `DtPurchase` char(255) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `ClosureOpt`
+--
+
+DROP TABLE IF EXISTS `ClosureOpt`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ClosureOpt` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `OptAction` char(15) NOT NULL,
+  `Units` decimal(19,4) NOT NULL,
+  `ShPerCtrct` int(11) NOT NULL,
+  `SubAcctSec` char(15) NOT NULL,
+  `RelFiTId` char(255) DEFAULT NULL,
+  `Gain` decimal(19,4) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Currency`
+--
+
+DROP TABLE IF EXISTS `Currency`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Currency` (
+  `BrokerId` int(11) NOT NULL,
+  `CurSym` char(3) NOT NULL,
+  `CurRate` decimal(19,4) DEFAULT NULL,
+  PRIMARY KEY (`BrokerId`,`CurSym`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `DebtInfo`
+--
+
+DROP TABLE IF EXISTS `DebtInfo`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `DebtInfo` (
+  `BrokerId` int(11) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `ParValue` decimal(19,4) NOT NULL,
+  `DebtType` char(15) NOT NULL,
+  `DebtClass` char(15) DEFAULT NULL,
+  `CouponRt` decimal(19,4) DEFAULT NULL,
+  `DtCoupon` char(255) DEFAULT NULL,
+  `CouponFreq` char(15) DEFAULT NULL,
+  `CallPrice` decimal(19,4) DEFAULT NULL,
+  `YieldToCall` decimal(19,4) DEFAULT NULL,
+  `DtCall` char(255) DEFAULT NULL,
+  `CallType` char(15) DEFAULT NULL,
+  `YieldToMat` decimal(19,4) DEFAULT NULL,
+  `DtMat` char(255) DEFAULT NULL,
+  `AssetClass` char(15) DEFAULT NULL,
+  `FiAssetClass` char(32) DEFAULT NULL,
+  PRIMARY KEY (`BrokerId`,`SecId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `FiMFPortion`
+--
+
+DROP TABLE IF EXISTS `FiMFPortion`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `FiMFPortion` (
+  `BrokerId` int(11) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `FiAssetClass` char(32) NOT NULL,
+  `Percent` decimal(19,4) NOT NULL,
+  PRIMARY KEY (`BrokerId`,`SecId`,`FiAssetClass`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `FidTransactions`
+--
+
+DROP TABLE IF EXISTS `FidTransactions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `FidTransactions` (
+  `Date` date DEFAULT NULL,
+  `BrokerId` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `AcctId` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `StmtStrt` date DEFAULT NULL,
+  `StmtEnd` date DEFAULT NULL,
+  `TransName` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `TransType` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `ShPerCtrct` int(11) DEFAULT NULL,
+  `RelFiTId` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `RelType` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Secured` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Ticker` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Units` double DEFAULT NULL,
+  `Price` double DEFAULT NULL,
+  `Cmmsn` double DEFAULT NULL,
+  `Tax` double DEFAULT NULL,
+  `Fees` double DEFAULT NULL,
+  `LoadAmt` double DEFAULT NULL,
+  `WHold` double DEFAULT NULL,
+  `Total` double DEFAULT NULL,
+  `FiTId` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `SrvrTId` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `DtTrade` date DEFAULT NULL,
+  `DtSettle` date DEFAULT NULL,
+  `ReversalFiTId` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `Memo` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `SecUniqueId` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `SecUniqueIdType` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `CurRate` double DEFAULT NULL,
+  `CurSym` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `OCurRate` double DEFAULT NULL,
+  `OCurSym` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`BrokerId`,`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Income`
+--
+
+DROP TABLE IF EXISTS `Income`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Income` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `IncomeType` char(15) NOT NULL,
+  `Total` decimal(19,4) NOT NULL,
+  `SubAcctSec` char(15) NOT NULL,
+  `SubAcctFund` char(15) NOT NULL,
+  `TaxExempt` char(3) DEFAULT NULL,
+  `Withholding` decimal(19,4) DEFAULT NULL,
+  `CurSym` char(3) DEFAULT NULL,
+  `OrigCurSym` char(3) DEFAULT NULL,
+  `Inv401kSource` char(15) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `InvBal`
+--
+
+DROP TABLE IF EXISTS `InvBal`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `InvBal` (
+  `AcctId` int(11) NOT NULL,
+  `AvailCash` decimal(19,4) NOT NULL,
+  `MarginBalance` decimal(19,4) NOT NULL,
+  `ShortBalance` decimal(19,4) NOT NULL,
+  `BuyPower` decimal(19,4) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `InvBankTran`
+--
+
+DROP TABLE IF EXISTS `InvBankTran`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `InvBankTran` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `SubAcctFund` char(15) NOT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `InvBuy`
+--
+
+DROP TABLE IF EXISTS `InvBuy`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `InvBuy` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `Units` decimal(19,4) NOT NULL,
+  `UnitPrice` decimal(19,4) NOT NULL,
+  `Markup` decimal(19,4) DEFAULT NULL,
+  `Commission` decimal(19,4) DEFAULT NULL,
+  `Taxes` decimal(19,4) DEFAULT NULL,
+  `Fees` decimal(19,4) DEFAULT NULL,
+  `TransLoad` decimal(19,4) DEFAULT NULL,
+  `Total` decimal(19,4) NOT NULL,
+  `CurSym` char(3) DEFAULT NULL,
+  `OrigCurSym` char(3) DEFAULT NULL,
+  `SubAcctSec` char(15) NOT NULL,
+  `SubAcctFund` char(15) NOT NULL,
+  `LoanId` char(32) DEFAULT NULL,
+  `LoanPrincipal` decimal(19,4) DEFAULT NULL,
+  `LoanInterest` decimal(19,4) DEFAULT NULL,
+  `Inv401kSource` char(15) DEFAULT NULL,
+  `DtPayroll` char(255) DEFAULT NULL,
+  `PriorYearContrib` char(3) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`),
+  UNIQUE KEY `idx_FiTIdSecIdAcct` (`FiTId`,`SecId`,`AcctId`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `InvExpense`
+--
+
+DROP TABLE IF EXISTS `InvExpense`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `InvExpense` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `Total` decimal(19,4) NOT NULL,
+  `SubAcctSec` char(15) NOT NULL,
+  `SubAcctFund` char(15) NOT NULL,
+  `CurSym` char(3) DEFAULT NULL,
+  `OrigCurSym` char(3) DEFAULT NULL,
+  `Inv401kSource` char(15) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `InvPos`
+--
+
+DROP TABLE IF EXISTS `InvPos`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `InvPos` (
+  `AcctId` int(10) NOT NULL,
+  `InvPosId` int(11) NOT NULL AUTO_INCREMENT,
+  `DtAsOf` char(20) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `HeldInAcct` char(15) NOT NULL,
+  `PosType` char(15) NOT NULL,
+  `Units` decimal(19,4) NOT NULL,
+  `UnitPrice` decimal(19,4) NOT NULL,
+  `MktVal` decimal(19,4) NOT NULL,
+  `DtPriceAsOf` char(255) NOT NULL,
+  `CurSym` char(3) DEFAULT NULL,
+  `Memo` char(255) DEFAULT NULL,
+  `Inv401kSource` char(15) DEFAULT NULL,
+  PRIMARY KEY (`InvPosId`),
+  UNIQUE KEY `constraint_noDupes` (`AcctId`,`DtAsOf`,`SecId`,`HeldInAcct`,`PosType`,`Units`,`UnitPrice`,`MktVal`,`DtPriceAsOf`,`CurSym`,`Memo`,`Inv401kSource`)
+) ENGINE=InnoDB AUTO_INCREMENT=68 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `InvSell`
+--
+
+DROP TABLE IF EXISTS `InvSell`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `InvSell` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `Units` decimal(19,4) NOT NULL,
+  `UnitPrice` decimal(19,4) NOT NULL,
+  `Markdown` decimal(19,4) DEFAULT NULL,
+  `Commission` decimal(19,4) DEFAULT NULL,
+  `Taxes` decimal(19,4) DEFAULT NULL,
+  `Fees` decimal(19,4) DEFAULT NULL,
+  `TransLoad` decimal(19,4) DEFAULT NULL,
+  `Withholding` decimal(19,4) DEFAULT NULL,
+  `TaxExempt` char(3) DEFAULT NULL,
+  `Total` decimal(19,4) NOT NULL,
+  `Gain` decimal(19,4) DEFAULT NULL,
+  `CurSym` char(3) DEFAULT NULL,
+  `OrigCurSym` char(3) DEFAULT NULL,
+  `SubAcctSec` char(15) NOT NULL,
+  `SubAcctFund` char(15) NOT NULL,
+  `LoanId` char(32) DEFAULT NULL,
+  `StateWithholding` decimal(19,4) DEFAULT NULL,
+  `Penalty` decimal(19,4) DEFAULT NULL,
+  `Inv401kSource` char(15) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `InvTran`
+--
+
+DROP TABLE IF EXISTS `InvTran`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `InvTran` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `SrvrTId` char(10) DEFAULT NULL,
+  `DtTrade` char(255) NOT NULL,
+  `DtSettle` char(255) DEFAULT NULL,
+  `ReversalFiTId` char(255) DEFAULT NULL,
+  `Memo` char(255) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`),
+  UNIQUE KEY `idx_DateAcctFiTId` (`DtTrade`,`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `JrnlFund`
+--
+
+DROP TABLE IF EXISTS `JrnlFund`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `JrnlFund` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `SubAcctTo` char(15) NOT NULL,
+  `SubAcctFrom` char(15) NOT NULL,
+  `Total` decimal(19,4) NOT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `JrnlSec`
+--
+
+DROP TABLE IF EXISTS `JrnlSec`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `JrnlSec` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `SubAcctTo` char(15) NOT NULL,
+  `SubAcctFrom` char(15) NOT NULL,
+  `Units` decimal(19,4) NOT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `MFInfo`
+--
+
+DROP TABLE IF EXISTS `MFInfo`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `MFInfo` (
+  `BrokerId` int(11) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `MFType` char(255) NOT NULL,
+  `Yield` decimal(19,4) DEFAULT NULL,
+  `DtYieldAsOf` char(255) DEFAULT NULL,
+  PRIMARY KEY (`BrokerId`,`SecId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `MFPortion`
+--
+
+DROP TABLE IF EXISTS `MFPortion`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `MFPortion` (
+  `BrokerId` int(11) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `AssetClass` char(15) NOT NULL,
+  `Percent` decimal(19,4) NOT NULL,
+  PRIMARY KEY (`BrokerId`,`SecId`,`AssetClass`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `MarginInterest`
+--
+
+DROP TABLE IF EXISTS `MarginInterest`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `MarginInterest` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `Total` decimal(19,4) NOT NULL,
+  `SubAcctFund` char(15) NOT NULL,
+  `Currency` char(3) DEFAULT NULL,
+  `OrigCurrency` char(3) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `OptInfo`
+--
+
+DROP TABLE IF EXISTS `OptInfo`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `OptInfo` (
+  `BrokerId` int(11) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `OptType` char(15) NOT NULL,
+  `StrikePrice` decimal(19,4) NOT NULL,
+  `DtExpire` char(255) NOT NULL,
+  `ShPerCtrct` int(11) NOT NULL,
+  `SecIdUnderlying` char(32) DEFAULT NULL,
+  `AssetClass` char(15) DEFAULT NULL,
+  `FiAssetClass` char(32) DEFAULT NULL,
+  PRIMARY KEY (`BrokerId`,`SecId`),
+  UNIQUE KEY `idx_SecIdBrokerId` (`SecId`,`BrokerId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `OtherInfo`
+--
+
+DROP TABLE IF EXISTS `OtherInfo`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `OtherInfo` (
+  `BrokerId` int(11) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `TypeDesc` char(32) DEFAULT NULL,
+  `AssetClass` char(15) DEFAULT NULL,
+  `FiAssetClass` char(32) DEFAULT NULL,
+  PRIMARY KEY (`BrokerId`,`SecId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Payee`
+--
+
+DROP TABLE IF EXISTS `Payee`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Payee` (
+  `OfxPayeeId` int(11) NOT NULL AUTO_INCREMENT,
+  `Name` char(32) NOT NULL,
+  `Addr1` char(32) NOT NULL,
+  `Addr2` char(32) DEFAULT NULL,
+  `Addr3` char(32) DEFAULT NULL,
+  `City` char(32) NOT NULL,
+  `State` char(5) NOT NULL,
+  `PostalCode` char(11) NOT NULL,
+  `Country` char(3) DEFAULT NULL,
+  `Phone` char(32) NOT NULL,
+  PRIMARY KEY (`OfxPayeeId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `PosDebt`
+--
+
+DROP TABLE IF EXISTS `PosDebt`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `PosDebt` (
+  `AcctId` int(11) NOT NULL,
+  `InvPosId` int(11) NOT NULL,
+  PRIMARY KEY (`AcctId`,`InvPosId`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `PosMF`
+--
+
+DROP TABLE IF EXISTS `PosMF`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `PosMF` (
+  `AcctId` int(11) NOT NULL,
+  `InvPosId` int(11) NOT NULL,
+  `UnitsStreet` decimal(19,4) DEFAULT NULL,
+  `UnitsUser` decimal(19,4) DEFAULT NULL,
+  `ReinvDiv` char(3) DEFAULT NULL,
+  `ReinvCG` char(3) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`InvPosId`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `PosOpt`
+--
+
+DROP TABLE IF EXISTS `PosOpt`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `PosOpt` (
+  `AcctId` int(11) NOT NULL,
+  `InvPosId` int(11) NOT NULL,
+  `Secured` char(15) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`InvPosId`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `PosOther`
+--
+
+DROP TABLE IF EXISTS `PosOther`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `PosOther` (
+  `AcctId` int(11) NOT NULL,
+  `InvPosId` int(11) NOT NULL,
+  PRIMARY KEY (`AcctId`,`InvPosId`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `PosStock`
+--
+
+DROP TABLE IF EXISTS `PosStock`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `PosStock` (
+  `AcctId` int(11) NOT NULL,
+  `InvPosId` int(11) NOT NULL,
+  `UnitsStreet` decimal(19,4) DEFAULT NULL,
+  `UnitsUser` decimal(19,4) DEFAULT NULL,
+  `ReinvDiv` char(3) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`InvPosId`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Reinvest`
+--
+
+DROP TABLE IF EXISTS `Reinvest`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Reinvest` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `IncomeType` char(15) NOT NULL,
+  `Total` decimal(19,4) NOT NULL,
+  `SubAcctSec` char(15) NOT NULL,
+  `Units` decimal(19,4) NOT NULL,
+  `UnitPrice` decimal(19,4) NOT NULL,
+  `Commission` decimal(19,4) DEFAULT NULL,
+  `Taxes` decimal(19,4) DEFAULT NULL,
+  `Fees` decimal(19,4) DEFAULT NULL,
+  `ReinvLoad` decimal(19,4) DEFAULT NULL,
+  `TaxExempt` char(3) DEFAULT NULL,
+  `Currency` char(3) DEFAULT NULL,
+  `OrigCurrency` char(3) DEFAULT NULL,
+  `Inv401kSource` char(15) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `RetOfCap`
+--
+
+DROP TABLE IF EXISTS `RetOfCap`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `RetOfCap` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `Total` decimal(19,4) NOT NULL,
+  `SubAcctSec` char(15) NOT NULL,
+  `SubAcctFund` char(15) NOT NULL,
+  `Currency` char(3) DEFAULT NULL,
+  `OrigCurrency` char(3) DEFAULT NULL,
+  `Inv401kSource` char(15) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SecId`
+--
+
+DROP TABLE IF EXISTS `SecId`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `SecId` (
+  `BrokerId` int(11) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `UniqueType` char(10) NOT NULL,
+  PRIMARY KEY (`BrokerId`,`SecId`),
+  KEY `idx_SecIdBrokerId` (`SecId`,`BrokerId`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SecInfo`
+--
+
+DROP TABLE IF EXISTS `SecInfo`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `SecInfo` (
+  `BrokerId` int(11) NOT NULL,
+  `SecId` char(32) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `EquityId` char(32) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `SecName` char(120) COLLATE utf8mb4_unicode_520_ci NOT NULL,
+  `Ticker` char(120) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `FiId` char(32) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `Rating` char(10) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `UnitPrice` decimal(19,4) DEFAULT NULL,
+  `DtAsOf` char(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `CurSym` char(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  `Memo` char(255) COLLATE utf8mb4_unicode_520_ci DEFAULT NULL,
+  PRIMARY KEY (`BrokerId`,`SecId`),
+  UNIQUE KEY `idx_BrokerIdSecIdEquityId` (`BrokerId`,`SecId`,`EquityId`) USING BTREE,
+  KEY `idx_Ticker` (`Ticker`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SellDebt`
+--
+
+DROP TABLE IF EXISTS `SellDebt`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `SellDebt` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `SellReason` char(15) NOT NULL,
+  `AccrdInt` decimal(19,4) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`),
+  UNIQUE KEY `con_AcctIdFITId` (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SellMF`
+--
+
+DROP TABLE IF EXISTS `SellMF`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `SellMF` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `SellType` char(15) NOT NULL,
+  `AvgCostBasis` decimal(19,4) DEFAULT NULL,
+  `RelFiTId` char(255) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SellOpt`
+--
+
+DROP TABLE IF EXISTS `SellOpt`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `SellOpt` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `OptSellType` char(15) NOT NULL,
+  `ShPerCtrct` int(11) NOT NULL,
+  `RelFiTId` char(255) DEFAULT NULL,
+  `RelType` char(15) DEFAULT NULL,
+  `Secured` char(15) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SellOther`
+--
+
+DROP TABLE IF EXISTS `SellOther`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `SellOther` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SellStock`
+--
+
+DROP TABLE IF EXISTS `SellStock`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `SellStock` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `SellType` char(15) NOT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Split`
+--
+
+DROP TABLE IF EXISTS `Split`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Split` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `SubAcctSec` char(15) NOT NULL,
+  `OldUnits` decimal(19,4) NOT NULL,
+  `NewUnits` decimal(19,4) NOT NULL,
+  `Numerator` decimal(19,4) NOT NULL,
+  `Denominator` decimal(19,4) NOT NULL,
+  `Currency` char(3) DEFAULT NULL,
+  `OrigCurrency` char(3) DEFAULT NULL,
+  `FracCash` decimal(19,4) DEFAULT NULL,
+  `SubAcctFund` char(15) DEFAULT NULL,
+  `Inv401kSource` char(15) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `StmtTrn`
+--
+
+DROP TABLE IF EXISTS `StmtTrn`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `StmtTrn` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `TrnType` char(15) DEFAULT NULL,
+  `DtPosted` char(255) DEFAULT NULL,
+  `DtUser` char(255) DEFAULT NULL,
+  `DtAvail` char(255) DEFAULT NULL,
+  `TrnAmt` decimal(19,4) NOT NULL,
+  `CorrectFiTId` char(255) DEFAULT NULL,
+  `CorrectAction` char(15) DEFAULT NULL,
+  `SrvrTId` char(10) DEFAULT NULL,
+  `CheckNum` char(12) DEFAULT NULL,
+  `RefNum` char(32) DEFAULT NULL,
+  `SIC` int(11) DEFAULT NULL,
+  `PayeeId` char(12) DEFAULT NULL,
+  `Name` char(32) DEFAULT NULL,
+  `Payee` int(11) DEFAULT NULL,
+  `ExtdName` char(100) DEFAULT NULL,
+  `BankAcctTo` int(11) DEFAULT NULL,
+  `CCAcctTo` int(11) DEFAULT NULL,
+  `Memo` char(255) DEFAULT NULL,
+  `ImageData` int(11) DEFAULT NULL,
+  `CurSym` char(3) DEFAULT NULL,
+  `OrigCurSym` char(3) DEFAULT NULL,
+  `Inv401kSource` char(15) DEFAULT NULL,
+  `OfxPayeeId` int(11) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `StockInfo`
+--
+
+DROP TABLE IF EXISTS `StockInfo`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `StockInfo` (
+  `BrokerId` int(11) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `StockType` char(15) DEFAULT NULL,
+  `Yield` decimal(19,4) DEFAULT NULL,
+  `DtYieldAsOf` char(255) DEFAULT NULL,
+  `AssetClass` char(15) DEFAULT NULL,
+  `FiAssetClass` char(32) DEFAULT NULL,
+  PRIMARY KEY (`BrokerId`,`SecId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Transfer`
+--
+
+DROP TABLE IF EXISTS `Transfer`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Transfer` (
+  `AcctId` int(11) NOT NULL,
+  `FiTId` char(255) NOT NULL,
+  `SecId` char(32) NOT NULL,
+  `SubAcctSec` char(15) NOT NULL,
+  `Units` decimal(19,4) NOT NULL,
+  `TferAction` char(15) NOT NULL,
+  `PosType` char(15) NOT NULL,
+  `InvAcctFrom` int(11) DEFAULT NULL,
+  `AvgCostBasis` decimal(19,4) DEFAULT NULL,
+  `UnitPrice` decimal(19,4) DEFAULT NULL,
+  `DtPurchase` char(255) DEFAULT NULL,
+  `Inv401kSource` char(15) DEFAULT NULL,
+  PRIMARY KEY (`AcctId`,`FiTId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Version`
+--
+
+DROP TABLE IF EXISTS `Version`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Version` (
+  `Version` varchar(25) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2018-08-26 10:36:38

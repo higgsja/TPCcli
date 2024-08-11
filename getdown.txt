@@ -1,0 +1,150 @@
+appbase = https://hlh-tx.com/TPCControlled/
+
+#version = a number
+strict_comments = false
+
+ui.name = Trader Performance Coach
+
+ui.background = 3399AA
+
+#ui.background_image = 
+
+#ui.error_background = 
+
+ui.icon = presentation-512.png
+
+#ui.progress = 17, 321, 458, 22
+ui.progress = 10, 70, 300, 20
+
+ui.progress_bar = FF3333
+
+ui.progress_text = 0941F9
+
+#ui.progess_image = 
+
+ui.status = 15, 100, 373, 68
+#ui.status = 57, 245, 373, 68
+#ui.status = 15, 10, 200, 30
+
+ui.status_text = 0941F9
+
+#ui.text_shadow = 330000
+
+ui.hide_decorations = true
+
+# 5 is the default
+ui.min_show_seconds = 3
+
+#a url to visit if an error
+#ui_install_error = 
+
+#relative file path to dock icon on OS X
+#ui.mac_doc_icon =
+
+#main entry point: class which contains a main method, which is to be invoked to start your application)
+#class = com.hpi.tpc.TPC
+class = com.hpi.appTPCcli.TPCcliEx
+
+#you can specify the reserved word manifest 
+#for your class name, like so and will launch 
+#as java - jar code.jar(say what?): only one code directive allowed
+#class = manifest
+
+#jvmarg = -Xmx256M
+#jvmarg = -Djava.library.path=%APPDIR%/native
+#jvmarg = -Dappdir=%APPDIR%
+#jvmarg = -Dversion=%VERSION%
+
+#apparg = --appdir
+#apparg = --version
+
+#ways to cause installation of required JVM
+#java_min_version = 1050006
+#java_location = [windows] /client/java_windows.jar
+#java_location = [linux] /client/java_linux.jar
+
+#right now using jnlp
+java_min_version = 1080000
+#java_max_version = 1080000
+
+
+allow_offline = false
+
+code = dist/lib/commons-math3-3.6.1.jar
+code = dist/lib/annotations-13.0.jar
+code = dist/lib/args4j-2.33.jar
+code = dist/lib/byte-buddy-1.12.2.jar
+#code = dist/lib/checker-compat-qual-2.0.0.jar
+code = dist/lib/classmate-1.3.4.jar
+code = dist/lib/commons-dbcp2-2.6.0.jar
+code = dist/lib/commons-exec-1.3.jar
+code = dist/lib/commons-io-2.8.0.jar
+code = dist/lib/commons-lang3-3.12.0.jar
+code = dist/lib/commons-logging-1.2.jar
+code = dist/lib/commons-pool2-2.6.1.jar
+code = dist/lib/error_prone_annotations-2.7.1.jar
+code = dist/lib/gson-2.8.7.jar
+code = dist/lib/guava-31.0.1-jre.jar
+code = dist/lib/hamcrest-core-1.3.jar
+code = dist/lib/hibernate-validator-6.1.5.Final.jar
+code = dist/lib/hibernate-validator-annotation-processor-6.1.4.Final.jar
+code = dist/lib/HikariCP-4.0.3.jar
+#code = dist/lib/iextrading4j-api-2.2.2.jar
+#code = dist/lib/iextrading4j-client-2.2.2.jar
+code = dist/lib/j2objc-annotations-1.3.jar
+code = dist/lib/jackson-annotations-2.12.3.jar
+code = dist/lib/jackson-core-2.12.3.jar
+code = dist/lib/jackson-databind-2.12.3.jar
+code = dist/lib/jakarta.annotation-api-1.3.5.jar
+code = dist/lib/jakarta.validation-api-2.0.2.jar
+#code = dist/lib/javax.annotation-api-1.3.2.jar
+code = dist/lib/javax.el-2.2.6.jar
+#code = dist/lib/javax.el-api-3.0.1-b06.jar
+code = dist/lib/javax.el-api-3.0.0.jar
+code = dist/lib/jboss-logging-3.3.2.Final.jar
+code = dist/lib/jcommon-1.0.24.jar
+code = dist/lib/jfreechart-1.5.3.jar
+code = dist/lib/jsoup-1.16.1.jar
+code = dist/lib/jsr305-3.0.2.jar
+code = dist/lib/jul-to-slf4j-1.7.30.jar
+code = dist/lib/junit-4.13.2.jar
+code = dist/lib/kotlin-stdlib-1.4.20.jar
+code = dist/lib/kotlin-stdlib-common-1.4.20.jar
+code = dist/lib/kotlin-stdlib-jdk7-1.4.20.jar
+code = dist/lib/kotlin-stdlib-jdk8-1.4.20.jar
+code = dist/lib/log4j-api-2.14.1.jar
+code = dist/lib/log4j-to-slf4j-2.14.1.jar
+code = dist/lib/logback-classic-1.2.3.jar
+code = dist/lib/logback-core-1.2.3.jar
+code = dist/lib/lombok-1.18.22.jar
+code = dist/lib/mariadb-java-client-2.7.3.jar
+code = dist/lib/okhttp-3.14.9.jar
+code = dist/lib/okio-3.0.0-alpha.6.jar
+code = dist/lib/selenium-api-4.1.1.jar
+code = dist/lib/selenium-firefox-driver-4.1.1.jar
+code = dist/lib/selenium-remote-driver-4.1.1.jar
+code = dist/lib/slf4j-api-1.7.30.jar
+code = dist/lib/slf4j-simple-1.7.30.jar
+code = dist/lib/snakeyaml-1.28.jar
+code = dist/lib/spring-aop-5.3.8.jar
+code = dist/lib/spring-beans-5.3.8.jar
+code = dist/lib/spring-boot-2.5.1.jar
+code = dist/lib/spring-boot-autoconfigure-2.5.1.jar
+code = dist/lib/spring-boot-devtools-2.5.1.module
+code = dist/lib/spring-boot-starter-2.5.1.jar
+code = dist/lib/spring-boot-starter-jdbc-2.5.1.module
+code = dist/lib/spring-boot-starter-logging-2.5.1.jar
+code = dist/lib/spring-context-5.3.8.jar
+code = dist/lib/spring-core-5.3.8.jar
+code = dist/lib/spring-expression-5.3.8.jar
+code = dist/lib/spring-jcl-5.3.8.jar
+code = dist/lib/spring-jdbc-5.3.8.jar
+code = dist/lib/spring-tx-5.3.8.jar
+code = dist/lib/td-ameritrade-client-2.4.1.jar
+code = dist/lib/TPCCM-1.0.jar
+code = dist/lib/validation-api-2.0.1.Final.jar
+code = dist/TPCcli-1.0.jar
+
+#executable files
+#xresource = script.sh
+
