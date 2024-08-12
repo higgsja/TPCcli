@@ -23,8 +23,8 @@ WHERE Br.BrokerId = Accts.BrokerId
     and InvBuy.SecId = SecInfo.SecId
     and Accts.JoomlaId = '816' 
     #and Accts.AcctId = '1'
-    and DtTrade > "20240601170000.000"
-	and DtTrade < "20240630170000.000"
-    and SecInfo.Ticker = "nvda"
+    and DtTrade > "20240101170000.000"
+	and DtTrade < "20240830170000.000"
+    and SecInfo.Ticker = "meta"
     
 order by SecInfo.EquityId, InvTran.DtTrade, InvTran.FiTId
