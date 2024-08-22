@@ -24,6 +24,11 @@
     
     <dependencies>
         <dependency>
+            <!--
+                Not in repository add manually
+                mvn install:install-file -Dfile=/home/white/OneDrive/Documents/Dev/TPCcli/lib/java-oauth-sdk.jar \
+                -DgroupId=com.etrade -DartifactId=java-oauth-sdk -Dversion=1.0 -Dpackaging=jar
+            -->
             <groupId>com.etrade</groupId>
             <artifactId>java-oauth-sdk</artifactId>
             <version>1.0</version>
