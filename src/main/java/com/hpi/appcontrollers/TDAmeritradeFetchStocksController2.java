@@ -1,0 +1,328 @@
+package com.hpi.appcontrollers;
+
+import com.hpi.entities.IEXChartModel;
+import com.hpi.hpiUtils.CMHPIUtils;
+import com.hpi.TPCCMcontrollers.*;
+import com.hpi.TPCCMprefs.*;
+import com.hpi.entities.EquityHistoryModel;
+import com.hpi.entities.EquityInfoModel;
+import com.hpi.entities.LastDailyStockModel;
+import com.studerw.tda.client.*;
+import com.studerw.tda.model.history.*;
+import java.math.*;
+import java.sql.*;
+import java.sql.Date;
+import java.text.*;
+import java.util.*;
+import javax.swing.JOptionPane;
+
+public class TDAmeritradeFetchStocksController2
+{
+
+    private static final ArrayList<String> EQUITY_INFOS;
+    private static HttpTdaClient httpTdaClient;
+
+    static
+    {
+        EQUITY_INFOS = new ArrayList<>();
+    }
+
+    public static void doHistorical()
+    {
+        String s;
+        Properties props;
+
+        getEquityInfoList();
+        //delete this
+//        TDAmeritradeFetchStocksController.doUtil_LastDailyStock();
+
+        if (EQUITY_INFOS.isEmpty())
+        {
+            s = String.format(CMLanguageController.
+                getEquity_info_SqlProp("No_Tkrs"));
+
+            CMHPIUtils.showDefaultMsg(
+                CMLanguageController.getErrorProps().
+                    getProperty("Title"),
+                Thread.currentThread().getStackTrace()[1].getClassName(),
+                Thread.currentThread().getStackTrace()[1].getMethodName(),
+                s,
+                JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        props = new Properties();
+        props.setProperty("tda.client_id", CMOfxDirectModel.getFIMODELS().
+            get(0).getClientId());
+        props.setProperty("tda.token.refresh", CMOfxDirectModel.getFIMODELS().
+            get(0).getTokenRefresh());
+        props.setProperty("tda.account.id", CMOfxDirectModel.getFIMODELS().
+            get(0).getAccountModels().get(0).getAcctNumber());
+//        props.setProperty("tda.url", CMOfxDirectModel.getFIMODELS().
+//            get(0).getHttpHost());
+        props.setProperty("tda.debug.bytes.length", CMOfxDirectModel.getFIMODELS().get(0).getDebugBytes());
+
+        TDAmeritradeFetchStocksController2.httpTdaClient = new HttpTdaClient(
+            props);
+
+        getHistoryFromList();
+
+        doUtil_LastDailyStock();
+    }
+
+    /**
+     * pull distinct list of tickers from the equityInfo table
+     */
+    private static void getEquityInfoList()
+    {
+        String s;
+
+        try ( Connection con = CMDBController.getConnection();
+             PreparedStatement pStmt = con.prepareStatement(EquityInfoModel.TICKER);
+             ResultSet rs = pStmt.executeQuery())
+        {
+
+            while (rs.next())
+            {
+                EQUITY_INFOS.add(rs.getString("Ticker"));
+            }
+        } catch (SQLException e)
+        {
+            s = String.format(CMLanguageController.
+                getErrorProps().getProperty("Formatted14"),
+                System.lineSeparator() + e.toString()
+                + System.lineSeparator());
+
+            CMHPIUtils.showDefaultMsg(
+                CMLanguageController.getErrorProps().
+                    getProperty("Title"),
+                Thread.currentThread().getStackTrace()[1].getClassName(),
+                Thread.currentThread().getStackTrace()[1].getMethodName(),
+                s,
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private static void progress(String outText)
+    {
+        if (CmdLineController.getsCLIProgressBar().equalsIgnoreCase("true"))
+        {
+            System.out.println(outText);
+        }
+    }
+
+    private static void getHistoryFromList()
+    {
+        Integer i;
+
+        i = 0;
+        for (String symbol : EQUITY_INFOS)
+        {
+            progress("\t\t=======\t" + symbol + "\t=======");
+
+//            if (doPrices(symbol)) {
+//                //too many requests exception
+//                try {
+//                    progress("\t\t===\t429 sleep: " + i);
+//                    Thread.sleep(1000 * 60 / 4);
+//                }
+//                catch (InterruptedException ex) {
+//                    int j = 0;
+//                }
+//
+//                doPrices(symbol);
+//            }
+            doPrices(symbol);
+
+            //throttling
+            i++;
+            if (i == 50)
+            {
+                try
+                {
+                    progress("\t\t===\tsleep: " + i);
+                    Thread.sleep(1000 * 60 / 4);
+                } catch (InterruptedException ex)
+                {
+                    int k = 0;
+                }
+
+                i = 0;
+            }
+        }
+    }
+
+    private static void doPrices(String symbol)
+    {
+        PriceHistory ph;
+        //tdAmeritrade style
+        symbol = symbol.replace("-", ".");
+
+        //do 2 years
+        PriceHistReq request = PriceHistReq.Builder.priceHistReq()
+            .withSymbol(symbol)
+            //            .withStartDate(System.currentTimeMillis() -
+            //                           (1000 * 60 * 60 * 24 * 365))
+            .withEndDate(null)
+            .withPeriod(2)
+            .withPeriodType(PeriodType.year) //default day
+            .withFrequency(1)
+            .withFrequencyType(FrequencyType.daily) //must be minute if PeriodType is null/day
+            .build();
+        //do 1 month
+//        PriceHistReq request = PriceHistReq.Builder.priceHistReq()
+//            .withSymbol(symbol)
+//            //            .withStartDate(System.currentTimeMillis() -
+//            //                           (1000 * 60 * 60 * 24 * 365))
+//            .withEndDate(null)
+//            .withPeriod(1)
+//            .withPeriodType(PeriodType.month) //default day
+//            .withFrequency(1)
+//            .withFrequencyType(FrequencyType.daily) //must be minute if PeriodType is null/day
+//            .build();
+
+//        try {
+        ph = TDAmeritradeFetchStocksController2.httpTdaClient.priceHistory(request);
+        if (ph.isEmpty())
+        {
+//                String s = String.format(CMLanguageController.
+//                    getErrorProp("OfxResponseEmpty"));
+//
+//                CMHPIUtils.showDefaultMsg(CMLanguageController.getAppProp("Title")
+//                                              + CMLanguageController.getErrorProp("Title"),
+//                    Thread.currentThread().getStackTrace()[1].getClassName(),
+//                    Thread.currentThread().getStackTrace()[1].
+//                        getMethodName(),
+//                    s,
+//                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        TDAmeritradeFetchStocksController2.doHistory(symbol, ph);
+        TDAmeritradeFetchStocksController2.doStockSQL();
+
+        //populate utility table
+//            TDAmeritradeFetchStocksController.doUtil_LastDailyStock();
+    }
+//        catch (RuntimeException e) {
+//            //exception if the ticker is invalid; do not care
+//            //exception 429: too many requests
+//
+//            return e.toString().contains("429");
+//        }
+
+//        return;
+//}
+
+private static void doHistory(String ticker, PriceHistory ph) {
+        Candle candle;
+        Iterator<Candle> iterator;
+        SimpleDateFormat sdf;
+        IEXChartModel iexModel;
+
+        IEXChartModel.IEXCHARTMODEL_LIST.clear();
+
+        sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        iterator = ph.getCandles().iterator();
+
+        while (iterator.hasNext()) {
+            candle = iterator.next();
+
+            iexModel = new IEXChartModel(
+                ticker,
+                sdf.format(new Date(candle.getDatetime())),
+                ticker,
+                candle.getClose().doubleValue(), candle.getOpen().doubleValue(),
+                candle.getHigh().doubleValue(), candle.getLow().doubleValue(),
+                new BigDecimal(candle.getVolume()));
+
+            IEXChartModel.IEXCHARTMODEL_LIST.add(iexModel);
+        }
+
+        progress(ticker);
+    }
+
+    private static void doStockSQL() {
+        String sqlString;
+
+        if (IEXChartModel.IEXCHARTMODEL_LIST.isEmpty()) {
+            return;
+        }
+
+        sqlString = EquityHistoryModel.UPDATE;
+
+        for (IEXChartModel oc : IEXChartModel.IEXCHARTMODEL_LIST) {
+            sqlString += "(";
+            sqlString += "'" + oc.getTkrIEX() + "', ";
+            sqlString += "'" + oc.getDate() + "', ";
+            sqlString += "'" + oc.getTkr() + "', ";
+            sqlString += "'" + oc.getuOpen().toString() + "', ";
+            sqlString += "'" + oc.getuHigh().toString() + "', ";
+            sqlString += "'" + oc.getuLow().toString() + "', ";
+            sqlString += "'" + oc.getuClose().toString() + "', ";
+            sqlString += "'" + oc.getuVolume().toString() + "' ";
+            sqlString += "),";
+        }
+
+        sqlString = sqlString.substring(0, sqlString.lastIndexOf(",") - 1);
+        sqlString += ");";
+
+        CMDBController.executeSQL(sqlString);
+        progress("\t\t===\tSQL: " + IEXChartModel.IEXCHARTMODEL_LIST.get(0).getTkrIEX());
+    }
+
+    private static void doUtil_LastDailyStock() {
+        //this timed out on a simpler insert query so dropped back to this
+        String sql;
+        Integer rowCount;
+        LastDailyStockModel lastDailyStockModel;
+        ArrayList<LastDailyStockModel> lastDailyStockModels;
+        PreparedStatement pStmt;
+        ResultSet rs;
+
+        lastDailyStockModels = new ArrayList<>();
+
+        CMDBController.executeSQL(LastDailyStockModel.TRUNCATE);
+
+        try (Connection con = CMDBController.getConnection();) {
+            for (String symbol : EQUITY_INFOS) {
+                pStmt = con.prepareStatement(String.format(EquityHistoryModel.SQL_GET_LAST, symbol));
+                rs = pStmt.executeQuery();
+
+                while (rs.next()) {
+                    lastDailyStockModels.add(new LastDailyStockModel(
+                        rs.getString("Ticker"),
+                        rs.getDate("Date"),
+                        rs.getDouble("Open"),
+                        rs.getDouble("High"),
+                        rs.getDouble("Low"),
+                        rs.getDouble("Close"),
+                        rs.getDouble("Volume")));
+                }
+            }
+        }
+        catch (SQLException ex) {
+            int i = 0;
+        }
+
+        try (Connection con = CMDBController.getConnection();) {
+            for (LastDailyStockModel lds : lastDailyStockModels) {
+
+                pStmt = con.prepareStatement(String.format(LastDailyStockModel.UPDATE,
+                    lds.getEquityId(),
+                    lds.getDataDate(),
+                    lds.getOpen(),
+                    lds.getHigh(),
+                    lds.getLow(),
+                    lds.getClose(),
+                    lds.getVolume()));
+
+                rowCount = pStmt.executeUpdate();
+            }
+        }
+        catch (SQLException ex) {
+            int i = 0;
+        }
+    }
+}

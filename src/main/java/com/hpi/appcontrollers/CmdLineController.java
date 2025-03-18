@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Properties;
 import javax.swing.JOptionPane;
 import lombok.*;
+import org.apache.log4j.*;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
@@ -20,6 +21,7 @@ import org.kohsuke.args4j.Option;
 public class CmdLineController
     extends OfxAggregateBase
 {
+    private static final Logger logger = Logger.getLogger(CmdLineController.class.getName());
 
     String[] args;
 
@@ -158,6 +160,7 @@ public class CmdLineController
     public void doCommandLine(String[] args)
     {
 //        CMDBModel.getInstance().getJoomlaId();
+        logger.info("Command line arguments");
 
         if (args.length == 0)
         {
