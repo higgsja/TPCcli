@@ -303,7 +303,8 @@ public class StockQuotesEtradeController
         //set Price to average of bid and ask
         sql
 //            = "insert ignore into hlhtxc5_dmOfx.Util_LastDailyStock (EquityId, `Date`, Open, High, Low, Close, Volume) select Ticker, `Date`, `Open`, High, Low, `Close`, Volume from hlhtxc5_dmOfx.EquityHistory eh where eh.`Date` = ((select max(eh2.`Date`) from hlhtxc5_dmOfx.EquityHistory eh2 where eh.Ticker = eh2.Ticker)) order by Ticker, `Date`;";
-        = "insert ignore into hlhtxc5_dmOfx.Util_LastDailyStock (EquityId, `Date`, Open, High, Low, Close, Volume) select Ticker, `Date`, `Open`, High, Low, `Close`, Volume from hlhtxc5_dmOfx.EquityHistory as eh where eh.`Date` = ((select max(eh2.`Date`) from hlhtxc5_dmOfx.EquityHistory eh2 where eh.Ticker = eh2.Ticker)) order by Ticker, `Date`;";
+//        = "insert ignore into hlhtxc5_dmOfx.Util_LastDailyStock (EquityId, `Date`, Open, High, Low, Close, Volume) select Ticker, `Date`, `Open`, High, Low, `Close`, Volume from hlhtxc5_dmOfx.EquityHistory as eh where eh.`Date` = ((select max(eh2.`Date`) from hlhtxc5_dmOfx.EquityHistory eh2 where eh.Ticker = eh2.Ticker)) order by Ticker, `Date`;";
+        = "INSERT IGNORE INTO hlhtxc5_dmOfx.Util_LastDailyStock (EquityId, `Date`, Open, High, Low, Close, Volume) SELECT eh.Ticker, eh.`Date`, eh.`Open`, eh.High, eh.Low, eh.`Close`, eh.Volume FROM hlhtxc5_dmOfx.EquityHistory eh JOIN (SELECT Ticker, MAX(`Date`) AS MaxDate FROM hlhtxc5_dmOfx.EquityHistory GROUP BY Ticker) latest ON eh.Ticker = latest.Ticker AND eh.`Date` = latest.MaxDate ORDER BY eh.Ticker, eh.`Date`;";
 
         CMDBController.executeSQL(sql);
 

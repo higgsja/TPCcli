@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.hpi</groupId>
     <artifactId>TPCcli</artifactId>
@@ -15,122 +18,164 @@
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
         <exec.mainClass>com.hpi.appTPCcli.TPCcliEx</exec.mainClass>
-        <java.version>11</java.version>
         <skipTests>true</skipTests>
+        <maven.compiler.release>11</maven.compiler.release>
+        <log4j.version>2.25.1</log4j.version>
     </properties>
     
     <dependencies>
-        <dependency>
-            <!--
-                Not in repository add manually
-                mvn install:install-file -Dfile=/home/white/OneDrive/Documents/Dev/TPCcli/lib/java-oauth-sdk.jar \
-                -DgroupId=com.etrade -DartifactId=java-oauth-sdk -Dversion=1.0 -Dpackaging=jar
-            -->
-            <groupId>com.etrade</groupId>
-            <artifactId>java-oauth-sdk</artifactId>
-            <version>1.0</version>
-        </dependency>
+        <!-- Lombok for code generation -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>1.18.38</version>
+            <scope>provided</scope>
         </dependency>
-        <!--<dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.7.36</version>
-        </dependency>-->
+        
+        <!-- Custom HPI dependency -->
         <dependency>
             <groupId>com.hpi</groupId>
             <artifactId>TPCCM</artifactId>
             <version>1.0</version>
             <type>jar</type>
         </dependency>
-        <!--<dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-            <type>jar</type>
-        </dependency>-->
+        
+        <!-- JSON processing -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <type>jar</type>
         </dependency>
+        
+        <!-- Command line argument parsing -->
         <dependency>
             <groupId>args4j</groupId>
             <artifactId>args4j</artifactId>
-            <version>2.33</version>
-            <type>jar</type>
+            <version>2.37</version>
         </dependency>
+        
+        <!-- Database -->
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
-            <version>3.3.3</version>
         </dependency>
 
-        <!--<dependency>
+        <!-- Log4j 2.x Dependencies Only -->
+        <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <type>jar</type>
+            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
         </dependency>
+        <!-- Optional: SLF4J binding for other libraries that use SLF4J -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-        </dependency><-->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.23.1</version>
+            <version>${log4j.version}</version>
         </dependency>
         
-        <!--<dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-1.2-api</artifactId>
-        </dependency>
+        <!-- Spring Boot -->
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-        </dependency>-->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.23.1</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <!-- Exclude Spring Boot's default logging to use Log4j2 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-test</artifactId>
             <scope>test</scope>
-            <type>jar</type>
         </dependency>
+        
+        <!-- XML processing -->
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-xml</artifactId>
         </dependency>
+        
+        <!-- TD Ameritrade client -->
         <dependency>
             <groupId>com.breakingequity</groupId>
             <artifactId>td-ameritrade-client</artifactId>
             <version>2.4.3.1</version>
-            <type>jar</type>
         </dependency>
     </dependencies>
+    
     <build>
         <finalName>TPCcli</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.0</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.38</version>
+                        </path>
+                        <path>
+                            <groupId>org.springframework.boot</groupId>
+                            <artifactId>spring-boot-configuration-processor</artifactId>
+                            <version>2.7.17</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <release>11</release>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-rules</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <dependencyConvergence/>
+                                <requireMavenVersion>
+                                    <version>3.6.3</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

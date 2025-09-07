@@ -12,16 +12,21 @@ import java.util.Arrays;
 import java.util.Properties;
 import javax.swing.JOptionPane;
 import lombok.*;
-import org.apache.log4j.*;
+
+// LOG4J 2.x IMPORTS
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
-@Getter @Setter
-public class CmdLineController
-    extends OfxAggregateBase
-{
-    private static final Logger logger = Logger.getLogger(CmdLineController.class.getName());
+@Getter
+@Setter
+public class CmdLineController extends OfxAggregateBase {
+
+    // LOG4J 2.x LOGGER - Modern approach
+    private static final Logger logger = LogManager.getLogger(CmdLineController.class);
 
     String[] args;
 
@@ -38,7 +43,7 @@ public class CmdLineController
     @Option(name = "--dataMart", usage = "Rebuilds the data mart")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bAll = false;
-    
+
     @Option(name = "--dataMartNoUpdate", usage = "Rebuilds the data mart without updating from brokers")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bAllNoUpdate = false;
@@ -54,16 +59,6 @@ public class CmdLineController
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bEquityInfo = false;
 
-//    @Option(name = "--equityHistoryIEX", usage = "Retrieve history from last date")
-//    @SuppressWarnings("FieldMayBeFinal")
-//    static Boolean bequityHistoryIEX = false;
-
-//    @Option(name = "--equityHistoryIEXMin", usage
-//        = "Retrieve history from last "
-//        + "date on select tickers")
-//    @SuppressWarnings("FieldMayBeFinal")
-//    static Boolean bequityHistoryIEXMin = false;
-
     @Option(name = "--file", usage = "Fully specified file name")
     static String sFilename;
 
@@ -71,43 +66,35 @@ public class CmdLineController
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bMpt = false;
 
-    @Option(name = "--ofxInstitutions", usage
-        = "update ofxInstitutions table from OFXHome")
+    @Option(name = "--ofxInstitutions", usage = "update ofxInstitutions table from OFXHome")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bOfxInstitutions = false;
 
-    @Option(name = "--processOfxFiles", usage
-        = "process files in the directory, use --file")
+    @Option(name = "--processOfxFiles", usage = "process files in the directory, use --file")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bOfxFiles = false;
 
-    @Option(name = "--etradeStockQuote", usage
-        = "Download stock price data from etrade")
+    @Option(name = "--etradeStockQuote", usage = "Download stock price data from etrade")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bEtradeStockQuote = false;
-    
-    @Option(name = "--etradeOptionQuote", usage
-        = "Download stock price data from etrade")
+
+    @Option(name = "--etradeOptionQuote", usage = "Download stock price data from etrade")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bEtradeOptionQuote = false;
 
-    @Option(name = "--clearDmOfxUserId", usage
-        = "--clearDmOfxUserId [--userId [userId]]: Clears account dmOfx data for restart; dbOfx data not touched")
+    @Option(name = "--clearDmOfxUserId", usage = "--clearDmOfxUserId [--userId [userId]]: Clears account dmOfx data for restart; dbOfx data not touched")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bClearDmOfxAcct = false;
 
-    public static void setBClearDmOfxAcct(Boolean clear)
-    {
+    public static void setBClearDmOfxAcct(Boolean clear) {
         bClearDmOfxAcct = clear;
     }
 
-    @Option(name = "--clearPositions", usage
-        = "Clears all position data for all users for refresh; dbOfx data not touched")
+    @Option(name = "--clearPositions", usage = "Clears all position data for all users for refresh; dbOfx data not touched")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bClearPositions = false;
 
-    @Option(name = "--clearDbOfxUserId [--userId [userId]]", usage = "Clears account dbOfx data for restart; "
-        + "dmOfx data not touched: best to use --clearDmOfxUserId then --clearDbOfxUserId")
+    @Option(name = "--clearDbOfxUserId [--userId [userId]]", usage = "Clears account dbOfx data for restart; dmOfx data not touched: best to use --clearDmOfxUserId then --clearDbOfxUserId")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bClearDbOfxAcct = false;
 
@@ -117,18 +104,15 @@ public class CmdLineController
     @Option(name = "--acctId", usage = "Numerical Account Id")
     static Integer acctId;
 
-    @Option(name = "--buildDemo [--userId [userId]]", usage
-        = "Builds demo user with given [userId]")
+    @Option(name = "--buildDemo [--userId [userId]]", usage = "Builds demo user with given [userId]")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bBuildDemoAcct = false;
 
-    @Option(name = "--ignoreFiTId", usage
-        = "Marks the given FiTId as 'ignore' in all dbOfx tables")
+    @Option(name = "--ignoreFiTId", usage = "Marks the given FiTId as 'ignore' in all dbOfx tables")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bIgnoreFiTId = false;
 
-    @Option(name = "--resetSkip", usage
-        = "Marks the given FiTId Skip field to false in all dbOfx tables")
+    @Option(name = "--resetSkip", usage = "Marks the given FiTId Skip field to false in all dbOfx tables")
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bResetSkip = false;
 
@@ -138,354 +122,279 @@ public class CmdLineController
     //*** Singleton
     private static CmdLineController instance;
 
-    protected CmdLineController()
-    {
+    protected CmdLineController() {
         // protected prevents instantiation outside of package
         CmdLineController.sCLIProgressBar = "true";
-//        this.sectorId = null;
     }
 
-    public synchronized static CmdLineController getInstance()
-    {
-        if (CmdLineController.instance == null)
-        {
+    public static synchronized CmdLineController getInstance() {
+        if (CmdLineController.instance == null) {
             CmdLineController.instance = new CmdLineController();
         }
         return CmdLineController.instance;
     }
-    //***
 
-//    @Autowired private ClosedPositionsOptionController2 closedPositionsOptionController;
     @SuppressWarnings("DM_EXIT")
-    public void doCommandLine(String[] args)
-    {
-//        CMDBModel.getInstance().getJoomlaId();
-        logger.info("Command line arguments");
+    public void doCommandLine(String[] args) {
+        logger.info("Command line arguments processing started");
 
-        if (args.length == 0)
-        {
+        if (args.length == 0) {
             CmdLineController.bhelp = true;
         }
-        if (!this.doParseCmdLine(args))
-        {
+        if (!this.doParseCmdLine(args)) {
             return;
         }
 
-        if (CmdLineController.bhelp)
-        {
-            System.out.print(String.format(CMLanguageController.
-                getAppProp("Help"),
-                CMGlobalsModel.getCURRENT_BUILD_VERSION()
-                + "."
-                + CMGlobalsModel.getCURRENT_BUILD()
-                + System.getProperty("line.separator")));
-
+        if (CmdLineController.bhelp) {
+            System.out.print(String.format(CMLanguageController.getAppProp("Help"),
+                    CMGlobalsModel.getCURRENT_BUILD_VERSION()
+                    + "."
+                    + CMGlobalsModel.getCURRENT_BUILD()
+                    + System.getProperty("line.separator")));
             System.exit(0);
         }
-        
+
         CMDBController.initDBConnection();
-        
         CMDBModel.getInstance().getJoomlaId();
 
-        if (CmdLineController.bClearDmOfxAcct)
-        {
-            //use command line userId
+        if (CmdLineController.bClearDmOfxAcct) {
+            logger.info("Clearing DmOfx account data for userId: {}", CmdLineController.userId);
             DbOfxController.getInstance().doClearDmOfxUserId(CmdLineController.userId);
-//            return;
         }
 
-        if (CmdLineController.bClearPositions)
-        {
+        if (CmdLineController.bClearPositions) {
+            logger.info("Clearing all positions data");
             DbOfxController.getInstance().doClearPositions();
-//            return;
         }
 
-        if (CmdLineController.bClearDbOfxAcct)
-        {
-            //use command line userId
+        if (CmdLineController.bClearDbOfxAcct) {
+            logger.info("Clearing DbOfx account data for userId: {}", CmdLineController.userId);
             DbOfxController.getInstance().doClearDbOfxUserId(CmdLineController.userId);
             return;
         }
 
-        if (CmdLineController.bIgnoreFiTId)
-        {
+        if (CmdLineController.bIgnoreFiTId) {
+            logger.info("Marking FiTId {} as ignore for account {}", CmdLineController.fiTId, CmdLineController.acctId);
             DbOfxController.getInstance().doIgnoreFiTId(CmdLineController.fiTId, CmdLineController.acctId, 1);
             return;
         }
 
-        if (CmdLineController.bResetSkip)
-        {
-            DbOfxController.getInstance().
-                doIgnoreFiTId(CmdLineController.fiTId,
-                    CmdLineController.acctId, 0);
+        if (CmdLineController.bResetSkip) {
+            logger.info("Resetting skip flag for FiTId {} in account {}", CmdLineController.fiTId, CmdLineController.acctId);
+            DbOfxController.getInstance().doIgnoreFiTId(CmdLineController.fiTId, CmdLineController.acctId, 0);
             return;
         }
 
-        if (CmdLineController.bBuildDemoAcct)
-        {
-            //use command line userId
+        if (CmdLineController.bBuildDemoAcct) {
+            logger.info("Building demo account for userId: {}", CmdLineController.userId);
             DbOfxController.getInstance().doBuildDemoAcct(CmdLineController.userId);
             return;
         }
 
-        if (CmdLineController.bEquityInfo)
-        {
+        if (CmdLineController.bEquityInfo) {
+            logger.info("Starting equity info update");
             FinVizController4.doEquityInfo();
-
             return;
         }
 
-        if (CmdLineController.bEtradeStockQuote) 
-        {
+        if (CmdLineController.bEtradeStockQuote) {
+            logger.info("Starting E*Trade stock quote download");
             StockQuotesEtradeController x = new StockQuotesEtradeController();
             x.doAllStocksOneDay();
-//            StockQuotesEtradeController.doAllStocksOneDay();
-        }
-        
-        if (CmdLineController.bEtradeOptionQuote) 
-        {
-            OptionQuotesEtradeController x = new OptionQuotesEtradeController();
-            x.doAllOptionsOneDay();
-//            OptionQuotesEtradeController.doAllOptionsOneDay();
         }
 
-        if (CmdLineController.bOfxInstitutions)
-        {
+        if (CmdLineController.bEtradeOptionQuote) {
+            logger.info("Starting E*Trade option quote download");
+            OptionQuotesEtradeController x = new OptionQuotesEtradeController();
+            x.doAllOptionsOneDay();
+        }
+
+        if (CmdLineController.bOfxInstitutions) {
+            logger.info("Starting OFX institutions update");
             OFXHomeController.getInstance().doOfxData();
         }
 
-        if (CmdLineController.bOfxFiles)
-        {
-            // files
+        if (CmdLineController.bOfxFiles) {
+            logger.info("Processing OFX files");
             OfxFileController.getInstance().processOfxFiles2SQLSetup();
         }
 
-        if (CmdLineController.bAll)
-        {
-            String sql;
-
-            try
-            {
+        if (CmdLineController.bAll) {
+            logger.info("Starting full data mart rebuild process");
+            try {
                 this.updateAppTracking("TPCCL|dataMart");
-            } catch (SQLException ex)
-            {
-                ////Logger.getLogger(this.getClass().getName(), null);
+            } catch (SQLException ex) {
+                logger.error("Failed to update app tracking for dataMart operation", ex);
             }
 
-//            CmdLineController.userId = CMDBModel.getUserId();
-            if (userId != null)
-            {
+            if (userId != null) {
                 CMDBModel.setUserId(userId);
-//                DbOfxController.getInstance().doClearDmOfxUserId(CmdLineController.userId);
+                logger.debug("Set user ID to: {}", userId);
             }
 
-            if (CMDBModel.getUserId() == null)
-            {
-                // there are arguments but they do not match what we can handle
+            if (CMDBModel.getUserId() == null) {
+                logger.error("User authentication failed - no valid user ID");
                 CMHPIUtils.showDefaultMsg(
-                    CMLanguageController.getDBErrorProp("Title"),
-                    Thread.currentThread().getStackTrace()[1].getClassName(),
-                    Thread.currentThread().getStackTrace()[2].getMethodName(),
-                    CMLanguageController.getDBErrorProp("LoginFailed"),
-                    JOptionPane.ERROR_MESSAGE);
+                        CMLanguageController.getDBErrorProp("Title"),
+                        Thread.currentThread().getStackTrace()[1].getClassName(),
+                        Thread.currentThread().getStackTrace()[2].getMethodName(),
+                        CMLanguageController.getDBErrorProp("LoginFailed"),
+                        JOptionPane.ERROR_MESSAGE);
                 System.exit(1);
             }
 
-            // Clear transient tables
+            logger.info("Clearing transient tables");
             DbOfxController.getInstance().cleanDbOfx();
             DataMartController.getInstance().cleanDataMart();
 
-            // process ofx data from financial institutes
-            // direct
+            logger.info("Processing OFX data from financial institutes");
             OfxDirectDLController.getInstance().doDirectOfx();
-            // files
             OfxFileController.getInstance().processOfxFiles2SQLSetup();
 
-            //process dbOfx data to dataMart
+            logger.info("Processing dbOfx data to dataMart");
             DataMartController.getInstance().processOfxDBtoDataMart();
-
-            //process dmOfx stock to DataMart
             DataMartController.getInstance().processFIFOStockLotsAccounts();
-
-            //process dmOfx options to dataMart
             DataMartController.getInstance().processFIFOOptionLotsAccounts();
-
-            //main dataMart processing: ok to here
             DataMartController.getInstance().processDataMart();
 
+            logger.info("Starting positions processing");
             System.out.println("      start positions\n");
-
             OpenPositionsStockController.getInstance().doPositions();
             ClosedPositionsStockController.getInstance().doPositions();
-
             OpenPositionsOptionController.getInstance().doOpenPositions();
             ClosedPositionsOptionController.getInstance().doClosedPositions();
-
             System.out.println("      finish positions\n");
-
             System.out.println("        --- FINISHED ---\n");
+            logger.info("Full data mart rebuild completed successfully");
         }
-        
-        if (CmdLineController.bAllNoUpdate)
-        {
-            String sql;
 
-            try
-            {
+        if (CmdLineController.bAllNoUpdate) {
+            logger.info("Starting data mart rebuild without broker updates");
+            try {
                 this.updateAppTracking("TPCCL|dataMartNoBrokerUpdate");
-            } catch (SQLException ex)
-            {
-                ////Logger.getLogger(this.getClass().getName(), null);
+            } catch (SQLException ex) {
+                logger.error("Failed to update app tracking for dataMartNoBrokerUpdate operation", ex);
             }
 
-//            CmdLineController.userId = CMDBModel.getUserId();
-            if (userId != null)
-            {
+            if (userId != null) {
                 CMDBModel.setUserId(userId);
-//                DbOfxController.getInstance().doClearDmOfxUserId(CmdLineController.userId);
+                logger.debug("Set user ID to: {}", userId);
             }
 
-            if (CMDBModel.getUserId() == null)
-            {
-                // there are arguments but they do not match what we can handle
+            if (CMDBModel.getUserId() == null) {
+                logger.error("User authentication failed - no valid user ID");
                 CMHPIUtils.showDefaultMsg(
-                    CMLanguageController.getDBErrorProp("Title"),
-                    Thread.currentThread().getStackTrace()[1].getClassName(),
-                    Thread.currentThread().getStackTrace()[2].getMethodName(),
-                    CMLanguageController.getDBErrorProp("LoginFailed"),
-                    JOptionPane.ERROR_MESSAGE);
+                        CMLanguageController.getDBErrorProp("Title"),
+                        Thread.currentThread().getStackTrace()[1].getClassName(),
+                        Thread.currentThread().getStackTrace()[2].getMethodName(),
+                        CMLanguageController.getDBErrorProp("LoginFailed"),
+                        JOptionPane.ERROR_MESSAGE);
                 System.exit(1);
             }
 
-            // Clear transient tables
+            logger.info("Clearing transient tables");
             DbOfxController.getInstance().cleanDbOfx();
             DataMartController.getInstance().cleanDataMart();
 
-            //process dbOfx data to dataMart
+            logger.info("Processing existing data to dataMart");
             DataMartController.getInstance().processOfxDBtoDataMart();
-
-            //process dmOfx stock to DataMart
             DataMartController.getInstance().processFIFOStockLotsAccounts();
-
-            //process dmOfx options to dataMart
             DataMartController.getInstance().processFIFOOptionLotsAccounts();
-
-            //main dataMart processing: ok to here
             DataMartController.getInstance().processDataMart();
 
+            logger.info("Starting positions processing");
             System.out.println("      start positions\n");
-
             OpenPositionsStockController.getInstance().doPositions();
             ClosedPositionsStockController.getInstance().doPositions();
-
             OpenPositionsOptionController.getInstance().doOpenPositions();
             ClosedPositionsOptionController.getInstance().doClosedPositions();
-
             System.out.println("      finish positions\n");
-
             System.out.println("        --- FINISHED ---\n");
+            logger.info("Data mart rebuild (no update) completed successfully");
         }
 
-        if (CmdLineController.bPositions)
-        {
-
+        if (CmdLineController.bPositions) {
+            logger.info("Starting positions-only processing");
             System.out.println("        --- STARTING ---\n");
-            try
-            {
+            try {
                 this.updateAppTracking("TPCCL|positions");
-            } catch (SQLException ex)
-            {
-                ////Logger.getLogger(this.getClass().getName(), null);
+            } catch (SQLException ex) {
+                logger.error("Failed to update app tracking for positions operation", ex);
             }
 
-//            userId = CMDBModel.getUserId();
-            if (CMDBModel.getUserId() == null)
-            {
-                // there are arguments but they do not match what we can handle
+            if (CMDBModel.getUserId() == null) {
+                logger.error("User authentication failed - no valid user ID for positions processing");
                 CMHPIUtils.showDefaultMsg(
-                    CMLanguageController.getDBErrorProp("Title"),
-                    Thread.currentThread().getStackTrace()[1].getClassName(),
-                    Thread.currentThread().getStackTrace()[2].getMethodName(),
-                    CMLanguageController.getDBErrorProp("LoginFailed"),
-                    JOptionPane.ERROR_MESSAGE);
+                        CMLanguageController.getDBErrorProp("Title"),
+                        Thread.currentThread().getStackTrace()[1].getClassName(),
+                        Thread.currentThread().getStackTrace()[2].getMethodName(),
+                        CMLanguageController.getDBErrorProp("LoginFailed"),
+                        JOptionPane.ERROR_MESSAGE);
                 System.exit(1);
             }
 
-//            OpenPositionsStockController.getInstance().doPositions();
-//            ClosedPositionsStockController.getInstance().doPositions();
-
             OpenPositionsOptionController.getInstance().doOpenPositions();
             ClosedPositionsOptionController.getInstance().doClosedPositions();
-
             System.out.println("        --- FINISHED ---\n");
+            logger.info("Positions processing completed successfully");
         }
     }
 
-    public Boolean doParseCmdLine(String[] aArgs)
-    {
+    public Boolean doParseCmdLine(String[] aArgs) {
         Properties errorProps;
-        CmdLineParser parser;
-        parser = new CmdLineParser(this);
-
+        CmdLineParser parser = new CmdLineParser(this);
         args = aArgs.clone();
-
         errorProps = CMLanguageController.getErrorProps();
 
-        try
-        {
+        try {
             parser.parseArgument(args);
-        } catch (CmdLineException e)
-        {
-            String s;
-
-            s = String.format(errorProps.getProperty("Formatted1"),
-                Arrays.toString(args));
-
-            // there are arguments but they do not match what we can handle
+            logger.debug("Command line arguments parsed successfully: {}", Arrays.toString(args));
+        } catch (CmdLineException e) {
+            String s = String.format(errorProps.getProperty("Formatted1"), Arrays.toString(args));
+            logger.error("Failed to parse command line arguments: {}", Arrays.toString(args), e);
+            
             CMHPIUtils.showDefaultMsg(
-                errorProps.getProperty("Title"),
-                Thread.currentThread().getStackTrace()[1].getClassName(),
-                Thread.currentThread().getStackTrace()[2].getMethodName(),
-                s,
-                JOptionPane.ERROR_MESSAGE);
+                    errorProps.getProperty("Title"),
+                    Thread.currentThread().getStackTrace()[1].getClassName(),
+                    Thread.currentThread().getStackTrace()[2].getMethodName(),
+                    s,
+                    JOptionPane.ERROR_MESSAGE);
             return false;
         }
         return true;
     }
 
-    public void updateAppTracking(String sAction)
-        throws SQLException
-    {
-        String sql;
-
-        if (CMDBModel.getUserId() == null
-            || CMDBModel.getUserId() == 816)
-        {
+    public void updateAppTracking(String sAction) throws SQLException {
+        if (CMDBModel.getUserId() == null || CMDBModel.getUserId() == 816) {
+            logger.debug("Skipping app tracking for userId: {}", CMDBModel.getUserId());
             return;
         }
 
-        sql
-            = "insert into hlhtxc5_dmOfx.AppTracking (JoomlaId, Action) values ('"
-            + CMDBModel.getUserId() + "', '" + sAction + "');";
+        String sql = "INSERT INTO hlhtxc5_dmOfx.AppTracking (JoomlaId, Action) VALUES (?, ?)";
+        logger.debug("Updating app tracking - User: {}, Action: {}", CMDBModel.getUserId(), sAction);
 
         try (Connection con = CMDBController.getConnection();
-            PreparedStatement pStmt = con.prepareStatement(sql))
-        {
+             PreparedStatement pStmt = con.prepareStatement(sql)) {
+            
+            pStmt.setInt(1, CMDBModel.getUserId());
+            pStmt.setString(2, sAction);
             pStmt.executeUpdate();
-            pStmt.close();
-            con.close();
-        } catch (SQLException ex)
-        {
-            throw new CMDAOException(CMLanguageController.
-                getDBErrorProp("Title"),
-                Thread.currentThread().getStackTrace()[1].getClassName(),
-                Thread.currentThread().getStackTrace()[1].getMethodName(),
-                ex.getMessage(), JOptionPane.INFORMATION_MESSAGE);
+            
+            logger.debug("App tracking updated successfully");
+            
+        } catch (SQLException ex) {
+            logger.error("Database error in updateAppTracking - User: {}, Action: {}", 
+                        CMDBModel.getUserId(), sAction, ex);
+            throw new CMDAOException(
+                    CMLanguageController.getDBErrorProp("Title"),
+                    Thread.currentThread().getStackTrace()[1].getClassName(),
+                    Thread.currentThread().getStackTrace()[1].getMethodName(),
+                    ex.getMessage(), 
+                    JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
-    public static synchronized String getsCLIProgressBar()
-    {
+    public static synchronized String getsCLIProgressBar() {
         return CmdLineController.sCLIProgressBar;
     }
 }
