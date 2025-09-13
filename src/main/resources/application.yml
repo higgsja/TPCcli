@@ -1,0 +1,34 @@
+# Test Harness Configuration - Only credentials
+schwab:
+  api:
+    appKey: "y5eXVg33MBOWWyAOkDTuNRFr35Ml1Y5p"
+    appSecret: "hy9B5A0tf7KcYE1A"
+    tokenPropertiesFile: "schwab-api.json"
+    refreshTokenFile: "schwab-refresh-token.txt"
+    urls:
+      auth: "https://api.schwabapi.com/v1/oauth/authorize"
+      token: "https://api.schwabapi.com/v1/oauth/token"
+      traderBase: "https://api.schwabapi.com/trader/v1"
+      marketData: "https://api.schwabapi.com/marketdata/v1"
+    defaults:
+      redirectUri: "https://127.0.0.1:8182"
+      httpTimeoutMs: 30000
+      scope: "readonly"
+
+spring:
+  application:
+    name: "schwab-test-harness"
+  main:
+    banner-mode: "off"
+    log-startup-info: false
+
+logging:
+  level:
+    com.higgstx.schwab: DEBUG
+    okhttp3: INFO
+    org.springframework: WARN
+  pattern:    
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/tpccli.log

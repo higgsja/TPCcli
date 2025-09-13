@@ -13,9 +13,8 @@ import java.util.Properties;
 import javax.swing.JOptionPane;
 import lombok.*;
 
-// LOG4J 2.x IMPORTS
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -25,8 +24,7 @@ import org.kohsuke.args4j.Option;
 @Setter
 public class CmdLineController extends OfxAggregateBase {
 
-    // LOG4J 2.x LOGGER - Modern approach
-    private static final Logger logger = LogManager.getLogger(CmdLineController.class);
+    private static final Logger logger = LoggerFactory.getLogger(CmdLineController.class);
 
     String[] args;
 
@@ -74,9 +72,9 @@ public class CmdLineController extends OfxAggregateBase {
     @SuppressWarnings("FieldMayBeFinal")
     static Boolean bOfxFiles = false;
 
-    @Option(name = "--etradeStockQuote", usage = "Download stock price data from etrade")
+    @Option(name = "--schwabStockQuote", usage = "Download stock price data from schwab")
     @SuppressWarnings("FieldMayBeFinal")
-    static Boolean bEtradeStockQuote = false;
+    static Boolean bschwabStockQuote = false;
 
     @Option(name = "--etradeOptionQuote", usage = "Download stock price data from etrade")
     @SuppressWarnings("FieldMayBeFinal")
@@ -197,17 +195,16 @@ public class CmdLineController extends OfxAggregateBase {
             return;
         }
 
-        if (CmdLineController.bEtradeStockQuote) {
+        if (CmdLineController.bschwabStockQuote) {
             logger.info("Starting E*Trade stock quote download");
-            StockQuotesEtradeController x = new StockQuotesEtradeController();
-            x.doAllStocksOneDay();
+            StockQuotesSchwabController.getInstance().doAllStocksOneDay();
         }
 
-        if (CmdLineController.bEtradeOptionQuote) {
-            logger.info("Starting E*Trade option quote download");
-            OptionQuotesEtradeController x = new OptionQuotesEtradeController();
-            x.doAllOptionsOneDay();
-        }
+//        if (CmdLineController.bEtradeOptionQuote) {
+//            logger.info("Starting E*Trade option quote download");
+//            OptionQuotesEtradeController x = new OptionQuotesEtradeController();
+//            x.doAllOptionsOneDay();
+//        }
 
         if (CmdLineController.bOfxInstitutions) {
             logger.info("Starting OFX institutions update");

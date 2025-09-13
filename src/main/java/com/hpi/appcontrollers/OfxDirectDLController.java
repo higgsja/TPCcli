@@ -22,15 +22,12 @@ import javax.swing.JOptionPane;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-// LOG4J 2.x IMPORTS
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class OfxDirectDLController {
 
-    // LOG4J 2.x LOGGER
-    private static final Logger logger = LogManager.getLogger(OfxDirectDLController.class);
-    
+    private static final Logger logger = LoggerFactory.getLogger(CmdLineController.class);
+
     private Document doc;
     private static final CMProgressBarCLI PROGRESS_BAR_CLI;
     
