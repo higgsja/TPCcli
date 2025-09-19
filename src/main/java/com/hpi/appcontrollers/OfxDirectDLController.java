@@ -22,128 +22,166 @@ import javax.swing.JOptionPane;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-public class OfxDirectDLController
-//      extends DBCore
-{
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+public class OfxDirectDLController {
+
+    private static final Logger logger = LoggerFactory.getLogger(CmdLineController.class);
 
     private Document doc;
     private static final CMProgressBarCLI PROGRESS_BAR_CLI;
+    
     /*
      * Singleton
-     *
      */
     private static OfxDirectDLController instance;
 
-    static
-    {
+    static {
         OfxDirectDLController.instance = null;
-        PROGRESS_BAR_CLI = new CMProgressBarCLI(CmdLineController.
-            getsCLIProgressBar());
+        PROGRESS_BAR_CLI = new CMProgressBarCLI(CmdLineController.getsCLIProgressBar());
     }
 
-    protected OfxDirectDLController()
-    {
+    protected OfxDirectDLController() {
         // protected prevents instantiation outside of package
+        logger.debug("OfxDirectDLController instance created");
     }
 
-    public synchronized static OfxDirectDLController getInstance()
-    {
-        if (OfxDirectDLController.instance == null)
-        {
+    public static synchronized OfxDirectDLController getInstance() {
+        if (OfxDirectDLController.instance == null) {
             OfxDirectDLController.instance = new OfxDirectDLController();
+            logger.debug("OfxDirectDLController singleton instance initialized");
         }
         return OfxDirectDLController.instance;
     }
-    //***
 
-    public void doDirectOfx()
-    {
+    public void doDirectOfx() {
+        logger.info("Starting direct OFX processing for all financial institutions");
         PROGRESS_BAR_CLI.barLabel("Processing Financial Institutions:");
+        
+        int totalInstitutions = CMOfxDirectModel.getFIMODELS().size();
+        int processedInstitutions = 0;
+        int skippedInstitutions = 0;
+        
         // loop through financial institutions
-        for (CMOfxDLFIModel fi : CMOfxDirectModel.getFIMODELS())
-        {
-            if (fi.getActive().equalsIgnoreCase("Yes"))
-            {
-                PROGRESS_BAR_CLI.barLabel(
-                    "  Processing Financial Institution: " + fi.getFiName());
-            } else
-            {
+        for (CMOfxDLFIModel fi : CMOfxDirectModel.getFIMODELS()) {
+            if (fi.getActive().equalsIgnoreCase("Yes")) {
+                logger.info("Processing Financial Institution: {} (ID: {})", fi.getFiName(), fi.getFiId());
+                PROGRESS_BAR_CLI.barLabel("  Processing Financial Institution: " + fi.getFiName());
+                processedInstitutions++;
+                
+                this.processFinancialInstitution(fi);
+            } else {
+                logger.debug("Skipping inactive Financial Institution: {}", fi.getFiName());
                 PROGRESS_BAR_CLI.barLabel("  Skipping Financial Institution: " + fi.getFiName());
+                skippedInstitutions++;
                 continue;
             }
+        }
+        
+        logger.info("Direct OFX processing completed. Processed: {}, Skipped: {}, Total: {}", 
+                   processedInstitutions, skippedInstitutions, totalInstitutions);
+    }
+    
+    private void processFinancialInstitution(CMOfxDLFIModel fi) {
+        logger.debug("Processing accounts for FI: {}", fi.getFiName());
+        PROGRESS_BAR_CLI.barLabel("    Processing Accounts:");
+        
+        int totalAccounts = fi.getAccountModels().size();
+        int processedAccounts = 0;
+        int skippedAccounts = 0;
 
-            PROGRESS_BAR_CLI.barLabel("    Processing Accounts:");
-
-            // loop through accounts
-            for (CMOfxDLAccountModel acct : fi.getAccountModels())
-            {
-                if (acct.getAcctActive().equalsIgnoreCase("Yes"))
-                {
-                    PROGRESS_BAR_CLI.barLabel("      Processing Account: " + acct.getAcctName());
+        // loop through accounts
+        for (CMOfxDLAccountModel acct : fi.getAccountModels()) {
+            if (acct.getAcctActive().equalsIgnoreCase("Yes")) {
+                logger.info("Processing Account: {} (Number: {}) for FI: {}", 
+                           acct.getAcctName(), acct.getAcctNumber(), fi.getFiName());
+                PROGRESS_BAR_CLI.barLabel("      Processing Account: " + acct.getAcctName());
+                
+                try {
                     // get response from the server into doc
                     this.getInvStmtResponse(fi, acct);
-                } else
-                {
-                    PROGRESS_BAR_CLI.barLabel("      Skipping Account: " + acct.getAcctName());
+                    processedAccounts++;
+                    logger.debug("Successfully processed account: {}", acct.getAcctName());
+                } catch (Exception e) {
+                    logger.error("Failed to process account: {} for FI: {}", acct.getAcctName(), fi.getFiName(), e);
+                    // Continue processing other accounts even if one fails
                 }
+            } else {
+                logger.debug("Skipping inactive account: {} for FI: {}", acct.getAcctName(), fi.getFiName());
+                PROGRESS_BAR_CLI.barLabel("      Skipping Account: " + acct.getAcctName());
+                skippedAccounts++;
             }
         }
+        
+        logger.info("Completed processing FI: {}. Accounts processed: {}, skipped: {}, total: {}", 
+                   fi.getFiName(), processedAccounts, skippedAccounts, totalAccounts);
     }
 
-    public void getInvStmtResponse(CMOfxDLFIModel fi, CMOfxDLAccountModel acct)
-    {
+    public void getInvStmtResponse(CMOfxDLFIModel fi, CMOfxDLAccountModel acct) {
         LocalDate startDate;
-        DateTimeFormatter formatter;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        if (CmdLineController.sDate.isEmpty())
-        {
+        if (CmdLineController.sDate.isEmpty()) {
+            logger.debug("No command line date specified, retrieving max date from database for account: {}", acct.getAcctName());
             startDate = getMaxAcctDate(acct);
-        } else
-        {
+        } else {
+            logger.debug("Using command line specified date: {}", CmdLineController.sDate);
             startDate = LocalDate.parse(CmdLineController.sDate, formatter);
-
         }
 
+        logger.info("Processing account: {} with start date: {}", acct.getAcctName(), startDate.toString());
         System.out.println("        Start Date: " + startDate.toString());
 
         // check database for latest date to construct request
         this.getInvStmtData(fi, acct, startDate);
     }
 
-    private LocalDate getMaxAcctDate(CMOfxDLAccountModel acct)
-    {
+    private LocalDate getMaxAcctDate(CMOfxDLAccountModel acct) {
         String sql;
         ResultSet rs;
         LocalDate startDate;
-        Integer userId;
+        Integer userId = CMDBModel.getUserId();
 
-        userId = CMDBModel.getUserId();
+        logger.debug("Retrieving max account date for account: {} and user: {}", acct.getAcctNumber(), userId);
 
-        sql = "select max(DtTrade) as MaxDate from hlhtxc5_dbOfx.InvTran, Accounts where Accounts.InvAcctIdFi = '"
-            + acct.getAcctNumber() + "' " + "and JoomlaId = '" + userId + "' limit 1;";
+        // FIXED: Use parameterized query to prevent SQL injection
+        sql = "SELECT MAX(DtTrade) as MaxDate FROM hlhtxc5_dbOfx.InvTran, Accounts " +
+              "WHERE Accounts.InvAcctIdFi = ? AND JoomlaId = ? LIMIT 1";
 
-        try ( Connection con = CMDBController.getConnection();
-             PreparedStatement pStmt = con.prepareStatement(sql))
-        {
+        try (Connection con = CMDBController.getConnection();
+             PreparedStatement pStmt = con.prepareStatement(sql)) {
+            
+            pStmt.setString(1, acct.getAcctNumber());
+            pStmt.setInt(2, userId);
             pStmt.clearWarnings();
             rs = pStmt.executeQuery();
 
-            sql = "";
-            while (rs.next())
-            {
+            String maxDateStr = "";
+            while (rs.next()) {
                 // yyyymmdd
-                if (rs.getString("MaxDate") != null)
-                {
-                    sql = rs.getString("MaxDate").substring(0, 8);
+                if (rs.getString("MaxDate") != null) {
+                    maxDateStr = rs.getString("MaxDate").substring(0, 8);
+                    logger.debug("Found max date: {} for account: {}", maxDateStr, acct.getAcctNumber());
                 }
             }
-            pStmt.close();
-            con.close();
-        } catch (SQLException ex)
-        {
-            sql = String.format(
+            
+            if (!maxDateStr.isEmpty()) {
+                startDate = LocalDate.of(
+                    Integer.parseInt(maxDateStr.substring(0, 4)),
+                    Integer.parseInt(maxDateStr.substring(4, 6)),
+                    Integer.parseInt(maxDateStr.substring(6, 8)));
+                logger.debug("Parsed start date: {} for account: {}", startDate, acct.getAcctNumber());
+            } else {
+                startDate = LocalDate.of(1970, Month.JANUARY, 1);
+                logger.info("No previous data found for account: {}, using default start date: {}", 
+                           acct.getAcctNumber(), startDate);
+            }
+            
+        } catch (SQLException ex) {
+            logger.error("Database error while retrieving max account date for account: {}", 
+                        acct.getAcctNumber(), ex);
+            
+            String errorMsg = String.format(
                 CMLanguageController.getErrorProp("Formatted14"),
                 ex.getMessage());
 
@@ -151,7 +189,7 @@ public class OfxDirectDLController
                 CMLanguageController.getDBErrorProp("Title"),
                 Thread.currentThread().getStackTrace()[1].getClassName(),
                 Thread.currentThread().getStackTrace()[1].getMethodName(),
-                sql,
+                errorMsg,
                 JOptionPane.ERROR_MESSAGE);
 
             throw new CMDAOException(
@@ -161,240 +199,277 @@ public class OfxDirectDLController
                 ex.getMessage(), JOptionPane.ERROR_MESSAGE);
         }
 
-        if (!sql.isEmpty())
-        {
-            startDate = LocalDate.of(
-                Integer.parseInt(sql.substring(0, 4)),
-                Integer.parseInt(sql.substring(4, 6)),
-                Integer.parseInt(sql.substring(6, 8)));
-        } else
-        {
-            startDate = LocalDate.of(1970, Month.JANUARY, 1);
-        }
-
         return startDate;
     }
 
-    private StringBuilder buildRequest(CMOfxDLFIModel fi, CMOfxDLAccountModel acct, LocalDate startDate)
-    {
+    private StringBuilder buildRequest(CMOfxDLFIModel fi, CMOfxDLAccountModel acct, LocalDate startDate) {
+        logger.debug("Building OFX request for FI: {}, Account: {}, Start Date: {}", 
+                    fi.getFiName(), acct.getAcctName(), startDate);
 
-        StringBuilder sbRequest;
-        String s;
+        StringBuilder sbRequest = new StringBuilder();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
 
         // build the request
-        sbRequest = new StringBuilder();
-        sbRequest.append(OfxDirectDLController.OFX_REQUEST_HEADER);
-
+        sbRequest.append(OFX_REQUEST_HEADER);
         sbRequest.append("<OFX>");
         sbRequest.append(System.lineSeparator());
 
-        // these need some string work to replace variables
-        s = String.format(OfxDirectDLController.OFX_SIGNON,
+        // SIGNON section
+        String signonSection = String.format(OFX_SIGNON,
             CMHPIUtils.getLongDate(), // date of request
             acct.getAcctUId(), // user id
             acct.getAcctPW(), // user password
             fi.getFiOrg(), // financial institution organization
             fi.getFiId() // financial institution ID
         );
-        sbRequest.append(s);
+        sbRequest.append(signonSection);
 
-        s = String.format(OfxDirectDLController.OFX_INVSTMT_REQUEST,
+        // INVSTMT REQUEST section
+        String invStmtSection = String.format(OFX_INVSTMT_REQUEST,
             CMHPIUtils.getLongDate(), //   transaction number
             fi.getBrokerId(), //           broker id
             acct.getAcctNumber(), //       account number
             simpleDateFormat.format(Date.valueOf(startDate.toString())),    //dtStart
-//            simpleDateFormat.format(Date.valueOf("2023-04-30")),    //dtEnd
             "Y", //                        include transactions
             "N", //                        include open orders
             "Y", //                        include positions
             "Y" //                         include balances
         );
-        sbRequest.append(s);
+        sbRequest.append(invStmtSection);
 
         sbRequest.append("</OFX>");
         sbRequest.append(System.lineSeparator());
 
+        logger.debug("OFX request built successfully. Request length: {} characters", sbRequest.length());
         return sbRequest;
     }
 
-    private void getInvStmtData(CMOfxDLFIModel fi, CMOfxDLAccountModel acct, LocalDate startDate)
-    {
-        StringBuilder sbRequest;
-        StringBuilder sbResponse;
-
-        sbRequest = buildRequest(fi, acct, startDate);
-
-        sbResponse = getResponse(fi, sbRequest);
-
-        this.handleFiResponse(acct, sbResponse);
+    private void getInvStmtData(CMOfxDLFIModel fi, CMOfxDLAccountModel acct, LocalDate startDate) {
+        logger.info("Getting investment statement data for FI: {}, Account: {}", fi.getFiName(), acct.getAcctName());
+        
+        StringBuilder sbRequest = buildRequest(fi, acct, startDate);
+        StringBuilder sbResponse = getResponse(fi, sbRequest);
+        
+        if (sbResponse.length() > 0) {
+            logger.debug("Received response of {} characters from FI: {}", sbResponse.length(), fi.getFiName());
+            this.handleFiResponse(acct, sbResponse);
+        } else {
+            logger.warn("Received empty response from FI: {} for account: {}", fi.getFiName(), acct.getAcctName());
+        }
     }
 
-    private StringBuilder getResponse(CMOfxDLFIModel fi, StringBuilder sbRequest)
-    {
+    private StringBuilder getResponse(CMOfxDLFIModel fi, StringBuilder sbRequest) {
+        logger.debug("Sending HTTP request to FI: {} at URL: {}", fi.getFiName(), fi.getFiUrl());
+        
         HttpClient client = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_1_1)
             .build();
         StringBuilder sbResponse = new StringBuilder();
 
-        
-        try
-        {
+        try {
             HttpRequest request = HttpRequest.newBuilder(new URI(fi.getFiUrl()))
                 .version(HttpClient.Version.HTTP_2)
                 .headers("Content-Type", "text/plain;charset=UTF-8")
                 .POST(BodyPublishers.ofString(sbRequest.toString()))
                 .build();
+                
+            logger.debug("HTTP request created, sending to: {}", fi.getFiUrl());
             HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
 
             // either gets data or error response
             // does not get here if url is wrong; exception instead
             sbResponse.append(response.body());
             
-            //todo: check response for error code
-            if (response.statusCode() != 200)
-            {
+            logger.info("HTTP response received from FI: {}. Status Code: {}, Response Length: {} characters", 
+                       fi.getFiName(), response.statusCode(), sbResponse.length());
+            
+            //check response for error code
+            if (response.statusCode() != 200) {
+                String errorLine = "HTTPS error code: " + response.statusCode() +
+                    "\n" + "HTTPS Message: " + sbResponse.toString() + "\n";
 
-                String line = "HTTPS error code: " + Integer.toString(response.statusCode())
-                    + "\n" + "HTTPS Message: " + sbResponse.toString() + "\n";
+                logger.error("HTTP error from FI: {}. Status Code: {}, Error: {}", 
+                           fi.getFiName(), response.statusCode(), errorLine);
 
-                String s = String.format(CMLanguageController.
-                    getErrorProp("HttpError"),
+                String errorMsg = String.format(CMLanguageController.getErrorProp("HttpError"),
                     Integer.toString(response.statusCode()),
-                    line + System.lineSeparator());
+                    errorLine + System.lineSeparator());
 
                 CMHPIUtils.showDefaultMsg(
                     CMLanguageController.getAppProp("Title") + CMLanguageController.getErrorProp("Title"),
-                    Thread.currentThread().getStackTrace()[1].
-                        getClassName(),
-                    Thread.currentThread().getStackTrace()[1].
-                        getMethodName(),
-                    s,
+                    Thread.currentThread().getStackTrace()[1].getClassName(),
+                    Thread.currentThread().getStackTrace()[1].getMethodName(),
+                    errorMsg,
                     JOptionPane.ERROR_MESSAGE);
             }
-        } catch (URISyntaxException | IOException | InterruptedException e)
-        {
+        } catch (URISyntaxException | IOException | InterruptedException e) {
+            logger.error("Exception while sending HTTP request to FI: {} at URL: {}", 
+                        fi.getFiName(), fi.getFiUrl(), e);
             sbResponse.append(e.getMessage());
         }
 
         return sbResponse;
     }
 
-    private void handleFiResponse(CMOfxDLAccountModel acct, StringBuilder sbResponse)
-    {
+    private void handleFiResponse(CMOfxDLAccountModel acct, StringBuilder sbResponse) {
+        logger.info("Handling response from financial institution for account: {}", acct.getAcctName());
+        
         FixSGML2XML fixSGML;
-        String s;
+        String errorMsg;
         OfxFileController ofxFileController;
 
-//        PROGRESS_BAR_CLI.barLabel(
-//            "        Processing response from financial institution ...");
         // Write raw return to file
-//        PROGRESS_BAR_CLI.barLabel("        Writing raw return file ...");
+        logger.debug("Writing raw OFX response to file for account: {}", acct.getAcctName());
         writeRaw(sbResponse.toString(), acct.getAcctName());
 
-        fixSGML = FixSGML2XML.getInstance();
-        doc = fixSGML.doSGMLDoc2XML(Jsoup.parse(sbResponse.toString()));
-        if (doc == null || (doc.select("ofx").first()) == null)
-        {
-            s = String.format(CMLanguageController.
-                getErrorProp("OfxResponseEmpty"));
+        try {
+            fixSGML = FixSGML2XML.getInstance();
+            doc = fixSGML.doSGMLDoc2XML(Jsoup.parse(sbResponse.toString()));
+            
+            if (doc == null || (doc.select("ofx").first()) == null) {
+                errorMsg = String.format(CMLanguageController.getErrorProp("OfxResponseEmpty"));
+                logger.error("OFX response is empty or invalid for account: {}", acct.getAcctName());
 
-            CMHPIUtils.showDefaultMsg(
-                CMLanguageController.getAppProp("Title") + CMLanguageController.getErrorProp("Title"),
-                Thread.currentThread().getStackTrace()[1].getClassName(),
-                Thread.currentThread().getStackTrace()[1].getMethodName(),
-                s,
-                JOptionPane.ERROR_MESSAGE);
+                CMHPIUtils.showDefaultMsg(
+                    CMLanguageController.getAppProp("Title") + CMLanguageController.getErrorProp("Title"),
+                    Thread.currentThread().getStackTrace()[1].getClassName(),
+                    Thread.currentThread().getStackTrace()[1].getMethodName(),
+                    errorMsg,
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
-//            throw new UnsupportedOperationException(s);
-        }
+            logger.debug("Successfully parsed OFX response for account: {}", acct.getAcctName());
 
-        // Write adjusted return to file
-//        PROGRESS_BAR_CLI.barLabel("        Writing XML return file ...");
-        writeAdjusted(acct.getAcctName());
+            // Write adjusted return to file
+            logger.debug("Writing processed XML response to file for account: {}", acct.getAcctName());
+            writeAdjusted(acct.getAcctName());
 
-        ofxFileController = OfxFileController.getInstance();
+            ofxFileController = OfxFileController.getInstance();
 
-        if (this.doc != null)
-        {
-            ofxFileController.processOfxDoc2SQLSetup(this.doc, PROGRESS_BAR_CLI);
+            if (this.doc != null) {
+                logger.info("Processing OFX document to SQL for account: {}", acct.getAcctName());
+                ofxFileController.processOfxDoc2SQLSetup(this.doc, PROGRESS_BAR_CLI);
+                logger.debug("Successfully processed OFX document to SQL for account: {}", acct.getAcctName());
+            }
+        } catch (Exception e) {
+            logger.error("Error processing OFX response for account: {}", acct.getAcctName(), e);
+            throw new RuntimeException("Failed to process OFX response for account: " + acct.getAcctName(), e);
         }
     }
 
-    private void writeRaw(String aString, String sAcct)
-    {
-        File fileWrite;
-        String s;
-
-        fileWrite = new File(CMDirectoriesModel.getInstance().
-            getModelProp("Reports") + java.io.File.separator + sAcct + ".OFX");
-        try ( BufferedWriter writerRaw = new BufferedWriter(
-            new OutputStreamWriter(new FileOutputStream(fileWrite),
-                StandardCharsets.UTF_8)))
-        {
+    private void writeRaw(String aString, String sAcct) {
+        logger.debug("Writing raw OFX file for account: {}", sAcct);
+        
+        File fileWrite = new File(CMDirectoriesModel.getInstance().getModelProp("Reports") + 
+                                 File.separator + sAcct + ".OFX");
+        
+        try (BufferedWriter writerRaw = new BufferedWriter(
+            new OutputStreamWriter(new FileOutputStream(fileWrite), StandardCharsets.UTF_8))) {
+            
             writerRaw.write(aString);
             writerRaw.flush();
-        } catch (IOException e)
-        {
-            s = String.format(CMLanguageController.
-                getErrorProp("GeneralError"),
-                e.toString());
+            logger.debug("Successfully wrote raw OFX file: {}", fileWrite.getAbsolutePath());
+            
+        } catch (IOException e) {
+            logger.error("Failed to write raw OFX file for account: {} to path: {}", 
+                        sAcct, fileWrite.getAbsolutePath(), e);
+            
+            String errorMsg = String.format(CMLanguageController.getErrorProp("GeneralError"), e.toString());
 
             CMHPIUtils.showDefaultMsg(
                 CMLanguageController.getAppProp("Title") + CMLanguageController.getErrorProp("Title"),
                 Thread.currentThread().getStackTrace()[1].getClassName(),
                 Thread.currentThread().getStackTrace()[1].getMethodName(),
-                s,
+                errorMsg,
                 JOptionPane.ERROR_MESSAGE);
 
-            throw new UnsupportedOperationException(s);
+            throw new UnsupportedOperationException(errorMsg);
         }
     }
 
-    private void writeAdjusted(String sAcct)
-    {
-        File fileWrite;
-        String s;
-
-        if (doc == null)
-        {
+    private void writeAdjusted(String sAcct) {
+        logger.debug("Writing adjusted XML file for account: {}", sAcct);
+        
+        if (doc == null) {
+            logger.warn("Document is null, skipping adjusted file write for account: {}", sAcct);
             return;
         }
-        fileWrite = new File(CMDirectoriesModel.getInstance().
-            getModelProp("Reports") + java.io.File.separator + sAcct + ".txt");
+        
+        File fileWrite = new File(CMDirectoriesModel.getInstance().getModelProp("Reports") + 
+                                 File.separator + sAcct + ".txt");
 
-        try ( BufferedWriter writerRaw = new BufferedWriter(
-            new OutputStreamWriter(new FileOutputStream(fileWrite),
-                StandardCharsets.UTF_8)))
-        {
+        try (BufferedWriter writerRaw = new BufferedWriter(
+            new OutputStreamWriter(new FileOutputStream(fileWrite), StandardCharsets.UTF_8))) {
+            
             writerRaw.write(doc.body().toString());
             writerRaw.flush();
-        } catch (IOException e)
-        {
-            s = String.format(CMLanguageController.
-                getErrorProp("GeneralError"),
-                e.toString());
+            logger.debug("Successfully wrote adjusted XML file: {}", fileWrite.getAbsolutePath());
+            
+        } catch (IOException e) {
+            logger.error("Failed to write adjusted XML file for account: {} to path: {}", 
+                        sAcct, fileWrite.getAbsolutePath(), e);
+            
+            String errorMsg = String.format(CMLanguageController.getErrorProp("GeneralError"), e.toString());
 
             CMHPIUtils.showDefaultMsg(
                 CMLanguageController.getAppProp("Title") + CMLanguageController.getErrorProp("Title"),
                 Thread.currentThread().getStackTrace()[1].getClassName(),
                 Thread.currentThread().getStackTrace()[1].getMethodName(),
-                s,
+                errorMsg,
                 JOptionPane.ERROR_MESSAGE);
 
-            throw new UnsupportedOperationException(s);
+            throw new UnsupportedOperationException(errorMsg);
         }
     }
-    private final static String OFX_REQUEST_HEADER = "OFXHEADER:100\n" + "DATA:OFXSGML\n" + "VERSION:102\n"
-        + "SECURITY:NONE\n" + "ENCODING:USASCII\n" + "CHARSET:1252\n" + "COMPRESSION:NONE\n" + "OLDFILEUID:NONE\n"
-        + "NEWFILEUID:NONE\n\n";
-    private final static String OFX_SIGNON = "<SIGNONMSGSRQV1>\n" + "<SONRQ>\n" + "<DTCLIENT>%s\n" + "<USERID>%s\n"
-        + "<USERPASS>%s\n" + "<LANGUAGE>ENG\n" + "<FI>\n" + "<ORG>%s\n" + "<FID>%s\n" + "</FI>\n" + "<APPID>Money\n"
-        + "<APPVER>1600\n" + "</SONRQ>\n" + "</SIGNONMSGSRQV1>\n\n";
-    private final static String OFX_INVSTMT_REQUEST = "<INVSTMTMSGSRQV1>\n" + "<INVSTMTTRNRQ>\n" + "<TRNUID>%s-01\n"
-        + "<INVSTMTRQ>\n" + "<INVACCTFROM>\n" + "<BROKERID>%s\n" + "<ACCTID>%s\n" + "</INVACCTFROM>\n" + "<INCTRAN>\n"
-        + "<DTSTART>%s\n" 
-//        + "<DTEND>%s\n" 
-        + "<INCLUDE>%s\n" + "</INCTRAN>\n" + "<INCOO>%s\n" + "<INCPOS>\n" + "<INCLUDE>%s\n"
-        + "</INCPOS>\n" + "<INCBAL>%s\n" + "</INVSTMTRQ>\n" + "</INVSTMTTRNRQ>\n" + "</INVSTMTMSGSRQV1>\n";
+
+    // OFX Request Templates
+    private static final String OFX_REQUEST_HEADER = 
+        "OFXHEADER:100\n" + 
+        "DATA:OFXSGML\n" + 
+        "VERSION:102\n" +
+        "SECURITY:NONE\n" + 
+        "ENCODING:USASCII\n" + 
+        "CHARSET:1252\n" + 
+        "COMPRESSION:NONE\n" + 
+        "OLDFILEUID:NONE\n" +
+        "NEWFILEUID:NONE\n\n";
+        
+    private static final String OFX_SIGNON = 
+        "<SIGNONMSGSRQV1>\n" + 
+        "<SONRQ>\n" + 
+        "<DTCLIENT>%s\n" + 
+        "<USERID>%s\n" +
+        "<USERPASS>%s\n" + 
+        "<LANGUAGE>ENG\n" + 
+        "<FI>\n" + 
+        "<ORG>%s\n" + 
+        "<FID>%s\n" + 
+        "</FI>\n" + 
+        "<APPID>Money\n" +
+        "<APPVER>1600\n" + 
+        "</SONRQ>\n" + 
+        "</SIGNONMSGSRQV1>\n\n";
+        
+    private static final String OFX_INVSTMT_REQUEST = 
+        "<INVSTMTMSGSRQV1>\n" + 
+        "<INVSTMTTRNRQ>\n" + 
+        "<TRNUID>%s-01\n" +
+        "<INVSTMTRQ>\n" + 
+        "<INVACCTFROM>\n" + 
+        "<BROKERID>%s\n" + 
+        "<ACCTID>%s\n" + 
+        "</INVACCTFROM>\n" + 
+        "<INCTRAN>\n" +
+        "<DTSTART>%s\n" +
+        "<INCLUDE>%s\n" + 
+        "</INCTRAN>\n" + 
+        "<INCOO>%s\n" + 
+        "<INCPOS>\n" + 
+        "<INCLUDE>%s\n" +
+        "</INCPOS>\n" + 
+        "<INCBAL>%s\n" + 
+        "</INVSTMTRQ>\n" + 
+        "</INVSTMTTRNRQ>\n" + 
+        "</INVSTMTMSGSRQV1>\n";
 }

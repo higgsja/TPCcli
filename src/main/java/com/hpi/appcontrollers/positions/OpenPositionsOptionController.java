@@ -24,9 +24,12 @@ public class OpenPositionsOptionController
 {
 
     private final Integer userId;
-    @Getter private final ArrayList<FIFOOpenTransactionModel> fifoOpenTransactionModels;
-    @Getter private final ArrayList<PositionOpenModel> positionOpenModels;
-    @Getter private final ArrayList<PositionOpenTransactionModel> positionOpenTransactionModels;
+    @Getter
+    private final ArrayList<FIFOOpenTransactionModel> fifoOpenTransactionModels;
+    @Getter
+    private final ArrayList<PositionOpenModel> positionOpenModels;
+    @Getter
+    private final ArrayList<PositionOpenTransactionModel> positionOpenTransactionModels;
     private final ArrayList<PositionOpenModel> pomAddList;
     private final String[] months;
 
@@ -105,37 +108,45 @@ public class OpenPositionsOptionController
     }
 
     private void insertPositionOpenTransactionsTableSQL(Integer positionId,
-        PositionOpenModel pom)
+            PositionOpenModel pom)
     {
         String sql;
 
-        for (PositionOpenTransactionModel potm : pom.getPositionOpenTransactionModels())
+        for (PositionOpenTransactionModel potm : pom.
+                getPositionOpenTransactionModels())
         {
-            sql = String.format(PositionOpenTransactionModel.POSITION_TRANSACTION_INSERT,
-                potm.getDmAcctId(),
-                potm.getJoomlaId(),
-                positionId,
-                potm.getFiTId(),
-                //                potm.getEquityId(),   //do not set here as multi-leg positions have no equityId
-                potm.getTransactionName(),
-                potm.getTicker(),
-                potm.getDateOpen(),
-                potm.getUnits(),
-                potm.getPriceOpen(),
-                potm.getDateExpire(),
-                potm.getDays(),
-                potm.getPositionType(),
-                potm.getTotalOpen(),
-                potm.getEquityType(),
-                potm.getGain(),
-                potm.getGainPct(),
-                potm.getTransactionType(),
-                0,
-                potm.getMktVal(),
-                potm.getLMktVal(),
-                potm.getActPct());
-
-            CMDBController.executeSQL(sql);
+            sql = String.format(
+                    PositionOpenTransactionModel.POSITION_TRANSACTION_INSERT,
+                    potm.getDmAcctId(),
+                    potm.getJoomlaId(),
+                    positionId,
+                    potm.getFiTId(),
+                    //                potm.getEquityId(),   //do not set here as multi-leg positions have no equityId
+                    potm.getTransactionName(),
+                    potm.getTicker(),
+                    potm.getDateOpen(),
+                    potm.getUnits(),
+                    potm.getPriceOpen(),
+                    potm.getDateExpire(),
+                    potm.getDays(),
+                    potm.getPositionType(),
+                    potm.getTotalOpen(),
+                    potm.getEquityType(),
+                    potm.getGain(),
+                    potm.getGainPct(),
+                    potm.getTransactionType(),
+                    0,
+                    potm.getMktVal(),
+                    potm.getLMktVal(),
+                    potm.getActPct());
+            
+            //todo: case where there is an open transaction with 0 units
+            // causes an Infinity condition. It is ignored here and the 
+            // transaction removed from consideration.
+            if (!Double.isInfinite(potm.getPriceOpen()))
+            {
+                CMDBController.executeSQL(sql);
+            }
         }
     }
 
@@ -146,11 +157,11 @@ public class OpenPositionsOptionController
         for (FIFOOpenTransactionModel fctm : this.fifoOpenTransactionModels)
         {
             sql = String.format(FIFOOpenTransactionModel.UPDATE_COMPLETE,
-                "FIFOOpenTransactions",
-                FIFOOpenTransactionModel.COMPLETE,
-                fctm.getDmAcctId(),
-                fctm.getJoomlaId(),
-                fctm.getFiTId());
+                    "FIFOOpenTransactions",
+                    FIFOOpenTransactionModel.COMPLETE,
+                    fctm.getDmAcctId(),
+                    fctm.getJoomlaId(),
+                    fctm.getFiTId());
 
             CMDBController.executeSQL(sql);
         }
@@ -161,25 +172,25 @@ public class OpenPositionsOptionController
         String sInsertSQL;
 
         sInsertSQL = String.format(PositionOpenModel.POSITION_INSERT3,
-            pom.getDmAcctId(),
-            pom.getJoomlaId(),
-            pom.getTicker(),
-            pom.getEquityId(),
-            pom.getPositionName(),
-            pom.getTacticId(),
-            pom.getUnits(),
-            pom.getPriceOpen(),
-            pom.getPrice(),
-            pom.getGainPct(),
-            pom.getDateOpen(),
-            pom.getDays(),
-            pom.getGain(),
-            pom.getPositionType(),
-            pom.getTotalOpen(),
-            pom.getTotalClose(),
-            pom.getEquityType(),
-            pom.getTransactionType(),
-            pom.getMktVal());
+                pom.getDmAcctId(),
+                pom.getJoomlaId(),
+                pom.getTicker(),
+                pom.getEquityId(),
+                pom.getPositionName(),
+                pom.getTacticId(),
+                pom.getUnits(),
+                pom.getPriceOpen(),
+                pom.getPrice(),
+                pom.getGainPct(),
+                pom.getDateOpen(),
+                pom.getDays(),
+                pom.getGain(),
+                pom.getPositionType(),
+                pom.getTotalOpen(),
+                pom.getTotalClose(),
+                pom.getEquityType(),
+                pom.getTransactionType(),
+                pom.getMktVal());
 
         return CMDBController.insertAutoRow(sInsertSQL);
     }
@@ -204,22 +215,22 @@ public class OpenPositionsOptionController
                     break;
                 case PositionOpenModel.TACTICID_VERTICAL:
                     pom.setPositionName(this.nameVertical(pom,
-                        false));
+                            false));
                     break;
                 case PositionOpenModel.TACTICID_STRANGLE:
                     pom.setPositionName(this.nameStrangle(pom,
-                        false));
+                            false));
                     break;
                 case PositionOpenModel.TACTICID_CALENDAR:
                     pom.setPositionName(this.nameCalendar(pom,
-                        false));
+                            false));
                     break;
                 case PositionOpenModel.TACTICID_COVERED:
                     pom.setPositionName(this.nameCovered(pom));
                     break;
                 case PositionOpenModel.TACTICID_STRADDLE:
                     pom.setPositionName(this.nameStraddle(pom,
-                        false));
+                            false));
                     break;
                 case PositionOpenModel.TACTICID_IRONCONDOR:
                     pom.setPositionName(this.nameIronCondor(pom));
@@ -232,35 +243,35 @@ public class OpenPositionsOptionController
                     break;
                 case PositionOpenModel.TACTICID_COLLAR:
                     pom.setPositionName(this.nameCollar(pom,
-                        false));
+                            false));
                     break;
                 case PositionOpenModel.TACTICID_DIAGONAL:
                     pom.setPositionName(this.nameDiagonal(pom,
-                        false));
+                            false));
                     break;
                 case PositionOpenModel.TACTICID_VERTICAL_CUSTOM:
                     pom.setPositionName(this.nameVertical(pom,
-                        true));
+                            true));
                     break;
                 case PositionOpenModel.TACTICID_STRANGLE_CUSTOM:
                     pom.setPositionName(this.nameStrangle(pom,
-                        true));
+                            true));
                     break;
                 case PositionOpenModel.TACTICID_CALENDAR_CUSTOM:
                     pom.setPositionName(this.nameCalendar(pom,
-                        true));
+                            true));
                     break;
                 case PositionOpenModel.TACTICID_STRADDLE_CUSTOM:
                     pom.setPositionName(this.nameStraddle(pom,
-                        true));
+                            true));
                     break;
                 case PositionOpenModel.TACTICID_COLLAR_CUSTOM:
                     pom.setPositionName(this.nameCollar(pom,
-                        true));
+                            true));
                     break;
                 case PositionOpenModel.TACTICID_DIAGONAL_CUSTOM:
                     pom.setPositionName(this.nameDiagonal(pom,
-                        true));
+                            true));
                     break;
                 default:
                     int i = 0;
@@ -275,8 +286,8 @@ public class OpenPositionsOptionController
         OCCclass closedClass0;
 
         closedClass0 = new OCCclass(pom.getPositionOpenTransactionModels()
-            .get(0)
-            .getEquityId());
+                .get(0)
+                .getEquityId());
 
         //aapl ddJanYY 129 Call
         positionName = closedClass0.getTicker();
@@ -289,7 +300,7 @@ public class OpenPositionsOptionController
         positionName += closedClass0.getStrike();
         positionName += " ";
         positionName += closedClass0.getPutcall()
-            .equalsIgnoreCase("c") ? "Call" : "Put";
+                .equalsIgnoreCase("c") ? "Call" : "Put";
 
         return positionName;
     }
@@ -313,13 +324,13 @@ public class OpenPositionsOptionController
         positionName += closedClass0.getStrike();
         positionName += " ";
         positionName += closedClass0.getPutcall()
-            .equalsIgnoreCase("c") ? "Call" : "Put";
+                .equalsIgnoreCase("c") ? "Call" : "Put";
 
         return positionName;
     }
 
     private String nameVertical(PositionOpenModel pom,
-        Boolean bCustom)
+            Boolean bCustom)
     {
         String positionName;
         Integer month;
@@ -327,12 +338,12 @@ public class OpenPositionsOptionController
         OCCclass closedClass1;
 
         closedClass0 = new OCCclass(pom.getPositionOpenTransactionModels()
-            .get(0)
-            .getEquityId());
+                .get(0)
+                .getEquityId());
 
         closedClass1 = new OCCclass(pom.getPositionOpenTransactionModels()
-            .get(1)
-            .getEquityId());
+                .get(1)
+                .getEquityId());
 
         //aapl ddJanYY 129/130 Call Vertical
         positionName = closedClass0.getTicker();
@@ -357,15 +368,17 @@ public class OpenPositionsOptionController
     }
 
     private String nameStrangle(PositionOpenModel pom,
-        Boolean bCustom)
+            Boolean bCustom)
     {
         String positionName;
         Integer month;
         OCCclass closedClass0;
         OCCclass closedClass1;
 
-        closedClass0 = new OCCclass(pom.getPositionOpenTransactionModels().get(0).getEquityId());
-        closedClass1 = new OCCclass(pom.getPositionOpenTransactionModels().get(1).getEquityId());
+        closedClass0 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(0).getEquityId());
+        closedClass1 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(1).getEquityId());
 
         //aapl ddJanYY 150/120 Strangle
         positionName = closedClass0.getTicker();
@@ -390,15 +403,17 @@ public class OpenPositionsOptionController
     }
 
     private String nameCalendar(PositionOpenModel pom,
-        Boolean bCustom)
+            Boolean bCustom)
     {
         String positionName;
         Integer month;
         OCCclass closedClass0;
         OCCclass closedClass1;
 
-        closedClass0 = new OCCclass(pom.getPositionOpenTransactionModels().get(0).getEquityId());
-        closedClass1 = new OCCclass(pom.getPositionOpenTransactionModels().get(1).getEquityId());
+        closedClass0 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(0).getEquityId());
+        closedClass1 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(1).getEquityId());
 
         //aapl 150 ddJanYY/ddFebYY Calendar
         positionName = closedClass0.getTicker();
@@ -430,15 +445,17 @@ public class OpenPositionsOptionController
     }
 
     private String nameStraddle(PositionOpenModel pom,
-        Boolean bCustom)
+            Boolean bCustom)
     {
         String positionName;
         Integer month;
         OCCclass closedClass0;
         OCCclass closedClass1;
 
-        closedClass0 = new OCCclass(pom.getPositionOpenTransactionModels().get(0).getEquityId());
-        closedClass1 = new OCCclass(pom.getPositionOpenTransactionModels().get(1).getEquityId());
+        closedClass0 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(0).getEquityId());
+        closedClass1 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(1).getEquityId());
 
         //aapl ddJanYY 150 Straddle
         positionName = closedClass0.getTicker();
@@ -467,10 +484,14 @@ public class OpenPositionsOptionController
         OCCclass closedClass2;
         OCCclass closedClass3;
 
-        closedClass0 = new OCCclass(pom.getPositionOpenTransactionModels().get(0).getEquityId());
-        closedClass1 = new OCCclass(pom.getPositionOpenTransactionModels().get(1).getEquityId());
-        closedClass2 = new OCCclass(pom.getPositionOpenTransactionModels().get(2).getEquityId());
-        closedClass3 = new OCCclass(pom.getPositionOpenTransactionModels().get(3).getEquityId());
+        closedClass0 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(0).getEquityId());
+        closedClass1 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(1).getEquityId());
+        closedClass2 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(2).getEquityId());
+        closedClass3 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(3).getEquityId());
 
         //aapl ddJanYY 185/196/161/172 Iron Condor
         positionName = closedClass0.getTicker();
@@ -501,10 +522,14 @@ public class OpenPositionsOptionController
         OCCclass closedClass2;
         OCCclass closedClass3;
 
-        closedClass0 = new OCCclass(pom.getPositionOpenTransactionModels().get(0).getEquityId());
-        closedClass1 = new OCCclass(pom.getPositionOpenTransactionModels().get(1).getEquityId());
-        closedClass2 = new OCCclass(pom.getPositionOpenTransactionModels().get(2).getEquityId());
-        closedClass3 = new OCCclass(pom.getPositionOpenTransactionModels().get(3).getEquityId());
+        closedClass0 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(0).getEquityId());
+        closedClass1 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(1).getEquityId());
+        closedClass2 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(2).getEquityId());
+        closedClass3 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(3).getEquityId());
 
         //aapl ddJanYY 185/196/210 CALL Butterfly
         //todo: leave like an iron condor for now
@@ -536,10 +561,14 @@ public class OpenPositionsOptionController
         OCCclass closedClass2;
         OCCclass closedClass3;
 
-        closedClass0 = new OCCclass(pom.getPositionOpenTransactionModels().get(0).getEquityId());
-        closedClass1 = new OCCclass(pom.getPositionOpenTransactionModels().get(1).getEquityId());
-        closedClass2 = new OCCclass(pom.getPositionOpenTransactionModels().get(2).getEquityId());
-        closedClass3 = new OCCclass(pom.getPositionOpenTransactionModels().get(3).getEquityId());
+        closedClass0 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(0).getEquityId());
+        closedClass1 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(1).getEquityId());
+        closedClass2 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(2).getEquityId());
+        closedClass3 = new OCCclass(pom.getPositionOpenTransactionModels().
+                get(3).getEquityId());
 
         //aapl ddJanYY 185/192/196/210 Call Condor
         positionName = closedClass0.getTicker();
@@ -564,15 +593,17 @@ public class OpenPositionsOptionController
     }
 
     private String nameCollar(PositionOpenModel pcm,
-        Boolean bCustom)
+            Boolean bCustom)
     {
         String positionName;
         Integer month;
         OCCclass closedClass0;
         OCCclass closedClass1;
 
-        closedClass0 = new OCCclass(pcm.getPositionOpenTransactionModels().get(0).getEquityId());
-        closedClass1 = new OCCclass(pcm.getPositionOpenTransactionModels().get(1).getEquityId());
+        closedClass0 = new OCCclass(pcm.getPositionOpenTransactionModels().
+                get(0).getEquityId());
+        closedClass1 = new OCCclass(pcm.getPositionOpenTransactionModels().
+                get(1).getEquityId());
 
         //aapl ddJanYY 129/130 Collar
         positionName = closedClass0.getTicker();
@@ -597,15 +628,17 @@ public class OpenPositionsOptionController
     }
 
     private String nameDiagonal(PositionOpenModel pcm,
-        Boolean bCustom)
+            Boolean bCustom)
     {
         String positionName;
         Integer month;
         OCCclass class0;
         OCCclass class1;
 
-        class0 = new OCCclass(pcm.getPositionOpenTransactionModels().get(0).getEquityId());
-        class1 = new OCCclass(pcm.getPositionOpenTransactionModels().get(1).getEquityId());
+        class0 = new OCCclass(pcm.getPositionOpenTransactionModels().get(0).
+                getEquityId());
+        class1 = new OCCclass(pcm.getPositionOpenTransactionModels().get(1).
+                getEquityId());
 
         //aapl 129 ddJanYY/130 ddFebYY CALL Diagonal
         positionName = class0.getTicker();
@@ -644,22 +677,23 @@ public class OpenPositionsOptionController
         for (int i = 0; i < this.fifoOpenTransactionModels.size(); i++)
         {
             if (this.fifoOpenTransactionModels.get(i)
-                .getBComplete())
+                    .getBComplete())
             {
                 //fotm already handled
                 continue;
             }
 
             potm = PositionOpenTransactionModel.builder()
-                .dmAcctId(this.fifoOpenTransactionModels.get(i).getDmAcctId())
-                .joomlaId(this.userId)
-                .positionId(-999)
-                .build();
+                    .dmAcctId(this.fifoOpenTransactionModels.get(i).
+                            getDmAcctId())
+                    .joomlaId(this.userId)
+                    .positionId(-999)
+                    .build();
 
             //add first fifoOpenTransaction to the positionOpenTransactionModel.fifoOpenTransactionModels
             potm.getFifoOpenTransactionModels()
-                .add(new FIFOOpenTransactionModel(
-                    this.fifoOpenTransactionModels.get(i)));
+                    .add(new FIFOOpenTransactionModel(
+                            this.fifoOpenTransactionModels.get(i)));
 
             //add positionOpenTransactionModel to the positionOpenTransactionModel array
             //using the previously built potm
@@ -695,7 +729,8 @@ public class OpenPositionsOptionController
             totalMktVal += fotm.getMktVal();
 
             //want this to reflect the last date of an opening transaction
-            dateOpen = dateOpen.compareTo(fotm.getDateOpen()) > 0 ? dateOpen : fotm.getDateOpen();
+            dateOpen = dateOpen.compareTo(fotm.getDateOpen()) > 0 ? dateOpen : fotm.
+                    getDateOpen();
         }
 
         gain = totalOpen + totalMktVal;
@@ -709,19 +744,25 @@ public class OpenPositionsOptionController
         potm.setGain(gain);
         potm.setGainPct(gainPct);
 
-        potm.setTransactionType(potm.getFifoOpenTransactionModels().get(0).getTransactionType());
-        potm.setPositionType(potm.getFifoOpenTransactionModels().get(0).getPositionType());
-        potm.setEquityType(potm.getFifoOpenTransactionModels().get(0).getEquityType());
+        potm.setTransactionType(potm.getFifoOpenTransactionModels().get(0).
+                getTransactionType());
+        potm.setPositionType(potm.getFifoOpenTransactionModels().get(0).
+                getPositionType());
+        potm.setEquityType(potm.getFifoOpenTransactionModels().get(0).
+                getEquityType());
 
-        potm.setFiTId(potm.getFifoOpenTransactionModels().get(0).getFiTId() + "_x");
+        potm.setFiTId(
+                potm.getFifoOpenTransactionModels().get(0).getFiTId() + "_x");
         potm.setTicker(potm.getFifoOpenTransactionModels().get(0).getTicker());
-        potm.setEquityId(potm.getFifoOpenTransactionModels().get(0).getEquityId());
+        potm.setEquityId(potm.getFifoOpenTransactionModels().get(0).
+                getEquityId());
 
         potm.setDateOpen(dateOpen);
 
         potm.setPriceOpen(abs(totalOpen) / (totalUnits * 100.0));
 
-        potm.setDateExpire(potm.getFifoOpenTransactionModels().get(0).getDateExpire());
+        potm.setDateExpire(potm.getFifoOpenTransactionModels().get(0).
+                getDateExpire());
 
         potm.setDays(potm.getFifoOpenTransactionModels().get(0).getDays());
 
@@ -742,22 +783,23 @@ public class OpenPositionsOptionController
         for (int i = 0; i < this.positionOpenTransactionModels.size(); i++)
         {
             if (this.positionOpenTransactionModels.get(i)
-                .getBComplete())
+                    .getBComplete())
             {
                 //fctm already handled
                 continue;
             }
 
             pom = PositionOpenModel.builder()
-                .positionId(-999)
-                .dmAcctId(this.positionOpenTransactionModels.get(i).getDmAcctId())
-                .joomlaId(this.userId)
-                .build();
+                    .positionId(-999)
+                    .dmAcctId(this.positionOpenTransactionModels.get(i).
+                            getDmAcctId())
+                    .joomlaId(this.userId)
+                    .build();
 
             //add first positionOpenTransaction to the positionOpenModel.positionOpenTransactionModels
             pom.getPositionOpenTransactionModels()
-                .add(new PositionOpenTransactionModel(
-                    this.positionOpenTransactionModels.get(i)));
+                    .add(new PositionOpenTransactionModel(
+                            this.positionOpenTransactionModels.get(i)));
 
             //add positionOpenModel to the positionOpenModels array
             //using the previously built pcm
@@ -765,10 +807,10 @@ public class OpenPositionsOptionController
 
             //mark initial transaction complete
             this.positionOpenTransactionModels.get(i)
-                .setBComplete(true);
+                    .setBComplete(true);
 
             this.addPotm2Pom(i,
-                pom);
+                    pom);
 
             //set attributes in the pcm
             this.doAttributesPotm2Pom(pom);
@@ -776,7 +818,7 @@ public class OpenPositionsOptionController
     }
 
     private void addPotm2Pom(Integer i,
-        PositionOpenModel pom)
+            PositionOpenModel pom)
     {
         Integer pomStart;
 
@@ -789,34 +831,34 @@ public class OpenPositionsOptionController
         for (int j = i + 1; j < this.positionOpenTransactionModels.size(); j++)
         {
             if (this.positionOpenTransactionModels.get(j)
-                .getBComplete())
+                    .getBComplete())
             {
                 //never hit
                 continue;
             }
 
             if (!this.positionOpenTransactionModels.get(pomStart)
-                .getTicker()
-                .equals(this.positionOpenTransactionModels.get(j)
-                    .getTicker()))
+                    .getTicker()
+                    .equals(this.positionOpenTransactionModels.get(j)
+                            .getTicker()))
             {
                 //not same ticker
                 break;
             }
 
             if (!this.positionOpenTransactionModels.get(pomStart)
-                .getDmAcctId()
-                .equals(this.positionOpenTransactionModels.get(j)
-                    .getDmAcctId()))
+                    .getDmAcctId()
+                    .equals(this.positionOpenTransactionModels.get(j)
+                            .getDmAcctId()))
             {
                 //not same DMAcctId
                 break;
             }
 
             if (!this.positionOpenTransactionModels.get(pomStart)
-                .getDateOpen()
-                .equals(this.positionOpenTransactionModels.get(j)
-                    .getDateOpen()))
+                    .getDateOpen()
+                    .equals(this.positionOpenTransactionModels.get(j)
+                            .getDateOpen()))
             {
                 //not same open date
                 break;
@@ -824,12 +866,12 @@ public class OpenPositionsOptionController
 
             //j transaction should be part of the pctm
             pom.getPositionOpenTransactionModels()
-                .add(new PositionOpenTransactionModel(
-                    this.positionOpenTransactionModels.get(j)));
+                    .add(new PositionOpenTransactionModel(
+                            this.positionOpenTransactionModels.get(j)));
 
             // mark it complete
             this.positionOpenTransactionModels.get(j)
-                .setBComplete(true);
+                    .setBComplete(true);
         }
     }
 
@@ -846,7 +888,8 @@ public class OpenPositionsOptionController
         totalOpen = totalMktVal = totalUnits = totalTotalClose = 0.0;
         dateOpen = new java.sql.Date(0);
 
-        for (PositionOpenTransactionModel potm : pom.getPositionOpenTransactionModels())
+        for (PositionOpenTransactionModel potm : pom.
+                getPositionOpenTransactionModels())
         {
             totalUnits += potm.getUnits();
             totalOpen += potm.getTotalOpen();
@@ -864,8 +907,10 @@ public class OpenPositionsOptionController
         pom.setTotalOpen(totalOpen);
         pom.setMktVal(totalMktVal);
 
-        pom.setPositionType(pom.getPositionOpenTransactionModels().get(0).getPositionType());
-        pom.setEquityType(pom.getPositionOpenTransactionModels().get(0).getEquityType());
+        pom.setPositionType(pom.getPositionOpenTransactionModels().get(0).
+                getPositionType());
+        pom.setEquityType(pom.getPositionOpenTransactionModels().get(0).
+                getEquityType());
         //incorrect
 //        pom.setTransactionType(pom.getPositionOpenTransactionModels().get(0).getTransactionType());
         pom.setTransactionType(pom.getTotalOpen() > 0 ? "SHORT" : "LONG");
@@ -890,7 +935,7 @@ public class OpenPositionsOptionController
      * @param potm
      */
     private void addFotm2Potm(Integer i,
-        PositionOpenTransactionModel potm)
+            PositionOpenTransactionModel potm)
     {
         Integer potmStart;
 
@@ -903,23 +948,23 @@ public class OpenPositionsOptionController
         for (int j = i + 1; j < this.fifoOpenTransactionModels.size(); j++)
         {
             if (this.fifoOpenTransactionModels.get(j)
-                .getBComplete())
+                    .getBComplete())
             {
                 //should never hit
                 continue;
             }
             if (!this.fifoOpenTransactionModels.get(potmStart)
-                .getEquityId()
-                .equals(this.fifoOpenTransactionModels.get(j)
-                    .getEquityId()))
+                    .getEquityId()
+                    .equals(this.fifoOpenTransactionModels.get(j)
+                            .getEquityId()))
             {
                 //not the same equityId
                 break;
             }
             if (!this.fifoOpenTransactionModels.get(potmStart)
-                .getDateOpen()
-                .equals(this.fifoOpenTransactionModels.get(j)
-                    .getDateOpen()))
+                    .getDateOpen()
+                    .equals(this.fifoOpenTransactionModels.get(j)
+                            .getDateOpen()))
             {
                 //not same open date
                 break;
@@ -927,12 +972,12 @@ public class OpenPositionsOptionController
 
             //j transaction should be part of the pctm
             potm.getFifoOpenTransactionModels()
-                .add(new FIFOOpenTransactionModel(
-                    this.fifoOpenTransactionModels.get(j)));
+                    .add(new FIFOOpenTransactionModel(
+                            this.fifoOpenTransactionModels.get(j)));
 
             // mark it complete
             this.fifoOpenTransactionModels.get(j)
-                .setBComplete(true);
+                    .setBComplete(true);
         }
     }
 
@@ -981,54 +1026,58 @@ public class OpenPositionsOptionController
 
         //iterate the position closed transaction array
         potmIterator = pom.getPositionOpenTransactionModels()
-            .iterator();
+                .iterator();
 
-        OCCclass occClassPctm0 = new OCCclass(pom.getPositionOpenTransactionModels()
-            .get(0)
-            .getEquityId());
+        OCCclass occClassPctm0 = new OCCclass(pom.
+                getPositionOpenTransactionModels()
+                .get(0)
+                .getEquityId());
         while (potmIterator.hasNext())
         {
             tempPotm = potmIterator.next();
             OCCclass occClassPctm = new OCCclass(tempPotm.getEquityId());
 
             if (occClassPctm.getDtExpiry()
-                .equals(occClassPctm0.getDtExpiry()))
+                    .equals(occClassPctm0.getDtExpiry()))
             {
                 //same expiry
                 if (occClassPctm.getPutcall()
-                    .equalsIgnoreCase("p"))
+                        .equalsIgnoreCase("p"))
                 {
                     //same expiry
                     //put
                     putsList.add(tempPotm);
 
                     if (tempPotm.getTransactionType()
-                        .equalsIgnoreCase("buytoopen"))
+                            .equalsIgnoreCase("buytoopen"))
                     {
                         //same expiry
                         //put
                         //long
                         longPut += 1;
-                    } else
+                    }
+                    else
                     {
                         //same expiry
                         //put
                         //short
                         shortPut += 1;
                     }
-                } else
+                }
+                else
                 {
                     //same expiry
                     //call
                     callsList.add(tempPotm);
                     if (tempPotm.getTransactionType()
-                        .equalsIgnoreCase("buytoopen"))
+                            .equalsIgnoreCase("buytoopen"))
                     {
                         //same expiry
                         //call
                         //long
                         longCall += 1;
-                    } else
+                    }
+                    else
                     {
                         //same expiry
                         //call
@@ -1042,11 +1091,12 @@ public class OpenPositionsOptionController
 
                 d1 = Math.abs(tempPotm.getUnits());
                 d2 = Math.abs(pom.getPositionOpenTransactionModels()
-                    .get(0)
-                    .getUnits());
+                        .get(0)
+                        .getUnits());
 
                 bSameUnits = d1.equals(d2);
-            } else
+            }
+            else
             {
                 //different expiry
                 //todo: break up into individual positions
@@ -1095,7 +1145,7 @@ public class OpenPositionsOptionController
         }
 
         if (longPut.equals(shortPut) && longPut.equals(longCall) && longPut
-            .equals(shortCall))
+                .equals(shortCall))
         {
             //equal parts longPut, shortPut, longCall, shortCall
             //todo: all different strikes
@@ -1108,7 +1158,8 @@ public class OpenPositionsOptionController
         pom.setPositionType(bCredit ? "SHORT" : "LONG");
 
         totalOpen = totalMktVal = 0.0;
-        for (PositionOpenTransactionModel potm : pom.getPositionOpenTransactionModels())
+        for (PositionOpenTransactionModel potm : pom.
+                getPositionOpenTransactionModels())
         {
             totalOpen += potm.getTotalOpen();
             totalMktVal += potm.getMktVal();
@@ -1117,8 +1168,8 @@ public class OpenPositionsOptionController
         }
 
         pom.setUnits(pom.getPositionOpenTransactionModels()
-            .get(0)
-            .getUnits());
+                .get(0)
+                .getUnits());
 
         pom.setPriceOpen(totalOpen / ((pom.getUnits() * 100.0)));
         pom.setPrice(totalMktVal / ((pom.getUnits() * 100.0)));
@@ -1130,7 +1181,8 @@ public class OpenPositionsOptionController
 
         //latest close date should be the last one?
         //not tested
-        pom.setDateOpen(pom.getPositionOpenTransactionModels().get(2).getDateOpen());
+        pom.setDateOpen(pom.getPositionOpenTransactionModels().get(2).
+                getDateOpen());
     }
 
     /**
@@ -1165,7 +1217,7 @@ public class OpenPositionsOptionController
         occTrans2 = new OCCclass(potm2.getEquityId());
 
         if (occTrans1.getPutcall()
-            .equalsIgnoreCase(occTrans2.getPutcall()))
+                .equalsIgnoreCase(occTrans2.getPutcall()))
         {
             //all are either put or call
             //vertical, calendar, diagonal
@@ -1174,14 +1226,15 @@ public class OpenPositionsOptionController
                 //all are either put or call
                 //all expiries are the same
                 if (potm1.getTransactionType()
-                    .equals(potm2.getTransactionType()))
+                        .equals(potm2.getTransactionType()))
                 {
                     //all are either put or call
                     //all expiries are the same
                     //all same transType (buytoopen ...)
                     //hit
                     ret = PositionOpenModel.TACTICID_CUSTOM;
-                } else
+                }
+                else
                 {
                     //all are either put or call
                     //all expiries are the same
@@ -1195,21 +1248,27 @@ public class OpenPositionsOptionController
                         //all strikes the same
                         //not hit
                         ret = PositionOpenModel.TACTICID_CUSTOM;
-                    } else
+                    }
+                    else
                     {
                         //all are either put or call
                         //all expiries are the same
                         //all different transType (buytoopen ...)
                         //hit
                         Double double1, double2;
-                        double1 = Math.abs(pom.getPositionOpenTransactionModels().get(0).getUnits());
-                        double2 = Math.abs(pom.getPositionOpenTransactionModels().get(1).getUnits());
+                        double1 = Math.abs(pom.
+                                getPositionOpenTransactionModels().get(0).
+                                getUnits());
+                        double2 = Math.abs(pom.
+                                getPositionOpenTransactionModels().get(1).
+                                getUnits());
                         ret = double1.equals(double2)
-                            ? PositionOpenModel.TACTICID_VERTICAL
-                            : PositionOpenModel.TACTICID_VERTICAL_CUSTOM;
+                                ? PositionOpenModel.TACTICID_VERTICAL
+                                : PositionOpenModel.TACTICID_VERTICAL_CUSTOM;
                     }
                 }
-            } else
+            }
+            else
             {
                 //all are either put or call
                 //all expiries are not the same
@@ -1221,29 +1280,37 @@ public class OpenPositionsOptionController
                     //all strikes are the same
                     //hit
                     if (pom.getPositionOpenTransactionModels().get(0).getUnits()
-                        .equals(pom.getPositionOpenTransactionModels().get(1).getUnits()))
+                            .equals(pom.getPositionOpenTransactionModels().
+                                    get(1).getUnits()))
                     {
                         ret = PositionOpenModel.TACTICID_CALENDAR;
-                    } else
+                    }
+                    else
                     {
                         ret = PositionOpenModel.TACTICID_CALENDAR_CUSTOM;
                     }
-                } else
+                }
+                else
                 {
                     if (pom.getPositionOpenTransactionModels()
-                        .get(0)
-                        .getTransactionType()
-                        .equalsIgnoreCase(pom.getPositionOpenTransactionModels().get(1).getTransactionType()))
+                            .get(0)
+                            .getTransactionType()
+                            .equalsIgnoreCase(pom.
+                                    getPositionOpenTransactionModels().get(1).
+                                    getTransactionType()))
                     {
                         //all are either put or call
                         //all expiries are not the same
                         //all strikes are not the same
                         //all transType (buytoopen ...) are the same
                         ret = PositionOpenModel.TACTICID_CUSTOM;
-                    } else
+                    }
+                    else
                     {
-                        if (pom.getPositionOpenTransactionModels().get(0).getUnits()
-                            .equals(pom.getPositionOpenTransactionModels().get(1).getUnits()))
+                        if (pom.getPositionOpenTransactionModels().get(0).
+                                getUnits()
+                                .equals(pom.getPositionOpenTransactionModels().
+                                        get(1).getUnits()))
                         {
                             //all are either put or call
                             //all expiries are not the same
@@ -1251,7 +1318,8 @@ public class OpenPositionsOptionController
                             //all transType (buytoopen ...) are not the same
                             //all units are the same
                             ret = PositionOpenModel.TACTICID_DIAGONAL;
-                        } else
+                        }
+                        else
                         {
                             //all are either put or call
                             //all expiries are not the same
@@ -1263,7 +1331,8 @@ public class OpenPositionsOptionController
                     }
                 }
             }
-        } else
+        }
+        else
         {
             //have puts and calls
             //straddle, strangle, collar
@@ -1271,7 +1340,8 @@ public class OpenPositionsOptionController
             {
                 //not all calls or puts
                 //all expiries are the same
-                if (potm1.getTransactionType().equalsIgnoreCase(potm2.getTransactionType()))
+                if (potm1.getTransactionType().equalsIgnoreCase(potm2.
+                        getTransactionType()))
                 {
                     //not all calls or puts
                     //all expiries are the same
@@ -1284,47 +1354,58 @@ public class OpenPositionsOptionController
                         //all same transType (buytoopen ...)
                         //all strikes the same
                         //not hit
-                        if (pom.getPositionOpenTransactionModels().get(0).getUnits()
-                            .equals(pom.getPositionOpenTransactionModels().get(1).getUnits()))
+                        if (pom.getPositionOpenTransactionModels().get(0).
+                                getUnits()
+                                .equals(pom.getPositionOpenTransactionModels().
+                                        get(1).getUnits()))
                         {
                             ret = PositionOpenModel.TACTICID_STRADDLE;
-                        } else
+                        }
+                        else
                         {
                             ret = PositionOpenModel.TACTICID_STRADDLE_CUSTOM;
                         }
-                    } else
+                    }
+                    else
                     {
                         //not all calls or puts
                         //all expiries are the same
                         //all same transType (buytoopen ...)
                         //all strikes are not the same
                         //hit
-                        if (pom.getPositionOpenTransactionModels().get(0).getUnits()
-                            .equals(pom.getPositionOpenTransactionModels().get(1).getUnits()))
+                        if (pom.getPositionOpenTransactionModels().get(0).
+                                getUnits()
+                                .equals(pom.getPositionOpenTransactionModels().
+                                        get(1).getUnits()))
                         {
                             ret = PositionOpenModel.TACTICID_STRANGLE;
-                        } else
+                        }
+                        else
                         {
                             ret = PositionOpenModel.TACTICID_STRANGLE_CUSTOM;
                         }
 
                     }
-                } else
+                }
+                else
                 {
                     //not all calls or puts
                     //all expiries are the same
                     //all not same transType (buytoopen ...)
                     //not hit
                     if (pom.getPositionOpenTransactionModels().get(0).getUnits()
-                        .equals(pom.getPositionOpenTransactionModels().get(1).getUnits()))
+                            .equals(pom.getPositionOpenTransactionModels().
+                                    get(1).getUnits()))
                     {
                         ret = PositionOpenModel.TACTICID_COLLAR;
-                    } else
+                    }
+                    else
                     {
                         ret = PositionOpenModel.TACTICID_COLLAR_CUSTOM;
                     }
                 }
-            } else
+            }
+            else
             {
                 //not all calls or puts
                 //all expiries are not the same
@@ -1336,11 +1417,13 @@ public class OpenPositionsOptionController
         pom.setTacticId(ret);
 
         //set the rest of the positionModel attributes
-        pom.setUnits(Double.min(pom.getPositionOpenTransactionModels().get(0).getUnits(),
-            pom.getPositionOpenTransactionModels().get(1).getUnits()));
+        pom.setUnits(Double.min(pom.getPositionOpenTransactionModels().get(0).
+                getUnits(),
+                pom.getPositionOpenTransactionModels().get(1).getUnits()));
 
         totalOpen = totalClose = totalMktVal = 0.0;
-        for (PositionOpenTransactionModel potm : pom.getPositionOpenTransactionModels())
+        for (PositionOpenTransactionModel potm : pom.
+                getPositionOpenTransactionModels())
         {
             totalOpen += potm.getTotalOpen();
             totalMktVal += potm.getMktVal();
@@ -1349,8 +1432,8 @@ public class OpenPositionsOptionController
         }
 
         pom.setUnits(pom.getPositionOpenTransactionModels()
-            .get(0)
-            .getUnits());
+                .get(0)
+                .getUnits());
 
         pom.setPriceOpen(totalOpen / ((pom.getUnits() * 100.0)));
         pom.setPrice(totalMktVal / ((pom.getUnits() * 100.0)));
@@ -1366,15 +1449,20 @@ public class OpenPositionsOptionController
 //        pom.setActPct(totalActPct);
         pom.setPositionType(totalOpen > 0.0 ? "SHORT" : "LONG");
 
-        pom.setDateOpen(pom.getPositionOpenTransactionModels().get(0).getDateOpen());
+        pom.setDateOpen(pom.getPositionOpenTransactionModels().get(0).
+                getDateOpen());
 
         if (pom.getPositionOpenTransactionModels().get(0).getDateOpen()
-            .after(pom.getPositionOpenTransactionModels().get(1).getDateOpen()))
+                .after(pom.getPositionOpenTransactionModels().get(1).
+                        getDateOpen()))
         {
-            pom.setDateOpen(pom.getPositionOpenTransactionModels().get(0).getDateOpen());
-        } else
+            pom.setDateOpen(pom.getPositionOpenTransactionModels().get(0).
+                    getDateOpen());
+        }
+        else
         {
-            pom.setDateOpen(pom.getPositionOpenTransactionModels().get(1).getDateOpen());
+            pom.setDateOpen(pom.getPositionOpenTransactionModels().get(1).
+                    getDateOpen());
         }
     }
 
@@ -1390,12 +1478,14 @@ public class OpenPositionsOptionController
         Double totalLMktVal;
         Double totalActPct;
 
-        if (pom.getPositionOpenTransactionModels().get(0).getTransactionType().equalsIgnoreCase("buytoopen"))
+        if (pom.getPositionOpenTransactionModels().get(0).getTransactionType().
+                equalsIgnoreCase("buytoopen"))
         {
             pom.setTacticId(PositionOpenModel.TACTICID_LONG);
         }
 
-        if (pom.getPositionOpenTransactionModels().get(0).getTransactionType().equalsIgnoreCase("selltoopen"))
+        if (pom.getPositionOpenTransactionModels().get(0).getTransactionType().
+                equalsIgnoreCase("selltoopen"))
         {
             pom.setTacticId(PositionOpenModel.TACTICID_SHORT);
         }
@@ -1414,7 +1504,7 @@ public class OpenPositionsOptionController
         {
 
             switch (pom.getPositionOpenTransactionModels()
-                .size())
+                    .size())
             {
                 case 1:
                     this.doOneLeg(pom);
@@ -1427,20 +1517,28 @@ public class OpenPositionsOptionController
                         pomTemp = new PositionOpenModel(pom);
 
                         pomTemp.getPositionOpenTransactionModels().remove(0);
-                        pomTemp.setPositionType(pomTemp.getPositionOpenTransactionModels().get(0)
-                            .getTransactionType().equalsIgnoreCase("buytoopen") ? "LONG" : "SHORT");
-                        pomTemp.setTacticId(pomTemp.getPositionOpenTransactionModels().get(0)
-                            .getTransactionType().equalsIgnoreCase("buytoopen")
-                            ? PositionOpenModel.TACTICID_LONG
-                            : PositionOpenModel.TACTICID_SHORT);
+                        pomTemp.setPositionType(pomTemp.
+                                getPositionOpenTransactionModels().get(0)
+                                .getTransactionType().equalsIgnoreCase(
+                                        "buytoopen") ? "LONG" : "SHORT");
+                        pomTemp.setTacticId(pomTemp.
+                                getPositionOpenTransactionModels().get(0)
+                                .getTransactionType().equalsIgnoreCase(
+                                        "buytoopen")
+                                        ? PositionOpenModel.TACTICID_LONG
+                                        : PositionOpenModel.TACTICID_SHORT);
 
                         pom.getPositionOpenTransactionModels().remove(1);
-                        pom.setPositionType(pom.getPositionOpenTransactionModels().get(0)
-                            .getTransactionType().equalsIgnoreCase("buytoopen") ? "LONG" : "SHORT");
-                        pom.setTacticId(pom.getPositionOpenTransactionModels().get(0)
-                            .getTransactionType().equalsIgnoreCase("buytoopen")
-                            ? PositionOpenModel.TACTICID_LONG
-                            : PositionOpenModel.TACTICID_SHORT);
+                        pom.setPositionType(pom.
+                                getPositionOpenTransactionModels().get(0)
+                                .getTransactionType().equalsIgnoreCase(
+                                        "buytoopen") ? "LONG" : "SHORT");
+                        pom.setTacticId(pom.getPositionOpenTransactionModels().
+                                get(0)
+                                .getTransactionType().equalsIgnoreCase(
+                                        "buytoopen")
+                                        ? PositionOpenModel.TACTICID_LONG
+                                        : PositionOpenModel.TACTICID_SHORT);
 
                         this.doAttributesPotm2Pom(pomTemp);
                         this.doAttributesPotm2Pom(pom);
@@ -1461,7 +1559,8 @@ public class OpenPositionsOptionController
 
                     this.doTwoLegs(pomTemp);
 
-                    if (!pomTemp.getTacticId().equals(PositionOpenModel.TACTICID_CUSTOM))
+                    if (!pomTemp.getTacticId().equals(
+                            PositionOpenModel.TACTICID_CUSTOM))
                     {
                         //0, 1 is a position
                         //add to addList
@@ -1484,11 +1583,12 @@ public class OpenPositionsOptionController
                     pomTemp = new PositionOpenModel(pom);
                     //test 1, 2
                     pomTemp.getPositionOpenTransactionModels()
-                        .remove(0);
+                            .remove(0);
 
                     this.doTwoLegs(pomTemp);
 
-                    if (!pomTemp.getTacticId().equals(PositionOpenModel.TACTICID_CUSTOM))
+                    if (!pomTemp.getTacticId().equals(
+                            PositionOpenModel.TACTICID_CUSTOM))
                     {
                         //1, 2 is a position
                         //add to addList
@@ -1513,7 +1613,8 @@ public class OpenPositionsOptionController
                     pomTemp.getPositionOpenTransactionModels().remove(1);
                     this.doTwoLegs(pomTemp);
 
-                    if (!pomTemp.getTacticId().equals(PositionOpenModel.TACTICID_CUSTOM))
+                    if (!pomTemp.getTacticId().equals(
+                            PositionOpenModel.TACTICID_CUSTOM))
                     {
                         //0, 2 is a position
                         //add to addList
@@ -1540,14 +1641,18 @@ public class OpenPositionsOptionController
                     pomTemp.getPositionOpenTransactionModels().remove(1);
                     //only one pctm in the pcm
                     //set the pctm equityId to the fctm equityId
-                    pomTemp.getPositionOpenTransactionModels().get(0).setEquityId(
-                        pomTemp.getPositionOpenTransactionModels().get(0).getFifoOpenTransactionModels()
-                            .get(0).getEquityId());
+                    pomTemp.getPositionOpenTransactionModels().get(0).
+                            setEquityId(
+                                    pomTemp.getPositionOpenTransactionModels().
+                                            get(0).
+                                            getFifoOpenTransactionModels()
+                                            .get(0).getEquityId());
 
-                    pomTemp.setTacticId(pomTemp.getPositionOpenTransactionModels().get(0)
-                        .getTransactionType().equalsIgnoreCase("buytoopen")
-                        ? PositionOpenModel.TACTICID_LONG
-                        : PositionOpenModel.TACTICID_SHORT);
+                    pomTemp.setTacticId(pomTemp.
+                            getPositionOpenTransactionModels().get(0)
+                            .getTransactionType().equalsIgnoreCase("buytoopen")
+                            ? PositionOpenModel.TACTICID_LONG
+                            : PositionOpenModel.TACTICID_SHORT);
                     pomAddList.add(pomTemp);
 
                     pomTemp = new PositionOpenModel(pom);
@@ -1556,10 +1661,11 @@ public class OpenPositionsOptionController
 
                     this.doAttributesPotm2Pom(pomTemp);
 
-                    pomTemp.setTacticId(pomTemp.getPositionOpenTransactionModels().get(0)
-                        .getTransactionType().equalsIgnoreCase("buytoopen")
-                        ? PositionOpenModel.TACTICID_LONG
-                        : PositionOpenModel.TACTICID_SHORT);
+                    pomTemp.setTacticId(pomTemp.
+                            getPositionOpenTransactionModels().get(0)
+                            .getTransactionType().equalsIgnoreCase("buytoopen")
+                            ? PositionOpenModel.TACTICID_LONG
+                            : PositionOpenModel.TACTICID_SHORT);
                     pomAddList.add(pomTemp);
 
                     pom.getPositionOpenTransactionModels().remove(0);
@@ -1567,14 +1673,16 @@ public class OpenPositionsOptionController
 
                     this.doAttributesPotm2Pom(pom);
 
-                    pom.setTacticId(pom.getPositionOpenTransactionModels().get(0)
-                        .getTransactionType().equalsIgnoreCase("buytoopen")
-                        ? PositionOpenModel.TACTICID_LONG
-                        : PositionOpenModel.TACTICID_SHORT);
+                    pom.setTacticId(pom.getPositionOpenTransactionModels().
+                            get(0)
+                            .getTransactionType().equalsIgnoreCase("buytoopen")
+                            ? PositionOpenModel.TACTICID_LONG
+                            : PositionOpenModel.TACTICID_SHORT);
                     break;
                 case 4:
                     this.doFourLegs(pom);
-                    if (pom.getTacticId().equals(PositionOpenModel.TACTICID_CUSTOM))
+                    if (pom.getTacticId().equals(
+                            PositionOpenModel.TACTICID_CUSTOM))
                     {
                         int i = 0;
                     }
@@ -1604,55 +1712,56 @@ public class OpenPositionsOptionController
 
         //get transactions for the joomlaId
         String sql = String.format(
-            FIFOOpenTransactionModel.SELECT_INCOMPLETE_BY_JOOMLAID_EQUITYTYPE,
-            "FIFOOpenTransactions",
-            this.userId,
-            equityType);
+                FIFOOpenTransactionModel.SELECT_INCOMPLETE_BY_JOOMLAID_EQUITYTYPE,
+                "FIFOOpenTransactions",
+                this.userId,
+                equityType);
         try (Connection con = CMDBController.getConnection();
-            PreparedStatement pStmt = con.prepareStatement(sql);
-            ResultSet rs = pStmt.executeQuery();)
+                PreparedStatement pStmt = con.prepareStatement(sql);
+                ResultSet rs = pStmt.executeQuery();)
         {
 
             while (rs.next())
             {
                 this.fifoOpenTransactionModels.add(new FIFOOpenTransactionModel(
-                    rs.getInt("DMAcctId"),
-                    rs.getInt("JoomlaId"),
-                    rs.getString("FiTId"),
-                    rs.getString("Ticker"),
-                    rs.getString("EquityId"),
-                    rs.getString("TransactionName"),
-                    rs.getDate("DateOpen"),
-                    rs.getDate("DateClose"),
-                    rs.getDate("DateExpire"),
-                    rs.getDouble("Units"),
-                    rs.getDouble("PriceOpen"),
-                    rs.getDouble("PriceClose"),
-                    rs.getDouble("TotalOpen"),
-                    rs.getDouble("TotalClose"),
-                    rs.getDouble("Gain"),
-                    rs.getDouble("GainPct"),
-                    rs.getString("EquityType"),
-                    rs.getString("PositionType"),
-                    rs.getString("TransactionType"),
-                    rs.getInt("Complete"),
-                    rs.getInt("Complete") == 1,
-                    rs.getString("OptionType"),
-                    rs.getDouble("StrikePrice"),
-                    rs.getInt("ShPerCtrct"),
-                    rs.getInt("Days"),
-                    rs.getInt("ClientSectorId"),
-                    rs.getDouble("MktVal"),
-                    rs.getDouble("LMktVal"),
-                    rs.getDouble("ActPct")));
+                        rs.getInt("DMAcctId"),
+                        rs.getInt("JoomlaId"),
+                        rs.getString("FiTId"),
+                        rs.getString("Ticker"),
+                        rs.getString("EquityId"),
+                        rs.getString("TransactionName"),
+                        rs.getDate("DateOpen"),
+                        rs.getDate("DateClose"),
+                        rs.getDate("DateExpire"),
+                        rs.getDouble("Units"),
+                        rs.getDouble("PriceOpen"),
+                        rs.getDouble("PriceClose"),
+                        rs.getDouble("TotalOpen"),
+                        rs.getDouble("TotalClose"),
+                        rs.getDouble("Gain"),
+                        rs.getDouble("GainPct"),
+                        rs.getString("EquityType"),
+                        rs.getString("PositionType"),
+                        rs.getString("TransactionType"),
+                        rs.getInt("Complete"),
+                        rs.getInt("Complete") == 1,
+                        rs.getString("OptionType"),
+                        rs.getDouble("StrikePrice"),
+                        rs.getInt("ShPerCtrct"),
+                        rs.getInt("Days"),
+                        rs.getInt("ClientSectorId"),
+                        rs.getDouble("MktVal"),
+                        rs.getDouble("LMktVal"),
+                        rs.getDouble("ActPct")));
             }
-        } catch (SQLException ex)
+        }
+        catch (SQLException ex)
         {
             CMHPIUtils.showDefaultMsg(
-                CMLanguageController.getDBErrorProp("Title"),
-                Thread.currentThread().getStackTrace()[1].getClassName(),
-                Thread.currentThread().getStackTrace()[1].getMethodName(),
-                ex.getMessage(), JOptionPane.ERROR_MESSAGE);
+                    CMLanguageController.getDBErrorProp("Title"),
+                    Thread.currentThread().getStackTrace()[1].getClassName(),
+                    Thread.currentThread().getStackTrace()[1].getMethodName(),
+                    ex.getMessage(), JOptionPane.ERROR_MESSAGE);
         }
     }
 }

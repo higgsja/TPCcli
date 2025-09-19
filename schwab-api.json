@@ -1,0 +1,12 @@
+{
+  "access_token": "I0.b2F1dGgyLmNkYy5zY2h3YWIuY29t.R0DQZrFbpe7ANH95dxoaV66qewj6quXX-hgxEmQbKpA@",
+  "refresh_token": "lK60ikLMKYBP6NetYkb4zSM-9ZsNpPfquOGoYVJ3KXoBSMfU370MkgR1uskniRbErd3iq2hRYAyZcndihpOkraOni3P_rxqYORwkEBVqKIa1ghiDIuxovaNgbsS6xi49-midOMCwovo@",
+  "refreshTokenExpiresAt": "2025-09-25T08:15:05.046677681Z",
+  "scope": "api",
+  "id_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0NDk4NzdjMzRhNGM0OWEyYjU5NDBkOTY3NjI0OGE1N2U0YWM3NjZlZTkyZDg0Njc5NmEyNzM2MzRlNzg0YTQzIiwiYXVkIjoieTVlWFZnMzNNQk9XV3lBT2tEVHVOUkZyMzVNbDFZNXAiLCJpc3MiOiJ1cm46Ly9hcGkuc2Nod2FiYXBpLmNvbSIsImV4cCI6MTc1ODE4NjkwNCwiaWF0IjoxNzU4MTgzMzA0LCJqdGkiOiJhZjllNGEwMy01MmI5LTQ0ZGEtOTAyMy03ZDFlOTQ4OTMwYTgifQ.cg7NW2ju8bnhQ5GD4WBLCxbKzWYW_PWEIDvDfV-3iHQ",
+  "issuedAt": "2025-09-18T08:15:05.046680518Z",
+  "source": "REFRESH_TOKEN",
+  "token_type": "Bearer",
+  "expires_in": 1800,
+  "expiresAt": "2025-09-18T08:45:05.046641478Z"
+}
