@@ -6,7 +6,6 @@ import com.higgstx.schwabapi.service.TokenManager;
 import com.higgstx.schwabapi.model.market.DailyPriceData;
 import com.higgstx.schwabapi.exception.SchwabApiException;
 import com.hpi.TPCCMcontrollers.*;
-import com.hpi.TPCCMprefs.*;
 import com.hpi.config.*;
 import com.hpi.entities.*;
 import java.sql.*;
@@ -16,46 +15,23 @@ import java.util.stream.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Utility controller for retrieving stock data from Schwab API and updating database
- */
 @Slf4j
 @RequiredArgsConstructor
-public class StockQuotesSchwabController
+public class OptionQuotesSchwabController
 {
 
     private final MarketDataService marketDataService;
     private final TokenManager tokenManager;
     private final ArrayList<String> equitySymbolList = new ArrayList<>();
     private final ArrayList<DailyPriceData> schwabDailyPriceData = new ArrayList<>();
-    
-    private final CMOfxDLFIModel baseModel = CMOfxDirectModel
-            .getFIMODELS().get(0);
 
     // Singleton pattern
-    private static StockQuotesSchwabController instance;
+    private static OptionQuotesSchwabController instance;
 
-    protected StockQuotesSchwabController()
+    protected OptionQuotesSchwabController()
     {
-        Properties props = new Properties();
-
-        props.setProperty("tda.client_id", this.baseModel.getClientId());
-        props.setProperty("tda.client_secret", this.baseModel.getClientSecret());
-        props.setProperty("tda.token.refresh", this.baseModel.getTokenRefresh());
-        props.setProperty("tda.account.id", this.baseModel.getAccountModels()
-                .get(0).getAcctNumber());
-        props.setProperty("tda.debug.bytes.length", this.baseModel.getDebugBytes());
-        props.setProperty("tda.redirect_url", this.baseModel.getRedirectUrl());
-        props.setProperty("tda.httpTimeout", this.baseModel.getHttpTimeout());
-        props.setProperty("tda.scope", "readonly");
-        props.setProperty("tda.auth_url", this.baseModel.getAuthUrl());
-        props.setProperty("tda.auth_token_url", this.baseModel.getAuthTokenUrl());
-        props.setProperty("tda.market_url", this.baseModel.getMarketUrl());
-        props.setProperty("tda.trader_url", this.baseModel.getTraderUrl());
-
         try
         {
-
             // Create services manually without Spring proxies to avoid module issues
             SchwabTestConfig config = new SchwabTestConfig();
             // Manually set properties from application.yml
@@ -107,11 +83,11 @@ public class StockQuotesSchwabController
         }
     }
 
-    public synchronized static StockQuotesSchwabController getInstance()
+    public synchronized static OptionQuotesSchwabController getInstance()
     {
         if (instance == null)
         {
-            instance = new StockQuotesSchwabController();
+            instance = new OptionQuotesSchwabController();
         }
         return instance;
     }
@@ -146,9 +122,7 @@ public class StockQuotesSchwabController
         catch (SchwabApiException e)
         {
             log.error("Daily update failed: {}", e.getMessage(), e);
-            System.out.println("Daily update failed: " + e.getMessage());
-//            throw new RuntimeException("Daily stock update failed", e);
-            System.exit(1);
+            throw new RuntimeException("Daily stock update failed", e);
         }
     }
 
@@ -243,10 +217,10 @@ public class StockQuotesSchwabController
 
         // Filter valid data first to avoid processing during batch
         List<DailyPriceData> validData = schwabDailyPriceData.stream()
-                .filter(DailyPriceData::isSuccess)
-                .collect(Collectors.toList());
-
-        errorCount = schwabDailyPriceData.size() - validData.size();
+        .filter(DailyPriceData::isSuccess)
+        .collect(Collectors.toList());
+    
+    errorCount = schwabDailyPriceData.size() - validData.size();
         try (Connection con = CMDBController.getConnection())
         {
             con.setAutoCommit(false);
@@ -440,22 +414,14 @@ public class StockQuotesSchwabController
     // Status and utility methods
     public boolean isServiceReady()
     {
-        if (marketDataService.isReady())
-        {
-            // put new tokens into the config file
-            // todo:  not done
-            this.baseModel.setTokenRefresh(marketDataService.getTokenManager()
-                    .getCurrentTokens().getRefreshToken());
-            this.baseModel.setAuthUrl(marketDataService.getTokenManager()
-                    .getCurrentTokens().getAccessToken());
-        }
         return marketDataService.isReady();
     }
 
-//    public String getTokenStatus()
-//    {
-//        return marketDataService.getTokenStatus();
-//    }
+    public String getTokenStatus()
+    {
+        return marketDataService.getTokenStatus();
+    }
+
     public int getSymbolCount()
     {
         return equitySymbolList.size();
