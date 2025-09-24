@@ -37,44 +37,62 @@ public class StockQuotesSchwabController
 
     protected StockQuotesSchwabController()
     {
-        Properties props = new Properties();
-
-        props.setProperty("tda.client_id", this.baseModel.getClientId());
-        props.setProperty("tda.client_secret", this.baseModel.getClientSecret());
-        props.setProperty("tda.token.refresh", this.baseModel.getTokenRefresh());
-        props.setProperty("tda.account.id", this.baseModel.getAccountModels()
-                .get(0).getAcctNumber());
-        props.setProperty("tda.debug.bytes.length", this.baseModel.getDebugBytes());
-        props.setProperty("tda.redirect_url", this.baseModel.getRedirectUrl());
-        props.setProperty("tda.httpTimeout", this.baseModel.getHttpTimeout());
-        props.setProperty("tda.scope", "readonly");
-        props.setProperty("tda.auth_url", this.baseModel.getAuthUrl());
-        props.setProperty("tda.auth_token_url", this.baseModel.getAuthTokenUrl());
-        props.setProperty("tda.market_url", this.baseModel.getMarketUrl());
-        props.setProperty("tda.trader_url", this.baseModel.getTraderUrl());
+//        Properties props = new Properties();
+//
+//        props.setProperty("tda.client_id", this.baseModel.getClientId());
+//        props.setProperty("tda.client_secret", this.baseModel.getClientSecret());
+//        props.setProperty("tda.token.refresh", this.baseModel.getTokenRefresh());
+//        props.setProperty("tda.account.id", this.baseModel.getAccountModels()
+//                .get(0).getAcctNumber());
+//        props.setProperty("tda.debug.bytes.length", this.baseModel.getDebugBytes());
+//        props.setProperty("tda.redirect_url", this.baseModel.getRedirectUrl());
+//        props.setProperty("tda.httpTimeout", this.baseModel.getHttpTimeout());
+//        props.setProperty("tda.scope", this.baseModel.getScope());
+////        props.setProperty("tda.scope", "readonly");
+//        props.setProperty("tda.auth_url", this.baseModel.getAuthUrl());
+//        props.setProperty("tda.auth_token_url", this.baseModel.getAuthTokenUrl());
+//        props.setProperty("tda.market_url", this.baseModel.getMarketUrl());
+//        props.setProperty("tda.trader_url", this.baseModel.getTraderUrl());
 
         try
         {
 
             // Create services manually without Spring proxies to avoid module issues
             SchwabTestConfig config = new SchwabTestConfig();
-            // Manually set properties from application.yml
-            config.setAppKey("y5eXVg33MBOWWyAOkDTuNRFr35Ml1Y5p");
-            config.setAppSecret("hy9B5A0tf7KcYE1A");
-            config.setTokenPropertiesFile("schwab-api.json");
+            
+            // use config data
+            config.setAppKey(this.baseModel.getClientId());
+            config.setAppSecret(this.baseModel.getClientSecret());
+            config.setTokenPropertiesFile(("schwab-api.json"));
+
+            
+//            // Manually set properties from application.yml
+//            config.setAppKey("y5eXVg33MBOWWyAOkDTuNRFr35Ml1Y5p");
+//            config.setAppSecret("hy9B5A0tf7KcYE1A");
+//            config.setTokenPropertiesFile("schwab-api.json");
 
             // Set URLs
             SchwabTestConfig.Urls urls = new SchwabTestConfig.Urls();
-            urls.setAuth("https://api.schwabapi.com/v1/oauth/authorize");
-            urls.setToken("https://api.schwabapi.com/v1/oauth/token");
-            urls.setMarketData("https://api.schwabapi.com/marketdata/v1");
+            //use config data
+            urls.setAuth(this.baseModel.getAuthUrl());
+            urls.setToken(this.baseModel.getAuthTokenUrl());
+            urls.setMarketData(this.baseModel.getMarketUrl());
+            
+//            urls.setAuth("https://api.schwabapi.com/v1/oauth/authorize");
+//            urls.setToken("https://api.schwabapi.com/v1/oauth/token");
+//            urls.setMarketData("https://api.schwabapi.com/marketdata/v1");
             config.setUrls(urls);
 
             // Set defaults
             SchwabTestConfig.Defaults defaults = new SchwabTestConfig.Defaults();
-            defaults.setRedirectUri("https://127.0.0.1:8182");
-            defaults.setScope("readonly");
-            defaults.setHttpTimeoutMs(30000);
+            // use config
+            defaults.setRedirectUri(this.baseModel.getRedirectUrl());
+            defaults.setScope(this.baseModel.getScope());
+            defaults.setHttpTimeoutMs(Integer.parseInt(this.baseModel.getHttpTimeout()));
+            
+//            defaults.setRedirectUri("https://127.0.0.1:8182");
+//            defaults.setScope("readonly");
+//            defaults.setHttpTimeoutMs(30000);
             config.setDefaults(defaults);
 
             // Create services directly
@@ -127,6 +145,19 @@ public class StockQuotesSchwabController
         {
             schwabDailyPriceData.clear();
             marketDataService.ensureServiceReady("daily stock update");
+            
+            // at this point tokens are up to date
+            CMOfxDirectModel.getFIMODELS().get(0)
+                    .setAccessToken(marketDataService.getTokenManager()
+                            .getCurrentTokens().getAccessToken());
+            CMOfxDirectModel.getFIMODELS().get(0)
+                    .setTokenRefresh(marketDataService.getTokenManager()
+                            .getCurrentTokens().getRefreshToken());
+            
+            // write to config
+            CMOfxDirectModel.getInstance().setbDirty(Boolean.TRUE);
+            CMOfxDirectModel.getInstance().write();
+                
 
             getEquitySymbolList();
             if (equitySymbolList.isEmpty())
@@ -448,6 +479,9 @@ public class StockQuotesSchwabController
                     .getCurrentTokens().getRefreshToken());
             this.baseModel.setAuthUrl(marketDataService.getTokenManager()
                     .getCurrentTokens().getAccessToken());
+            
+            // having set new token elements, save to the config file
+    CMOfxDirectModel.getInstance().write();
         }
         return marketDataService.isReady();
     }

@@ -40,11 +40,11 @@
                 <version>1.5.18</version>
             </dependency>
             
-             <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>1.5.18</version>
-        </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>1.5.18</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
@@ -77,14 +77,14 @@
     <dependencies>
         
         <dependency>
-    <groupId>ch.qos.logback</groupId>
-    <artifactId>logback-classic</artifactId>
-</dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
 
-<dependency>
-    <groupId>org.slf4j</groupId>
-    <artifactId>jcl-over-slf4j</artifactId>
-</dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+        </dependency>
         
         <!-- Jakarta Annotations for Spring Boot 3.x with Java 17 -->
         <dependency>
@@ -322,4 +322,87 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <!-- This profile is active by default -->
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <!-- Default properties for development -->
+                <spring.profiles.active>dev</spring.profiles.active>
+                <build.environment>development</build.environment>
+                <log.level>DEBUG</log.level>
+            </properties>
+            <build>
+                <resources>
+                    <!-- Include a different set of resources for production -->
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <filtering>true</filtering>
+                        <excludes>
+                            <!-- Exclude dev-specific config files -->
+                            <exclude>logback-prod.xml</exclude>
+                        </excludes>
+                    </resource>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <includes>
+                            <!-- Include prod-specific config files -->
+                            <include>logback-dev.xml</include>
+                            <!--<include>application-prod.properties</include>-->
+                        </includes>
+                        <filtering>true</filtering>
+                    </resource>
+                </resources>
+            </build>
+            
+        </profile>
+        <profile>
+            <id>production</id>
+            <properties>
+                <!-- Production-specific properties -->
+                <spring.profiles.active>prod</spring.profiles.active>
+                <build.environment>production</build.environment>
+                <log.level>INFO</log.level>
+            </properties>
+            <build>
+                <plugins> 
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.14.0</version>
+                        <configuration>
+                            <debug>false</debug>
+                            <source>17</source>
+                            <target>17</target>
+                            <optimize>true</optimize> <!-- Enable optimization -->
+                        </configuration>
+                    </plugin>
+                </plugins>
+                
+                <resources>
+                    <!-- Include a different set of resources for production -->
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <filtering>true</filtering>
+                        <excludes>
+                            <!-- Exclude dev-specific config files -->
+                            <exclude>logback-dev.xml</exclude>
+                        </excludes>
+                    </resource>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <includes>
+                            <!-- Include prod-specific config files -->
+                            <include>logback-prod.xml</include>
+                            <!--<include>application-prod.properties</include>-->
+                        </includes>
+                        <filtering>true</filtering>
+                    </resource>
+                </resources>
+            </build>
+        </profile>
+    </profiles>
 </project>

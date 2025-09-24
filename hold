@@ -1,0 +1,135 @@
+[[1;34mINFO[m] Scanning for projects...
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m---------------------------< [0;36mcom.hpi:TPCcli[0;1m >---------------------------[m
+[[1;34mINFO[m] [1mBuilding TPCcli 1.0[m
+[[1;34mINFO[m] [1m--------------------------------[ jar ]---------------------------------[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-clean-plugin:3.2.0:clean[m [1m(default-clean)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] Deleting /home/omega/OneDrive/Documents/Dev/TPCcli/target
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-enforcer-plugin:3.6.1:enforce[m [1m(enforce-rules)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] Rule 0: org.apache.maven.enforcer.rules.dependency.DependencyConvergence passed
+[[1;34mINFO[m] Rule 1: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[[1;34mINFO[m] Rule 2: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-resources-plugin:3.3.1:resources[m [1m(default-resources)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] Copying 3 resources from src/main/resources to target/classes
+[[1;34mINFO[m] Copying 0 resource from src/main/resources-prod to target/classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-compiler-plugin:3.14.0:compile[m [1m(default-compile)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] Recompiling the module because of [1mchanged source code[m.
+[[1;34mINFO[m] Compiling 100 source files with javac [parameters release 17] to target/classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-resources-plugin:3.3.1:testResources[m [1m(default-testResources)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] skip non existing resourceDirectory /home/omega/OneDrive/Documents/Dev/TPCcli/src/test/resources
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-compiler-plugin:3.14.0:testCompile[m [1m(default-testCompile)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] Recompiling the module because of [1mchanged dependency[m.
+[[1;34mINFO[m] Compiling 36 source files with javac [parameters release 17] to target/test-classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-surefire-plugin:3.0.0:test[m [1m(default-test)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] Tests are skipped.
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-jar-plugin:3.3.0:jar[m [1m(default-jar)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] Building jar: /home/omega/OneDrive/Documents/Dev/TPCcli/target/TPCcli.jar
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mspring-boot-maven-plugin:3.1.5:repackage[m [1m(repackage)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] Replacing main artifact /home/omega/OneDrive/Documents/Dev/TPCcli/target/TPCcli.jar with repackaged archive, adding nested dependencies in BOOT-INF/.
+[[1;34mINFO[m] The original artifact has been renamed to /home/omega/OneDrive/Documents/Dev/TPCcli/target/TPCcli.jar.original
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-install-plugin:3.1.1:install[m [1m(default-install)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] Installing /home/omega/OneDrive/Documents/Dev/TPCcli/pom.xml to /home/omega/.m2/repository/com/hpi/TPCcli/1.0/TPCcli-1.0.pom
+[[1;34mINFO[m] Installing /home/omega/OneDrive/Documents/Dev/TPCcli/target/TPCcli.jar to /home/omega/.m2/repository/com/hpi/TPCcli/1.0/TPCcli-1.0.jar
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-dependency-plugin:3.5.0:copy-dependencies[m [1m(default-cli)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] Copying logback-classic-1.5.18.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/logback-classic-1.5.18.jar
+[[1;34mINFO[m] Copying logback-core-1.5.18.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/logback-core-1.5.18.jar
+[[1;34mINFO[m] Copying slf4j-api-2.0.17.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/slf4j-api-2.0.17.jar
+[[1;34mINFO[m] Copying jcl-over-slf4j-2.0.9.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/jcl-over-slf4j-2.0.9.jar
+[[1;34mINFO[m] Copying jakarta.annotation-api-2.1.1.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/jakarta.annotation-api-2.1.1.jar
+[[1;34mINFO[m] Copying java-oauth-sdk-1.0.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/java-oauth-sdk-1.0.jar
+[[1;34mINFO[m] Copying schwab-api-lib-2.0.0-SNAPSHOT.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/schwab-api-lib-2.0.0-SNAPSHOT.jar
+[[1;34mINFO[m] Copying okhttp-4.10.0.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/okhttp-4.10.0.jar
+[[1;34mINFO[m] Copying okio-jvm-3.0.0.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/okio-jvm-3.0.0.jar
+[[1;34mINFO[m] Copying kotlin-stdlib-common-1.8.22.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/kotlin-stdlib-common-1.8.22.jar
+[[1;34mINFO[m] Copying kotlin-stdlib-1.8.22.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/kotlin-stdlib-1.8.22.jar
+[[1;34mINFO[m] Copying annotations-13.0.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/annotations-13.0.jar
+[[1;34mINFO[m] Copying okhttp-tls-4.10.0.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/okhttp-tls-4.10.0.jar
+[[1;34mINFO[m] Copying kotlin-stdlib-jdk8-1.8.22.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/kotlin-stdlib-jdk8-1.8.22.jar
+[[1;34mINFO[m] Copying kotlin-stdlib-jdk7-1.8.22.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/kotlin-stdlib-jdk7-1.8.22.jar
+[[1;34mINFO[m] Copying logging-interceptor-4.10.0.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/logging-interceptor-4.10.0.jar
+[[1;34mINFO[m] Copying mockwebserver-4.10.0.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/mockwebserver-4.10.0.jar
+[[1;34mINFO[m] Copying junit-4.13.2.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/junit-4.13.2.jar
+[[1;34mINFO[m] Copying hamcrest-core-2.2.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/hamcrest-core-2.2.jar
+[[1;34mINFO[m] Copying hamcrest-2.2.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/hamcrest-2.2.jar
+[[1;34mINFO[m] Copying lombok-1.18.38.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/lombok-1.18.38.jar
+[[1;34mINFO[m] Copying TPCCM-1.0.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/TPCCM-1.0.jar
+[[1;34mINFO[m] Copying commons-math3-3.6.1.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/commons-math3-3.6.1.jar
+[[1;34mINFO[m] Copying commons-dbcp2-2.9.0.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/commons-dbcp2-2.9.0.jar
+[[1;34mINFO[m] Copying commons-pool2-2.11.1.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/commons-pool2-2.11.1.jar
+[[1;34mINFO[m] Copying jfreechart-1.5.6.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/jfreechart-1.5.6.jar
+[[1;34mINFO[m] Copying jcommon-1.0.24.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/jcommon-1.0.24.jar
+[[1;34mINFO[m] Copying jsoup-1.21.1.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/jsoup-1.21.1.jar
+[[1;34mINFO[m] Copying commons-io-2.20.0.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/commons-io-2.20.0.jar
+[[1;34mINFO[m] Copying commons-lang3-3.12.0.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/commons-lang3-3.12.0.jar
+[[1;34mINFO[m] Copying jackson-annotations-2.16.1.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/jackson-annotations-2.16.1.jar
+[[1;34mINFO[m] Copying gson-2.10.1.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/gson-2.10.1.jar
+[[1;34mINFO[m] Copying args4j-2.37.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/args4j-2.37.jar
+[[1;34mINFO[m] Copying mariadb-java-client-3.5.4.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/mariadb-java-client-3.5.4.jar
+[[1;34mINFO[m] Copying spring-boot-autoconfigure-3.1.5.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/spring-boot-autoconfigure-3.1.5.jar
+[[1;34mINFO[m] Copying spring-boot-3.1.5.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/spring-boot-3.1.5.jar
+[[1;34mINFO[m] Copying spring-context-6.0.13.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/spring-context-6.0.13.jar
+[[1;34mINFO[m] Copying spring-aop-6.0.13.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/spring-aop-6.0.13.jar
+[[1;34mINFO[m] Copying spring-beans-6.0.13.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/spring-beans-6.0.13.jar
+[[1;34mINFO[m] Copying spring-expression-6.0.13.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/spring-expression-6.0.13.jar
+[[1;34mINFO[m] Copying spring-boot-test-3.1.5.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/spring-boot-test-3.1.5.jar
+[[1;34mINFO[m] Copying spring-boot-starter-3.1.5.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/spring-boot-starter-3.1.5.jar
+[[1;34mINFO[m] Copying spring-core-6.0.13.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/spring-core-6.0.13.jar
+[[1;34mINFO[m] Copying spring-jcl-6.0.13.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/spring-jcl-6.0.13.jar
+[[1;34mINFO[m] Copying snakeyaml-1.33.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/snakeyaml-1.33.jar
+[[1;34mINFO[m] Copying jackson-dataformat-xml-2.16.1.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/jackson-dataformat-xml-2.16.1.jar
+[[1;34mINFO[m] Copying jackson-core-2.16.1.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/jackson-core-2.16.1.jar
+[[1;34mINFO[m] Copying jackson-databind-2.16.1.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/jackson-databind-2.16.1.jar
+[[1;34mINFO[m] Copying stax2-api-4.2.1.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/stax2-api-4.2.1.jar
+[[1;34mINFO[m] Copying woodstox-core-6.5.1.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/woodstox-core-6.5.1.jar
+[[1;34mINFO[m] Copying td-ameritrade-client-2.4.3.1.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/td-ameritrade-client-2.4.3.1.jar
+[[1;34mINFO[m] Copying hibernate-validator-8.0.1.Final.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/hibernate-validator-8.0.1.Final.jar
+[[1;34mINFO[m] Copying jakarta.validation-api-3.0.2.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/jakarta.validation-api-3.0.2.jar
+[[1;34mINFO[m] Copying jboss-logging-3.5.3.Final.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/jboss-logging-3.5.3.Final.jar
+[[1;34mINFO[m] Copying classmate-1.5.1.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/classmate-1.5.1.jar
+[[1;34mINFO[m] Copying hibernate-validator-annotation-processor-8.0.1.Final.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/hibernate-validator-annotation-processor-8.0.1.Final.jar
+[[1;34mINFO[m] Copying jakarta.el-api-5.0.1.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/jakarta.el-api-5.0.1.jar
+[[1;34mINFO[m] Copying tomcat-embed-el-10.1.15.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/dependency/tomcat-embed-el-10.1.15.jar
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-enforcer-plugin:3.6.1:enforce[m [1m(enforce-rules)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] Rule 0: org.apache.maven.enforcer.rules.dependency.DependencyConvergence passed
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-resources-plugin:3.3.1:resources[m [1m(default-resources)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] Copying 3 resources from src/main/resources to target/classes
+[[1;34mINFO[m] Copying 0 resource from src/main/resources-prod to target/classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-compiler-plugin:3.14.0:compile[m [1m(default-compile)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] Nothing to compile - all classes are up to date.
+[[1;33mWARNING[m] Overwriting artifact's file from /home/omega/OneDrive/Documents/Dev/TPCcli/target/TPCcli.jar to /home/omega/OneDrive/Documents/Dev/TPCcli/target/classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-resources-plugin:3.3.1:testResources[m [1m(default-testResources)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] skip non existing resourceDirectory /home/omega/OneDrive/Documents/Dev/TPCcli/src/test/resources
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-compiler-plugin:3.14.0:testCompile[m [1m(default-testCompile)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] Recompiling the module because of [1mchanged dependency[m.
+[[1;34mINFO[m] Compiling 36 source files with javac [parameters release 17] to target/test-classes
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-surefire-plugin:3.0.0:test[m [1m(default-test)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] Tests are skipped.
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mmaven-jar-plugin:3.3.0:jar[m [1m(default-jar)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] 
+[[1;34mINFO[m] [1m--- [0;32mspring-boot-maven-plugin:3.1.5:repackage[m [1m(repackage)[m @ [36mTPCcli[0;1m ---[m
+[[1;34mINFO[m] Replacing main artifact /home/omega/OneDrive/Documents/Dev/TPCcli/target/TPCcli.jar with repackaged archive, adding nested dependencies in BOOT-INF/.
+[[1;34mINFO[m] The original artifact has been renamed to /home/omega/OneDrive/Documents/Dev/TPCcli/target/TPCcli.jar.original
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] [1;32mBUILD SUCCESS[m
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
+[[1;34mINFO[m] Total time:  3.326 s
+[[1;34mINFO[m] Finished at: 2025-09-24T12:05:28-05:00
+[[1;34mINFO[m] [1m------------------------------------------------------------------------[m
